@@ -13,11 +13,12 @@ namespace MpfTest
 		{
 			var client = new MpfClient();
 			using (await client.Connect()) {
-				Console.WriteLine("Known Coils: ");
-				foreach (var coil in await client.KnownCoils())
-				{
-					Console.WriteLine("  - " + coil);
-				}
+				Console.WriteLine("Starting up...");
+				await client.Start();
+				// foreach (var coil in await client.KnownCoils())
+				// {
+				// 	Console.WriteLine("  - " + coil);
+				// }
 			}
 		}
 	}
