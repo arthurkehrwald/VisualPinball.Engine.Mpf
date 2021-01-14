@@ -11,14 +11,12 @@ namespace MpfTest
 	{
 		static async Task Main(string[] args)
 		{
-			var client = new MpfClient();
-			using (await client.Connect()) {
-				Console.WriteLine("Starting up...");
-				await client.Start();
-				// foreach (var coil in await client.KnownCoils())
-				// {
-				// 	Console.WriteLine("  - " + coil);
-				// }
+			using (var client = await new MpfClient().Connect()) {
+				var coils = await client.KnownCoils();
+				Console.WriteLine($"Known Coils ({coils.Count()}): ");
+				foreach (var coil in coils) {
+					Console.WriteLine("  - " + coil);
+				}
 			}
 		}
 	}
