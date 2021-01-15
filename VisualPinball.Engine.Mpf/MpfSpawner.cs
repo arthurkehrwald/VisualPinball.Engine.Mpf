@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,25 +17,30 @@ namespace VisualPinball.Engine.Mpf
 
 		public MpfSpawner(string machineFolder)
 		{
-
 			_pwd = Path.GetDirectoryName(machineFolder);
 			_machineFolder = Path.GetFileName(machineFolder);
 		}
 
 		public async Task Spawn()
 		{
+			var mpfExe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "mpf.exe" : "mpf";
+			var mpfExePath = GetFullPath(mpfExe);
+			if (mpfExePath == null) {
+				throw new InvalidOperationException($"Could not find {mpfExe}!");
+			}
+
 			_thread = new Thread(() => {
 				Thread.CurrentThread.IsBackground = true;
-				RunMpf();
+				RunMpf(mpfExePath);
 			});
 			_thread.Start();
 			await _ready.WaitAsync();
 		}
 
-		private void RunMpf()
+		private void RunMpf(string mpfExePath)
 		{
 			var info = new ProcessStartInfo {
-				FileName = @"C:\Tools\Python37\scripts\mpf.exe",
+				FileName = mpfExePath,
 				WorkingDirectory = _pwd,
 				Arguments = $"\"{_machineFolder}\" -t -v -V -b",
 				UseShellExecute = false,
@@ -49,6 +55,22 @@ namespace VisualPinball.Engine.Mpf
 					process.WaitForExit();
 				}
 			}
+		}
+
+		private static string GetFullPath(string fileName)
+		{
+			if (File.Exists(fileName)) {
+				return Path.GetFullPath(fileName);
+			}
+
+			var values = Environment.GetEnvironmentVariable("PATH");
+			foreach (var path in values.Split(Path.PathSeparator)) {
+				var fullPath = Path.Combine(path, fileName);
+				if (File.Exists(fullPath)) {
+					return fullPath;
+				}
+			}
+			return null;
 		}
 	}
 }
