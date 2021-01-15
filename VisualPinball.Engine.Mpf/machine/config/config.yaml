@@ -1,4 +1,4 @@
-﻿#config_version=5
+#config_version=5
 
 hardware:
   platform: visual_pinball_engine

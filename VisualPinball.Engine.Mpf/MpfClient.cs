@@ -7,16 +7,20 @@ using Mpf.Vpe;
 
 namespace VisualPinball.Engine.Mpf
 {
-	public class MpfClient : IDisposable
+	internal class MpfClient : IDisposable
 	{
 		private Channel _channel;
 		private MpfHardwareService.MpfHardwareServiceClient _client;
 
-		public async Task<MpfClient> Connect(string ipPort = "localhost:50051") {
+		public async Task Connect(string ipPort = "localhost:50051") {
 			Console.WriteLine($"Connecting to {ipPort}...");
 			_channel = new Channel(ipPort, ChannelCredentials.Insecure);
 			await _channel.ConnectAsync();
 			_client = new MpfHardwareService.MpfHardwareServiceClient(_channel);
+		}
+
+		public async Task Start()
+		{
 			var machineState = new MachineState();
 			var initialSwitches = new Dictionary<string, bool> {
 				{"sw_11", false},
@@ -24,19 +28,17 @@ namespace VisualPinball.Engine.Mpf
 			machineState.InitialSwitchStates.Add(initialSwitches);
 			_client.Start(machineState);
 			await Task.Delay(1000);
-			return this;
 		}
 
-		public async Task<IEnumerable<CoilDescription>> KnownCoils() {
+		public async Task<MachineDescription> GetMachineDescription() {
 			AssertConnected();
-			var client = new MpfHardwareService.MpfHardwareServiceClient(_channel);
-			var details = client.GetMachineDescription(new EmptyRequest());
-			return details.Coils;
+			return await _client.GetMachineDescriptionAsync(new EmptyRequest());
 		}
 
 		public void Dispose()
 		{
 			Console.WriteLine("Disconnecting...");
+			_client.Quit(new QuitRequest());
 			_channel.ShutdownAsync();
 			Console.WriteLine("Done!");
 		}

@@ -16,7 +16,7 @@ After that, `mpf --version` should return at least **MPF v0.55.0-dev.11**.
 
 ## Usage
 
-[TBD]
+`mpf machine -t -v -V -b`
 
 ## License
 
