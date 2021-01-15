@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MpfLib\MpfLib.csproj">
+    <ProjectReference Include="..\VisualPinball.Engine.Mpf\VisualPinball.Engine.Mpf.csproj">
       <Project>{4886c204-99c9-40ab-a71f-043af931cbf7}</Project>
-      <Name>MpfLib</Name>
+      <Name>VisualPinball.Engine.Mpf</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

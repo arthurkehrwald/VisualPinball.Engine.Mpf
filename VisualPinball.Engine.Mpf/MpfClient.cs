@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Google.Protobuf.Collections;
 using Mpf.Vpe;
 
-namespace MpfLib
+namespace VisualPinball.Engine.Mpf
 {
 	public class MpfClient : IDisposable
 	{
