@@ -19,15 +19,12 @@ namespace VisualPinball.Engine.Mpf
 			_client = new MpfHardwareService.MpfHardwareServiceClient(_channel);
 		}
 
-		public async Task Start()
+		public async Task Start(Dictionary<string, bool> initialSwitches)
 		{
 			var machineState = new MachineState();
-			var initialSwitches = new Dictionary<string, bool> {
-				{"sw_11", false},
-			};
 			machineState.InitialSwitchStates.Add(initialSwitches);
 			_client.Start(machineState);
-			await Task.Delay(1000);
+			await Task.Delay(1000); // TODO remove once it's blocking
 		}
 
 		public async Task<MachineDescription> GetMachineDescription() {
