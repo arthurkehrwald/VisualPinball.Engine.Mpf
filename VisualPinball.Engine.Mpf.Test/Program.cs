@@ -9,7 +9,7 @@ namespace MpfTest
 	{
 		static async Task Main(string[] args)
 		{
-			var mpfApi = new MpfApi(@"C:\Development\VisualPinball.Engine.Mpf\VisualPinball.Engine.Mpf\machine");
+			var mpfApi = new MpfApi(@"../../../VisualPinball.Engine.Mpf/machine");
 
 			await mpfApi.Launch();
 

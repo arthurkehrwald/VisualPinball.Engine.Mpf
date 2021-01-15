@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Mpf.Vpe;
 
@@ -12,7 +13,7 @@ namespace VisualPinball.Engine.Mpf
 
 		public MpfApi(string machineFolder)
 		{
-			_spawner = new MpfSpawner(machineFolder);
+			_spawner = new MpfSpawner(Path.GetFullPath(machineFolder));
 		}
 
 		/// <summary>
