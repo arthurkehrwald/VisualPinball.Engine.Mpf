@@ -1,5 +1,5 @@
 # Visual Pinball Engine - MPF Gamelogic Engine
-*Use the Mission Pinball Framework to drive VPE*
+*Enables the Mission Pinball Framework to drive VPE*
 
 ## Setup
 
@@ -16,7 +16,22 @@ After that, `mpf --version` should return at least **MPF v0.55.0-dev.11**.
 
 ## Usage
 
-`mpf machine -t -v -V -b`
+Test code in the repo. Init:
+
+```cs
+var mpfApi = new MpfApi(@"path\to\machine\folder");
+
+// spawn MPF and connect to it
+await mpfApi.Launch();
+
+// start MPF
+await mpfApi.Start();
+
+// retrieve machine configuration
+var descr = await mpfApi.GetMachineDescription();
+
+Console.WriteLine($"Description: {descr}");
+```
 
 ## License
 
