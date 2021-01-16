@@ -1,0 +1,37 @@
+{
+  "name": "org.visualpinball.engine.missionpinball",
+  "version": "0.0.1-preview.1",
+  "displayName": "Visual Pinball Engine (Mission Pinball Framework)",
+  "description": "Mission Pinball Framework support",
+  "keywords": [
+    "Unity",
+    "Mission Pinball Framework"
+  ],
+  "unity": "2020.2",
+  "unityRelease": "0f1",
+  "dependencies": {
+    "org.visualpinball.engine.unity": "0.0.1-preview.24"
+  },
+  "author": "freezy <freezy@vpdb.io>",
+  "contributors": [
+    "ravarcade <ravarcade@gmail.com>",
+    "shaderbytes",
+    "jsm174 <jsm174@gmail.com>",
+    "Roger Bocksnick <roger.bocksnick@gmail.com>",
+    "VrôÕnsh <vroonsh@free.fr>",
+    "Rowlan",
+    "Kleis Auke Wolthuizen <info@kleisauke.nl>",
+    "Eli Curtz <eli@nuprometheus.com>",
+    "Pandeli"
+  ],
+  "documentationUrl": "https://docs.visualpinball.org/",
+  "changelogUrl": "https://docs.visualpinball.org/CHANGELOG.html",
+  "licensesUrl": "https://github.com/VisualPinball/VisualPinball.Unity.Hdrp/blob/master/LICENSE",
+  "repository": {
+    "url": "https://github.com/VisualPinball/VisualPinball.Engine.Mpf.git",
+    "type": "git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.visualpinball.org"
+  }
+}
