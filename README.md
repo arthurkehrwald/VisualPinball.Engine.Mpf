@@ -25,7 +25,7 @@ var mpfApi = new MpfApi(@"path\to\machine\folder");
 await mpfApi.Launch();
 
 // start MPF
-await mpfApi.Start();
+mpfApi.Start();
 
 // retrieve machine configuration
 var descr = await mpfApi.GetMachineDescription();

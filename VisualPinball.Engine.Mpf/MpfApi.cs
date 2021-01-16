@@ -1,4 +1,15 @@
-﻿using System;
+﻿// Visual Pinball Engine
+// Copyright (C) 2021 freezy and VPE Team
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -19,19 +30,21 @@ namespace VisualPinball.Engine.Mpf
 		/// <summary>
 		/// Launches MPF in the background and connects to it via gRPC.
 		/// </summary>
-		public async Task Launch()
+		/// <param name="port">gRPC port to use for MPC/VPE communication</param>
+		/// <returns></returns>
+		public async Task Launch(int port = 50051)
 		{
 			await _spawner.Spawn();
-			await _client.Connect();
+			await _client.Connect($"localhost:{port}");
 		}
 
 		/// <summary>
 		/// Starts MPF, i.e. it will start polling for switches and sending events.
 		/// </summary>
 		/// <param name="initialSwitches">Initial switch states of the machine</param>
-		public async Task Start(Dictionary<string, bool> initialSwitches = null)
+		public void Start(Dictionary<string, bool> initialSwitches = null)
 		{
-			await _client.Start(initialSwitches ?? new Dictionary<string, bool>());
+			_client.Start(initialSwitches ?? new Dictionary<string, bool>());
 		}
 
 		/// <summary>
