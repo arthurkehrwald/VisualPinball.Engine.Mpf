@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using VisualPinball.Engine.Mpf;
 
@@ -9,6 +10,7 @@ namespace MpfTest
 	{
 		static async Task Main(string[] args)
 		{
+			var s = Stopwatch.StartNew();
 			var mpfApi = new MpfApi(@"../../../VisualPinball.Engine.Mpf/machine");
 
 			await mpfApi.Launch();
@@ -18,7 +20,7 @@ namespace MpfTest
 			});
 
 			var descr = await mpfApi.GetMachineDescription();
-			Console.WriteLine($"Description: {descr}");
+			Console.WriteLine($"Description: {descr} in {s.ElapsedMilliseconds}ms");
 		}
 	}
 }

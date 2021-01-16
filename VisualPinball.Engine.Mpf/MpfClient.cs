@@ -24,7 +24,6 @@ namespace VisualPinball.Engine.Mpf
 			var machineState = new MachineState();
 			machineState.InitialSwitchStates.Add(initialSwitches);
 			_client.Start(machineState);
-			await Task.Delay(1000); // TODO remove once it's blocking
 		}
 
 		public async Task<MachineDescription> GetMachineDescription() {
