@@ -44,8 +44,8 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public void Dispose()
 		{
 			Console.WriteLine("Disconnecting...");
-			_client.Quit(new QuitRequest());
-			_channel.ShutdownAsync();
+			_client?.Quit(new QuitRequest());
+			_channel?.ShutdownAsync();
 			Console.WriteLine("Done!");
 		}
 

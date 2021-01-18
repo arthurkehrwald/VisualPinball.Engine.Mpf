@@ -33,6 +33,13 @@ var descr = await mpfApi.GetMachineDescription();
 Console.WriteLine($"Description: {descr}");
 ```
 
+## Unity
+
+This currently need the following compiler flags in order to compile:
+
+- `GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE`
+- `GRPC_DISABLE_PROTOBUF_BUFFER_SERIALIZATION`
+
 ## License
 
 [MIT](LICENSE)

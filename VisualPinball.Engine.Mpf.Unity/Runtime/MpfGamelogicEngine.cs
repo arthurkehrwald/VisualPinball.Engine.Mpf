@@ -31,9 +31,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		public event EventHandler<LampEventArgs> OnLampChanged;
 		public event EventHandler<LampsEventArgs> OnLampsChanged;
+		public event EventHandler<LampColorEventArgs> OnLampColorChanged;
 		public event EventHandler<CoilEventArgs> OnCoilChanged;
 
-		public void OnInit(TableApi tableApi, BallManager ballManager)
+		public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
 		{
 		}
 
@@ -45,9 +46,13 @@ namespace VisualPinball.Engine.Mpf.Unity
 		{
 		}
 
+		public void OnDestroy()
+		{
+		}
+
 		public async void RefreshFromMpf()
 		{
-			using var mpfApi = new MpfApi(@"../../../../VisualPinball.Engine.Mpf/machine");
+			using var mpfApi = new MpfApi(@"../../VisualPinball.Engine.Mpf/VisualPinball.Engine.Mpf/machine");
 			await mpfApi.Launch();
 
 			mpfApi.Start(new Dictionary<string, bool> {
@@ -57,10 +62,6 @@ namespace VisualPinball.Engine.Mpf.Unity
 			var descr = await mpfApi.GetMachineDescription();
 
 			Debug.Log(descr);
-		}
-
-		public void OnDestroy()
-		{
 		}
 	}
 }
