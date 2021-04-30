@@ -1,2 +1,0 @@
-# don't commit DLLs - the VS solution creates them.
-Plugins/**/*.dll
