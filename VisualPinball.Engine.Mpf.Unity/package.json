@@ -10,7 +10,6 @@
   "unity": "2020.3",
   "unityRelease": "0f1",
   "dependencies": {
-    "org.visualpinball.engine.unity": "0.0.1-preview.56"
   },
   "author": "freezy <freezy@vpdb.io>",
   "contributors": [
@@ -18,7 +17,7 @@
   ],
   "documentationUrl": "https://docs.visualpinball.org/plugins/mpf/",
   "changelogUrl": "https://docs.visualpinball.org/CHANGELOG.html",
-  "licensesUrl": "https://github.com/VisualPinball/VisualPinball.Engine.PinMAME/blob/master/LICENSE",
+  "licensesUrl": "https://github.com/VisualPinball/VisualPinball.Engine.Mpf/blob/master/LICENSE",
   "repository": {
     "url": "https://github.com/VisualPinball/VisualPinball.Engine.Mpf.git",
     "type": "git"
