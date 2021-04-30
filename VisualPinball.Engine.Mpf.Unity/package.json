@@ -1,6 +1,6 @@
 {
   "name": "org.visualpinball.engine.missionpinball",
-  "version": "0.0.1-preview.6",
+  "version": "0.0.1-preview.7",
   "displayName": "Visual Pinball Engine (Mission Pinball Framework)",
   "description": "Mission Pinball Framework support",
   "keywords": [
@@ -9,8 +9,7 @@
   ],
   "unity": "2020.3",
   "unityRelease": "0f1",
-  "dependencies": {
-  },
+  "dependencies": {},
   "author": "freezy <freezy@vpdb.io>",
   "contributors": [
     "jsm174 <jsm174@gmail.com>"
