@@ -8,8 +8,10 @@
     "Mission Pinball Framework"
   ],
   "unity": "2021.2",
-  "unityRelease": "4f1",
-  "dependencies": {},
+  "unityRelease": "7f1",
+  "dependencies": {
+    "org.visualpinball.engine.unity": "0.0.1-preview.84"
+  },
   "author": "freezy <freezy@vpdb.io>",
   "contributors": [
     "jsm174 <jsm174@gmail.com>"
