@@ -33,7 +33,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public GamelogicEngineCoil[] AvailableCoils => availableCoils;
 		public GamelogicEngineLamp[] AvailableLamps => availableLamps;
 		public GamelogicEngineWire[] AvailableWires => availableWires;
-
+		public event EventHandler<EventArgs> OnStarted;
 		public event EventHandler<LampEventArgs> OnLampChanged;
 		public event EventHandler<LampsEventArgs> OnLampsChanged;
 		public event EventHandler<LampColorEventArgs> OnLampColorChanged;
@@ -105,6 +105,8 @@ namespace VisualPinball.Engine.Mpf.Unity
 				}
 			}
 			_api.StartGame(mappedSwitchStatuses);
+
+			OnStarted?.Invoke(this, EventArgs.Empty);
 			Logger.Info("Game started.");
 		}
 
