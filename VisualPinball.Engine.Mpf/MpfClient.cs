@@ -16,6 +16,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mpf.Vpe;
 using NLog;
+using Grpc.Net.Client;
+using Grpc.Net.Client.Web;
+using System.Net.Http;
 
 namespace VisualPinball.Engine.Mpf
 {
@@ -32,7 +35,7 @@ namespace VisualPinball.Engine.Mpf
 		public event EventHandler<RemoveHardwareRuleRequest> OnRemoveHardwareRule;
 		public event EventHandler<SetDmdFrameRequest> OnDmdFrame;
 
-		private Channel _channel;
+		private GrpcChannel _channel;
 		private MpfHardwareService.MpfHardwareServiceClient _client;
 
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -40,10 +43,16 @@ namespace VisualPinball.Engine.Mpf
 		private AsyncServerStreamingCall<Commands> _commandStream;
 		private AsyncClientStreamingCall<SwitchChanges, EmptyResponse> _switchStream;
 
-		public void Connect(string serverIpPort = "127.0.0.1:50051")
+		public void Connect(string uri = "http://127.0.0.1:50051")
 		{
-			Logger.Info($"Connecting to {serverIpPort}...");
-			_channel = new Channel(serverIpPort, ChannelCredentials.Insecure);
+			Logger.Info($"Connecting to {uri}...");
+
+			_channel = GrpcChannel.ForAddress(uri, new GrpcChannelOptions
+			{
+				Credentials = Grpc.Core.ChannelCredentials.Insecure,
+				HttpHandler = new GrpcWebHandler(new HttpClientHandler())
+			});
+
 			_client = new MpfHardwareService.MpfHardwareServiceClient(_channel);
 		}
 

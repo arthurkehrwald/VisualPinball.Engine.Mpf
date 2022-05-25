@@ -32,7 +32,7 @@ namespace VisualPinball.Engine.Mpf
 			var client = new MpfClient();
 			var spawner = new MpfSpawner(machineFolder);
 			spawner.Spawn(new MpfConsoleOptions { ShowLogInsteadOfConsole = true });
-			client.Connect("localhost:50051");
+			client.Connect("http://localhost:50051");
 			client.StartGame(new Dictionary<string, bool>(), false);
 			var description = client.GetMachineDescription();
 			client.Shutdown();
@@ -48,7 +48,7 @@ namespace VisualPinball.Engine.Mpf
 		public void Launch(MpfConsoleOptions options, int port = 50051)
 		{
 			_spawner.Spawn(options);
-			Client.Connect($"localhost:{port}");
+			Client.Connect($"http://localhost:{port}");
 		}
 
 		/// <summary>

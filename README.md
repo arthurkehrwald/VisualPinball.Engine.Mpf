@@ -20,13 +20,6 @@ Currently, only the first two projects are contained in the provided VS
 solution. In the future we might add the Unity project with its dependencies,
 but for now you'll need to open it through Unity.
 
-### Binaries
-
-Both gRPC and Protobuf come with dependencies that conflict with Unity's, namely
-`System.Buffers`, `System.Memory` and `System.Runtime.CompilerServices`. To
-solve this, we disable assembly validation for `Google.Protobuf.dll` and `Grpc.Core.dll`
-via the plugin inspector.
-
 ### Unity Package
 
 The goal of this repo is to use it within Unity. In order to do that, open the
@@ -62,23 +55,39 @@ In order to not accidentally commit those files, we recommend to ignore them:
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/VisualPinball.Engine.Mpf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Google.Protobuf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Grpc.Core.Api.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Grpc.Core.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/libgrpc_csharp_ext.so.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx-x64/VisualPinball.Engine.Mpf.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx-x64/Google.Protobuf.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx-x64/Grpc.Core.Api.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx-x64/Grpc.Core.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx-x64/libgrpc_csharp_ext.dylib.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Grpc.Net.Client.Web.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Grpc.Net.Client.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Grpc.Net.Common.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/Microsoft.Extensions.Logging.Abstractions.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/System.Diagnostics.DiagnosticSource.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/linux-x64/System.Runtime.CompilerServices.Unsafe.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/VisualPinball.Engine.Mpf.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Google.Protobuf.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Grpc.Core.Api.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Grpc.Net.Client.Web.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Grpc.Net.Client.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Grpc.Net.Common.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/Microsoft.Extensions.Logging.Abstractions.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/System.Diagnostics.DiagnosticSource.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/osx/System.Runtime.CompilerServices.Unsafe.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/VisualPinball.Engine.Mpf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Google.Protobuf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Grpc.Core.Api.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Grpc.Core.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/grpc_csharp_ext.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Grpc.Net.Client.Web.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Grpc.Net.Client.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Grpc.Net.Common.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/Microsoft.Extensions.Logging.Abstractions.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/System.Diagnostics.DiagnosticSource.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x64/System.Runtime.CompilerServices.Unsafe.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/VisualPinball.Engine.Mpf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Google.Protobuf.dll.meta
 git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Grpc.Core.Api.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Grpc.Core.dll.meta
-git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/grpc_csharp_ext.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Grpc.Net.Client.Web.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Grpc.Net.Client.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Grpc.Net.Common.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/Microsoft.Extensions.Logging.Abstractions.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/System.Diagnostics.DiagnosticSource.dll.meta
+git update-index --assume-unchanged VisualPinball.Engine.Mpf.Unity/Plugins/win-x86/System.Runtime.CompilerServices.Unsafe.dll.meta
 ```
 
 ## License

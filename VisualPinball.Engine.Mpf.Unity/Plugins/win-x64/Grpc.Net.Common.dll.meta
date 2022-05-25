@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e34056fa05ad4b5fa44f11642fdea465
+guid: e36f31a1bbaf40d8acd084b84781ee0e
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -18,10 +18,10 @@ PluginImporter:
       settings:
         Exclude Editor: 0
         Exclude Android: 1
-        Exclude Linux64: 0
+        Exclude Linux64: 1
         Exclude OSXUniversal: 1
         Exclude Win: 1
-        Exclude Win64: 1
+        Exclude Win64: 0
         Exclude iOS: 1
         Exclude tvOS: 1
   - first:
@@ -31,9 +31,9 @@ PluginImporter:
       settings:
         CPU: x86_64
         DefaultValueInitialized: true
-        OS: Linux
+        OS: Windows
   - first:
-      Standalone: Linux64
+      Standalone: Win64
     second:
       enabled: 1
       settings:
