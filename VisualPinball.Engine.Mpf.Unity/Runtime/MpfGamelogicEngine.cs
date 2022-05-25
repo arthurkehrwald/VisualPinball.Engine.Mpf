@@ -69,16 +69,15 @@ namespace VisualPinball.Engine.Mpf.Unity
 			_player = player;
 			_switchIds.Clear();
 			foreach (var sw in requiredSwitches) {
-				_switchIds[sw.Id] = sw.InternalId;
-				_switchNames[sw.InternalId.ToString()] = sw.Id;
+				_switchNames[sw.Id] = sw.Id;
 			}
 			_coilNames.Clear();
 			foreach (var coil in requiredCoils) {
-				_coilNames[coil.InternalId.ToString()] = coil.Id;
+				_coilNames[coil.Id] = coil.Id;
 			}
 			_lampNames.Clear();
 			foreach (var lamp in requiredLamps) {
-				_lampNames[lamp.InternalId.ToString()] = lamp.Id;
+				_lampNames[lamp.Id] = lamp.Id;
 			}
 			_api = new MpfApi(machineFolder);
 			_api.Launch(new MpfConsoleOptions {

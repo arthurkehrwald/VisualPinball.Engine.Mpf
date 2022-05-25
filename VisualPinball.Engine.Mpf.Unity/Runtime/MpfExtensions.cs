@@ -24,7 +24,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public static IEnumerable<GamelogicEngineSwitch> GetSwitches(this MachineDescription md)
 		{
 			return md.Switches.Select(sw => {
-				var gleSw = new GamelogicEngineSwitch(sw.Name, int.Parse(sw.HardwareNumber)) {
+				var gleSw = new GamelogicEngineSwitch(sw.Name) {
 					NormallyClosed = sw.SwitchType.ToLower() == "nc"
 				};
 
@@ -66,7 +66,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public static IEnumerable<GamelogicEngineCoil> GetCoils(this MachineDescription md)
 		{
 			var coils = md.Coils.Select(coil => {
-				var gleCoil = new GamelogicEngineCoil(coil.Name, int.Parse(coil.HardwareNumber));
+				var gleCoil = new GamelogicEngineCoil(coil.Name);
 
 				if (Regex.Match(coil.Name, "(l(eft)?_?flipper|flipper_?l(eft)?_?(main)?)$", RegexOptions.IgnoreCase).Success) {
 					gleCoil.Description = "Left Flipper";
@@ -103,7 +103,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public static IEnumerable<GamelogicEngineLamp> GetLights(this MachineDescription md)
 		{
 			// todo color
-			return md.Lights.Select(light => new GamelogicEngineLamp(light.Name, int.Parse(light.HardwareChannelColor)));
+			return md.Lights.Select(light => new GamelogicEngineLamp(light.Name));
 		}
 	}
 }

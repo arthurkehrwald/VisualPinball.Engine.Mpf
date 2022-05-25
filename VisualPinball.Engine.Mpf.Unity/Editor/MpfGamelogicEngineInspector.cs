@@ -85,7 +85,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 			if (_mpfEngine.RequestedCoils.Length + _mpfEngine.RequestedSwitches.Length + _mpfEngine.RequestedLamps.Length > 0) {
 				if (_foldoutSwitches = EditorGUILayout.BeginFoldoutHeaderGroup(_foldoutSwitches, "Switches")) {
 					foreach (var sw in _mpfEngine.RequestedSwitches) {
-						EditorGUILayout.LabelField(new GUIContent($"  [{sw.InternalId}] {sw.Id} ", Icons.Switch(sw.NormallyClosed, IconSize.Small)));
+						EditorGUILayout.LabelField(new GUIContent($"  {sw.Id} ", Icons.Switch(sw.NormallyClosed, IconSize.Small)));
 					}
 					if (_mpfEngine.RequestedSwitches.Length == 0) {
 						EditorGUILayout.LabelField("No switches in this machine.", naStyle);
@@ -95,7 +95,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 
 				if (_foldoutCoils = EditorGUILayout.BeginFoldoutHeaderGroup(_foldoutCoils, "Coils")) {
 					foreach (var sw in _mpfEngine.RequestedCoils) {
-						EditorGUILayout.LabelField(new GUIContent($"  [{sw.InternalId}] {sw.Id} ", Icons.Coil(IconSize.Small)));
+						EditorGUILayout.LabelField(new GUIContent($"  {sw.Id} ", Icons.Coil(IconSize.Small)));
 					}
 					if (_mpfEngine.RequestedCoils.Length == 0) {
 						EditorGUILayout.LabelField("No coils in this machine.", naStyle);
@@ -105,7 +105,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 
 				if (_foldoutLamps = EditorGUILayout.BeginFoldoutHeaderGroup(_foldoutLamps, "Lamps")) {
 					foreach (var sw in _mpfEngine.RequestedLamps) {
-						EditorGUILayout.LabelField(new GUIContent($"  [{sw.InternalId}] {sw.Id} ", Icons.Light(IconSize.Small)));
+						EditorGUILayout.LabelField(new GUIContent($"  {sw.Id} ", Icons.Light(IconSize.Small)));
 					}
 					if (_mpfEngine.RequestedLamps.Length == 0) {
 						EditorGUILayout.LabelField("No lamps in this machine.", naStyle);
