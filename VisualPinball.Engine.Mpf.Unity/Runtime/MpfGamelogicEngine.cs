@@ -179,7 +179,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		{
 			if (_coilNames.ContainsKey(e.CoilNumber)) {
 				Logger.Info($"<-- coil {e.CoilNumber} ({_coilNames[e.CoilNumber]}): true");
-				_player.Queue(() => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], true)));
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], true)));
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 			}
@@ -189,7 +189,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		{
 			if (_coilNames.ContainsKey(e.CoilNumber)) {
 				Logger.Info($"<-- coil {e.CoilNumber} ({_coilNames[e.CoilNumber]}): false");
-				_player.Queue(() => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], false)));
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], false)));
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 			}
@@ -204,7 +204,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 					OnCoilChanged?.Invoke(this, new CoilEventArgs(coilId, false));
 				});
 				Logger.Info($"<-- coil {e.CoilNumber} ({coilId}): true (pulse {e.PulseMs}ms)");
-				_player.Queue(() => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilId, true)));
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilId, true)));
 
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
@@ -221,7 +221,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 					Logger.Error("Unmapped MPF lamp " + fade.LightNumber);
 				}
 			}
-			_player.Queue(() => {
+			_player.ScheduleAction(1, () => {
 				OnLampsChanged?.Invoke(this, new LampsEventArgs(args.ToArray()));
 			});
 		}
@@ -237,7 +237,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 				return;
 			}
 
-			_player.Queue(() => _player.AddHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
+			_player.ScheduleAction(1, () => _player.AddHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
 			Logger.Info($"<-- new hardware rule: {_switchNames[e.SwitchNumber]} -> {_coilNames[e.CoilNumber]}.");
 		}
 
@@ -252,7 +252,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 				return;
 			}
 
-			_player.Queue(() => _player.RemoveHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
+			_player.ScheduleAction(1, () => _player.RemoveHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
 			Logger.Info($"<-- remove hardware rule: {_switchNames[e.SwitchNumber]} -> {_coilNames[e.CoilNumber]}.");
 		}
 
