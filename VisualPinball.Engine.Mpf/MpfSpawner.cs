@@ -105,7 +105,8 @@ namespace VisualPinball.Engine.Mpf
 			}
 
 			// go through all PATHs
-			var values = Environment.GetEnvironmentVariable("PATH");
+			var values = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
+			values += Path.PathSeparator + Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
 			foreach (var path in values.Split(Path.PathSeparator)) {
 				var fullPath = Path.Combine(path, fileName);
 				if (File.Exists(fullPath)) {
