@@ -49,9 +49,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		public string machineFolder;
 
-		[SerializeField] private GamelogicEngineSwitch[] requiredSwitches = Array.Empty<GamelogicEngineSwitch>();
-		[SerializeField] private GamelogicEngineCoil[] requiredCoils = Array.Empty<GamelogicEngineCoil>();
-		[SerializeField] private GamelogicEngineLamp[] requiredLamps = Array.Empty<GamelogicEngineLamp>();
+		[SerializeField] private SerializedGamelogicEngineSwitch[] requiredSwitches = Array.Empty<SerializedGamelogicEngineSwitch>();
+		[SerializeField] private SerializedGamelogicEngineCoil[] requiredCoils = Array.Empty<SerializedGamelogicEngineCoil>();
+		[SerializeField] private SerializedGamelogicEngineLamp[] requiredLamps = Array.Empty<SerializedGamelogicEngineLamp>();
 		[SerializeField] private GamelogicEngineWire[] availableWires = Array.Empty<GamelogicEngineWire>();
 
 		private Player _player;
