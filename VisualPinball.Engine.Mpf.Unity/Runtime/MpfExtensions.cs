@@ -31,8 +31,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 				if (Regex.Match(sw.Name, "l(eft)?_?flipper|flipper_?l(eft)?", RegexOptions.IgnoreCase).Success) {
 					gleSw.Description = "Left Flipper Button";
 					gleSw.InputActionHint = InputConstants.ActionLeftFlipper;
+				}
 
-				} if (Regex.Match(sw.Name, "r(ight)?_?flipper|flipper_?r(ight)?", RegexOptions.IgnoreCase).Success) {
+				if (Regex.Match(sw.Name, "r(ight)?_?flipper|flipper_?r(ight)?", RegexOptions.IgnoreCase).Success) {
 					gleSw.Description = "Right Flipper Button";
 					gleSw.InputActionHint = InputConstants.ActionRightFlipper;
 
@@ -104,6 +105,42 @@ namespace VisualPinball.Engine.Mpf.Unity
 		{
 			// todo color
 			return md.Lights.Select(light => new SerializedGamelogicEngineLamp(light.Name));
+		}
+
+		public static Dictionary<string, string> GetSwitchNumbersByNameDict(this MachineDescription md)
+		{
+			Dictionary<string, string> ret = new();
+
+			foreach (SwitchDescription sw in md.Switches)
+			{
+				ret[sw.Name] = sw.HardwareNumber;
+			}
+
+			return ret;
+		}
+
+		public static Dictionary<string, string> GetCoilNumbersByNameDict(this MachineDescription md)
+		{
+			Dictionary<string, string> ret = new();
+
+			foreach (CoilDescription coil in md.Coils)
+			{
+				ret[coil.Name] = coil.HardwareNumber;
+			}
+
+			return ret;
+		}
+
+		public static Dictionary<string, string> GetLampNumbersByNameDict(this MachineDescription md)
+		{
+			Dictionary<string, string> ret = new();
+
+			foreach (LightDescription light in md.Lights)
+			{
+				ret[light.Name] = light.HardwareChannelColor;
+			}
+
+			return ret;
 		}
 	}
 }

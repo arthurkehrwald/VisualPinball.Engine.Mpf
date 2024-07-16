@@ -41,7 +41,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public GamelogicEngineWire[] AvailableWires => availableWires;
 
 #pragma warning disable CS0067
-        public event EventHandler<EventArgs> OnStarted;
+		public event EventHandler<EventArgs> OnStarted;
 		public event EventHandler<LampEventArgs> OnLampChanged;
 		public event EventHandler<LampsEventArgs> OnLampsChanged;
 		public event EventHandler<CoilEventArgs> OnCoilChanged;
@@ -51,7 +51,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public event EventHandler<SwitchEventArgs2> OnSwitchChanged;
 #pragma warning restore CS0067
 
-        [NonSerialized]
+		[NonSerialized]
 		private MpfApi _api;
 
 		public string MachineFolder
@@ -67,10 +67,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 			set
 			{
 #if UNITY_EDITOR
-                Undo.RecordObject(this, "Set machine folder");
-                PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+				Undo.RecordObject(this, "Set machine folder");
+				PrefabUtility.RecordPrefabInstancePropertyModifications(this);
 #endif
-                if (value.Contains("StreamingAssets/"))
+				if (value.Contains("StreamingAssets/"))
 				{
 					_machineFolder = "./StreamingAssets/" + value.Split("StreamingAssets/")[1];
 				}
@@ -87,11 +87,14 @@ namespace VisualPinball.Engine.Mpf.Unity
 		[SerializeField] private SerializedGamelogicEngineLamp[] requiredLamps = Array.Empty<SerializedGamelogicEngineLamp>();
 		[SerializeField] private GamelogicEngineWire[] availableWires = Array.Empty<GamelogicEngineWire>();
 
+		// MPF uses names and numbers (for hardware mapping) to identify switches, coils, and lamps.
+		// VPE only uses names, which is why the classes in the arrays above do not store the numbers.
+		// These dictionaries store the numbers externally to make communication with MPF possible.
+		[SerializeField] private MpfNameNumberDictionary _mpfSwitchNumbers = new();
+		[SerializeField] private MpfNameNumberDictionary _mpfCoilNumbers = new();
+		[SerializeField] private MpfNameNumberDictionary _mpfLampNumbers = new();
+
 		private Player _player;
-		private Dictionary<string, int> _switchIds = new Dictionary<string, int>();
-		private Dictionary<string, string> _switchNames = new Dictionary<string, string>();
-		private Dictionary<string, string> _coilNames = new Dictionary<string, string>();
-		private Dictionary<string, string> _lampNames = new Dictionary<string, string>();
 
 		private bool _displaysAnnounced;
 
@@ -102,20 +105,12 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
 		{
 			_player = player;
-			_switchIds.Clear();
-			foreach (var sw in requiredSwitches) {
-				_switchNames[sw.Id] = sw.Id;
-			}
-			_coilNames.Clear();
-			foreach (var coil in requiredCoils) {
-				_coilNames[coil.Id] = coil.Id;
-			}
-			_lampNames.Clear();
-			foreach (var lamp in requiredLamps) {
-				_lampNames[lamp.Id] = lamp.Id;
-			}
 			_api = new MpfApi(MachineFolder);
-			_api.Launch(ConsoleOptions);
+			_api.Launch(new MpfConsoleOptions {
+				ShowLogInsteadOfConsole = false,
+				VerboseLogging = true,
+				UseMediaController = true,
+			});
 
 			_api.Client.OnEnableCoil += OnEnableCoil;
 			_api.Client.OnDisableCoil += OnDisableCoil;
@@ -128,8 +123,8 @@ namespace VisualPinball.Engine.Mpf.Unity
 			// map initial switches
 			var mappedSwitchStatuses = new Dictionary<string, bool>();
 			foreach (var swName in player.SwitchStatuses.Keys) {
-				if (_switchIds.ContainsKey(swName)) {
-					mappedSwitchStatuses[_switchIds[swName].ToString()] = player.SwitchStatuses[swName].IsSwitchClosed;
+				if (_mpfSwitchNumbers.ContainsName(swName)) {
+					mappedSwitchStatuses[_mpfSwitchNumbers.GetNumberByName(swName)] = player.SwitchStatuses[swName].IsSwitchClosed;
 				} else {
 					Logger.Warn($"Unknown intial switch name \"{swName}\".");
 				}
@@ -151,9 +146,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		public void Switch(string id, bool isClosed)
 		{
-			if (_switchIds.ContainsKey(id)) {
-				Logger.Info($"--> switch {id} ({_switchIds[id]}): {isClosed}");
-				_api.Switch(_switchIds[id].ToString(), isClosed);
+			if (_mpfSwitchNumbers.ContainsName(id)) {
+				var number = _mpfSwitchNumbers.GetNumberByName(id);
+				Logger.Info($"--> switch {id} ({number}): {isClosed}");
+				_api.Switch(number, isClosed);
 			} else {
 				Logger.Error("Unmapped MPF switch " + id);
 			}
@@ -181,6 +177,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 				requiredSwitches = md.GetSwitches().ToArray();
 				requiredCoils = md.GetCoils().ToArray();
 				requiredLamps = md.GetLights().ToArray();
+				_mpfSwitchNumbers.Init(md.GetSwitchNumbersByNameDict());
+				_mpfCoilNumbers.Init(md.GetCoilNumbersByNameDict());
+				_mpfLampNumbers.Init(md.GetLampNumbersByNameDict());
 			}
 		}
 
@@ -211,9 +210,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		private void OnEnableCoil(object sender, EnableCoilRequest e)
 		{
-			if (_coilNames.ContainsKey(e.CoilNumber)) {
-				Logger.Info($"<-- coil {e.CoilNumber} ({_coilNames[e.CoilNumber]}): true");
-				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], true)));
+			if (_mpfCoilNumbers.ContainsNumber(e.CoilNumber)) {
+				var coilName = _mpfCoilNumbers.GetNameByNumber(e.CoilNumber);
+				Logger.Info($"<-- coil {e.CoilNumber} ({coilName}): true");
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilName, true)));
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 			}
@@ -221,9 +221,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		private void OnDisableCoil(object sender, DisableCoilRequest e)
 		{
-			if (_coilNames.ContainsKey(e.CoilNumber)) {
-				Logger.Info($"<-- coil {e.CoilNumber} ({_coilNames[e.CoilNumber]}): false");
-				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(_coilNames[e.CoilNumber], false)));
+			if (_mpfCoilNumbers.ContainsNumber(e.CoilNumber)) {
+				var coilName = _mpfCoilNumbers.GetNameByNumber(e.CoilNumber);
+				Logger.Info($"<-- coil {e.CoilNumber} ({coilName}): false");
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilName, false)));
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 			}
@@ -231,15 +232,14 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		private void OnPulseCoil(object sender, PulseCoilRequest e)
 		{
-			if (_coilNames.ContainsKey(e.CoilNumber)) {
-				var coilId = _coilNames[e.CoilNumber];
+			if (_mpfCoilNumbers.ContainsNumber(e.CoilNumber)) {
+				var coilName = _mpfCoilNumbers.GetNameByNumber(e.CoilNumber);
 				_player.ScheduleAction(e.PulseMs * 10, () => {
-					Logger.Info($"<-- coil {coilId} ({e.CoilNumber}): false (pulse)");
-					OnCoilChanged?.Invoke(this, new CoilEventArgs(coilId, false));
+					Logger.Info($"<-- coil {coilName} ({e.CoilNumber}): false (pulse)");
+					OnCoilChanged?.Invoke(this, new CoilEventArgs(coilName, false));
 				});
-				Logger.Info($"<-- coil {e.CoilNumber} ({coilId}): true (pulse {e.PulseMs}ms)");
-				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilId, true)));
-
+				Logger.Info($"<-- coil {e.CoilNumber} ({coilName}): true (pulse {e.PulseMs}ms)");
+				_player.ScheduleAction(1, () => OnCoilChanged?.Invoke(this, new CoilEventArgs(coilName, true)));
 			} else {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 			}
@@ -249,8 +249,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 		{
 			var args = new List<LampEventArgs>();
 			foreach (var fade in e.Fades) {
-				if (_lampNames.ContainsKey(fade.LightNumber)) {
-					args.Add(new LampEventArgs(_lampNames[fade.LightNumber], fade.TargetBrightness));
+				if (_mpfLampNumbers.ContainsNumber(fade.LightNumber)) {
+					var lampName = _mpfLampNumbers.GetNameByNumber(fade.LightNumber);
+					args.Add(new LampEventArgs(lampName, fade.TargetBrightness));
 				} else {
 					Logger.Error("Unmapped MPF lamp " + fade.LightNumber);
 				}
@@ -262,32 +263,37 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		private void OnConfigureHardwareRule(object sender, ConfigureHardwareRuleRequest e)
 		{
-			if (!_switchNames.ContainsKey(e.SwitchNumber)) {
+			if (!_mpfSwitchNumbers.ContainsNumber(e.SwitchNumber)) {
 				Logger.Error("Unmapped MPF switch " + e.SwitchNumber);
 				return;
 			}
-			if (!_coilNames.ContainsKey(e.CoilNumber)) {
+			if (!_mpfCoilNumbers.ContainsNumber(e.CoilNumber)) {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 				return;
 			}
 
-			_player.ScheduleAction(1, () => _player.AddHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
-			Logger.Info($"<-- new hardware rule: {_switchNames[e.SwitchNumber]} -> {_coilNames[e.CoilNumber]}.");
+			var switchName = _mpfSwitchNumbers.GetNameByNumber(e.SwitchNumber);
+			var coilName = _mpfCoilNumbers.GetNameByNumber(e.CoilNumber);
+			_player.ScheduleAction(1, () => _player.AddHardwareRule(switchName, coilName));
+			Logger.Info($"<-- new hardware rule: {switchName} -> {coilName}.");
 		}
 
 		private void OnRemoveHardwareRule(object sender, RemoveHardwareRuleRequest e)
 		{
-			if (!_switchNames.ContainsKey(e.SwitchNumber)) {
-				Logger.Error("Unmapped MPF coil " + e.SwitchNumber);
+			if (!_mpfSwitchNumbers.ContainsNumber(e.SwitchNumber)) {
+				Logger.Error("Unmapped MPF switch " + e.SwitchNumber);
 				return;
 			}
-			if (!_coilNames.ContainsKey(e.CoilNumber)) {
+
+			if (!_mpfCoilNumbers.ContainsNumber(e.CoilNumber)) {
 				Logger.Error("Unmapped MPF coil " + e.CoilNumber);
 				return;
 			}
 
-			_player.ScheduleAction(1, () => _player.RemoveHardwareRule(_switchNames[e.SwitchNumber], _coilNames[e.CoilNumber]));
-			Logger.Info($"<-- remove hardware rule: {_switchNames[e.SwitchNumber]} -> {_coilNames[e.CoilNumber]}.");
+			var switchName = _mpfSwitchNumbers.GetNameByNumber(e.SwitchNumber);
+			var coilName = _mpfCoilNumbers.GetNameByNumber(e.CoilNumber);
+			_player.ScheduleAction(1, () => _player.RemoveHardwareRule(switchName, coilName));
+			Logger.Info($"<-- remove hardware rule: {switchName} -> {coilName}.");
 		}
 
 		private void OnDmdFrame(object sender, SetDmdFrameRequest frame)
