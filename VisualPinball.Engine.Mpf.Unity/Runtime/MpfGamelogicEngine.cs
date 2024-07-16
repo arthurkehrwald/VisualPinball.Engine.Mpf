@@ -15,6 +15,7 @@ using System.Linq;
 using Mpf.Vpe;
 using NLog;
 using UnityEngine;
+using UnityEditor;
 using VisualPinball.Engine.Game.Engines;
 using VisualPinball.Unity;
 using Logger = NLog.Logger;
@@ -48,9 +49,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 
 		public string machineFolder;
 
-		[SerializeField] private GamelogicEngineSwitch[] requiredSwitches = Array.Empty<GamelogicEngineSwitch>();
-		[SerializeField] private GamelogicEngineCoil[] requiredCoils = Array.Empty<GamelogicEngineCoil>();
-		[SerializeField] private GamelogicEngineLamp[] requiredLamps = Array.Empty<GamelogicEngineLamp>();
+		[SerializeField] private SerializedGamelogicEngineSwitch[] requiredSwitches = Array.Empty<SerializedGamelogicEngineSwitch>();
+		[SerializeField] private SerializedGamelogicEngineCoil[] requiredCoils = Array.Empty<SerializedGamelogicEngineCoil>();
+		[SerializeField] private SerializedGamelogicEngineLamp[] requiredLamps = Array.Empty<SerializedGamelogicEngineLamp>();
 		[SerializeField] private GamelogicEngineWire[] availableWires = Array.Empty<GamelogicEngineWire>();
 
 		private Player _player;
@@ -144,6 +145,8 @@ namespace VisualPinball.Engine.Mpf.Unity
 			}
 
 			if (md != null) {
+				Undo.RecordObject(this, "Get machine description");
+				PrefabUtility.RecordPrefabInstancePropertyModifications(this);
 				requiredSwitches = md.GetSwitches().ToArray();
 				requiredCoils = md.GetCoils().ToArray();
 				requiredLamps = md.GetLights().ToArray();
