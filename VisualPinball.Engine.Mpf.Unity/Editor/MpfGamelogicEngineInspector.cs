@@ -46,21 +46,29 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 				return;
 			}
 
-			var pos = EditorGUILayout.GetControlRect(true, 18f);
+            if (!string.IsNullOrEmpty(_mpfEngine.MachineFolder) && !_mpfEngine.MachineFolder.Contains("StreamingAssets")) {
+                EditorGUILayout.HelpBox("The machine folder is not in the 'StreamingAssets' folder. It will not be included in builds.", MessageType.Warning);
+            }
+
+            var pos = EditorGUILayout.GetControlRect(true, 18f);
 			pos = EditorGUI.PrefixLabel(pos, new GUIContent("Machine Folder"));
 
-			if (GUI.Button(pos, _mpfEngine.machineFolder, EditorStyles.objectField)) {
-				var path = EditorUtility.OpenFolderPanel("Mission Pinball Framework: Choose machine folder", _mpfEngine.machineFolder, "");
+			if (GUI.Button(pos, _mpfEngine.MachineFolder, EditorStyles.objectField)) {
+				if (!Directory.Exists(Application.streamingAssetsPath)) {
+					Directory.CreateDirectory(Application.streamingAssetsPath);
+				}
+				var openFolder = Directory.Exists(_mpfEngine.MachineFolder) ? _mpfEngine.MachineFolder : Application.streamingAssetsPath;
+				var path = EditorUtility.OpenFolderPanel("Mission Pinball Framework: Choose machine folder", openFolder, "");
 				if (!string.IsNullOrWhiteSpace(path)) {
-					_mpfEngine.machineFolder = path;
+					_mpfEngine.MachineFolder = path;
 				}
 			}
 
 			if (GUILayout.Button("Get Machine Description")) {
-				if (!Directory.Exists(_mpfEngine.machineFolder)) {
+				if (!Directory.Exists(_mpfEngine.MachineFolder)) {
 					EditorUtility.DisplayDialog("Mission Pinball Framework", "Gotta choose a valid machine folder first!", "Okay");
-				} else if (!Directory.Exists(Path.Combine(_mpfEngine.machineFolder, "config"))) {
-					EditorUtility.DisplayDialog("Mission Pinball Framework", $"{_mpfEngine.machineFolder} doesn't seem a valid machine folder. We expect a \"config\" subfolder in there!", "Okay");
+				} else if (!Directory.Exists(Path.Combine(_mpfEngine.MachineFolder, "config"))) {
+					EditorUtility.DisplayDialog("Mission Pinball Framework", $"{_mpfEngine.MachineFolder} doesn't seem a valid machine folder. We expect a \"config\" subfolder in there!", "Okay");
 				} else {
 					_mpfEngine.GetMachineDescription();
 				}
