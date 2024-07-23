@@ -101,6 +101,18 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
 		{
 			_player = player;
+			_switchIds.Clear();
+			foreach (var sw in requiredSwitches) {
+				_switchNames[sw.Id] = sw.Id;
+			}
+			_coilNames.Clear();
+			foreach (var coil in requiredCoils) {
+				_coilNames[coil.Id] = coil.Id;
+			}
+			_lampNames.Clear();
+			foreach (var lamp in requiredLamps) {
+				_lampNames[lamp.Id] = lamp.Id;
+			}
 			_api = new MpfApi(MachineFolder);
 			_api.Launch(new MpfConsoleOptions {
 				ShowLogInsteadOfConsole = false,
