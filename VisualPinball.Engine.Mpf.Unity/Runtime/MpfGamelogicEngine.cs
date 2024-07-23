@@ -15,7 +15,9 @@ using System.Linq;
 using Mpf.Vpe;
 using NLog;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using VisualPinball.Engine.Game.Engines;
 using VisualPinball.Unity;
 using Logger = NLog.Logger;
@@ -145,8 +147,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 			}
 
 			if (md != null) {
+#if UNITY_EDITOR
 				Undo.RecordObject(this, "Get machine description");
 				PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+#endif
 				requiredSwitches = md.GetSwitches().ToArray();
 				requiredCoils = md.GetCoils().ToArray();
 				requiredLamps = md.GetLights().ToArray();
