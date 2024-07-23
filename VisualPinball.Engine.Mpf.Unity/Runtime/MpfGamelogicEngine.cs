@@ -59,7 +59,11 @@ namespace VisualPinball.Engine.Mpf.Unity
 			}
 			set
 			{
-				if (value.Contains("StreamingAssets/"))
+#if UNITY_EDITOR
+                Undo.RecordObject(this, "Set machine folder");
+                PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+#endif
+                if (value.Contains("StreamingAssets/"))
 				{
 					_machineFolder = "./StreamingAssets/" + value.Split("StreamingAssets/")[1];
 				}
