@@ -21,6 +21,7 @@ using UnityEditor;
 using VisualPinball.Engine.Game.Engines;
 using VisualPinball.Unity;
 using Logger = NLog.Logger;
+using System.IO;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
@@ -49,7 +50,29 @@ namespace VisualPinball.Engine.Mpf.Unity
 		[NonSerialized]
 		private MpfApi _api;
 
-		public string machineFolder;
+		public string MachineFolder
+		{
+			get
+			{
+				if (_machineFolder != null && _machineFolder.Contains("StreamingAssets/"))
+				{
+					return Path.Combine(Application.streamingAssetsPath, _machineFolder.Split("StreamingAssets/")[1]);
+				}
+				return _machineFolder;
+			}
+			set
+			{
+				if (value.Contains("StreamingAssets/"))
+				{
+					_machineFolder = "./StreamingAssets/" + value.Split("StreamingAssets/")[1];
+				}
+				else
+				{
+					_machineFolder = value;
+				}
+			}
+		}
+		[SerializeField] private string _machineFolder;
 
 		[SerializeField] private SerializedGamelogicEngineSwitch[] requiredSwitches = Array.Empty<SerializedGamelogicEngineSwitch>();
 		[SerializeField] private SerializedGamelogicEngineCoil[] requiredCoils = Array.Empty<SerializedGamelogicEngineCoil>();
@@ -74,7 +97,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
 		{
 			_player = player;
-			_api = new MpfApi(machineFolder);
+			_api = new MpfApi(MachineFolder);
 			_api.Launch(new MpfConsoleOptions {
 				ShowLogInsteadOfConsole = false,
 				VerboseLogging = true,
@@ -131,7 +154,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 			MachineDescription md = null;
 
 			try {
-				md = MpfApi.GetMachineDescription(machineFolder);
+				md = MpfApi.GetMachineDescription(MachineFolder);
 			}
 
 			catch (Exception e) {
