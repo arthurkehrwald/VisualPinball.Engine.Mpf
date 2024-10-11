@@ -1,0 +1,7 @@
+{
+  "name": "com.futureboxsystems.mpf-unity-bcp-server",
+  "version": "0.1.0",
+  "displayName": "MPF Unity BCP Server",
+  "description": "Communicate with MPF (Mission Pinball Framework) using the BCP (Backpox Control Protocol) to control media playback and user interfaces for a pinball machine",
+  "unity": "2022.3"
+}
