@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MpfBcpServer
+namespace FutureBoxSystems.MpfBcpServer
 {
     public class ConnectionStateChangedEventArgs : EventArgs
     {
@@ -46,7 +46,7 @@ namespace MpfBcpServer
 
                 if (prevState != value)
                 {
-                    StateChanged(this, new(value, prevState));
+                    StateChanged?.Invoke(this, new(value, prevState));
                 }
             }
         }
