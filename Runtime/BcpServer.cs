@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Unity.Profiling.Editor;
 
 namespace MpfBcpServer
 {
@@ -39,7 +37,7 @@ namespace MpfBcpServer
             }
             private set
             {
-                ConnectionState prevState;                
+                ConnectionState prevState;
                 lock (connectionStateLock)
                 {
                     prevState = connectionState;
@@ -52,30 +50,42 @@ namespace MpfBcpServer
                 }
             }
         }
+
         private CancellationTokenSource cts = null;
         private Task receiveMessagesTask = null;
         private readonly object messageQueueLock = new();
-        private Queue<string> messageQueue = new();
+        private readonly Queue<string> messageQueue = new();
+        private readonly int port;
 
-        public void OpenConnection(int port)
+        public BcpServer(int port)
         {
-            if (ConnectionState != ConnectionState.NotConnected)
-                throw new InvalidOperationException("[BcpServer] Cannot open connection, because it is connected, connecting, or disconnecting");
-            cts = new CancellationTokenSource();
-            ConnectionState = ConnectionState.Connecting;
-            receiveMessagesTask = Task.Run(() => ReceiveMessages(port, cts.Token));
+            this.port = port;
+        }
+
+        public async Task OpenConnectionAsync()
+        {
+            while (ConnectionState == ConnectionState.Disconnecting)
+                await Task.Yield();
+            if (ConnectionState == ConnectionState.NotConnected)      
+            {
+                cts = new CancellationTokenSource();
+                ConnectionState = ConnectionState.Connecting;
+                receiveMessagesTask = Task.Run(() => ReceiveMessages(port, cts.Token));
+            }
         }
 
         public async Task CloseConnectionAsync()
         {
-            if (ConnectionState == ConnectionState.NotConnected || ConnectionState == ConnectionState.Disconnecting)
-                throw new InvalidOperationException("[BcpServer] Cannot close connection because it is not connected or already in the process of disconnecting");
-            ConnectionState = ConnectionState.Disconnecting;
-            cts.Cancel();
-            cts.Dispose();
-            cts = null;
-            await receiveMessagesTask;
-            ConnectionState = ConnectionState.NotConnected;
+            if (ConnectionState == ConnectionState.Connected ||
+                ConnectionState == ConnectionState.Connecting)
+            {
+                ConnectionState = ConnectionState.Disconnecting;
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+                await receiveMessagesTask;
+                ConnectionState = ConnectionState.NotConnected;
+            }
         }
 
         public bool TryDequeueMessage(out string message)
@@ -106,7 +116,7 @@ namespace MpfBcpServer
 
                             if (!stream.DataAvailable)
                             {
-                                await Task.Yield();
+                                await Task.Delay(10);
                                 continue;
                             }
 
@@ -137,7 +147,7 @@ namespace MpfBcpServer
                     }
                     else
                     {
-                        await Task.Yield();
+                        await Task.Delay(100);
                     }
                 }
             }

@@ -10,11 +10,11 @@ namespace MpfBcpServer
 
         private BcpServer server;
 
-        private void OnEnable()
+        private async void OnEnable()
         {
-            server ??= new BcpServer();
+            server ??= new BcpServer(port);
             server.StateChanged += Server_StateChanged;
-            server.OpenConnection(port);
+            await server.OpenConnectionAsync();
         }
 
         private void Server_StateChanged(object sender, ConnectionStateChangedEventArgs e)
