@@ -23,10 +23,7 @@ namespace FutureBoxSystems.MpfBcpServer
                 var connectionState = bcpInterface.ConnectionState;
                 EditorGUILayout.LabelField("Connection status:", connectionState.ToString());
             }
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(portProperty, new GUIContent("Port"));
-            if (EditorGUI.EndChangeCheck())
-                serializedObject.ApplyModifiedProperties();
+            base.OnInspectorGUI();
         }
     }
 }

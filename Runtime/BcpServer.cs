@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine.Networking;
 
 namespace FutureBoxSystems.MpfBcpServer
 {
@@ -140,6 +141,7 @@ namespace FutureBoxSystems.MpfBcpServer
                             {
                                 var message = stringBuffer.ToString(0, messageLength);
                                 stringBuffer.Remove(0, messageLength + 1);
+                                message = UnityWebRequest.UnEscapeURL(message);
                                 lock (messageQueueLock)
                                     messageQueue.Enqueue(message);
                             }

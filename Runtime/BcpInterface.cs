@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace FutureBoxSystems.MpfBcpServer
@@ -7,10 +8,13 @@ namespace FutureBoxSystems.MpfBcpServer
         public ConnectionState ConnectionState => server != null ? server.ConnectionState : ConnectionState.NotConnected;
         [SerializeField]
         private int port = 5050;
+        [SerializeField]
+        [Range(0.1f, 10f)]
+        private float frameTimeBudgetMs = 3f;
 
         private BcpServer server;
 
-        private int t = 5050;
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
         private async void OnEnable()
         {
@@ -20,13 +24,29 @@ namespace FutureBoxSystems.MpfBcpServer
 
         private void Update()
         {
-            if (server.TryDequeueMessage(out var message))
-                Debug.Log(message);
+            float startTime = Time.unscaledTime;
+            float timeSpentMs = 0f;
+            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueMessage(out var messageAsString))
+            {
+                var message = BcpMessage.FromString(messageAsString);
+                MessageReceived?.Invoke(this, new(message));
+                timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
+            }
         }
 
         private async void OnDisable()
         {
             await server.CloseConnectionAsync();
+        }
+    }
+
+    public class MessageReceivedEventArgs : EventArgs
+    {
+        public BcpMessage Message { get; private set; }
+
+        public MessageReceivedEventArgs(BcpMessage message)
+        {
+            Message = message;
         }
     }
 }
