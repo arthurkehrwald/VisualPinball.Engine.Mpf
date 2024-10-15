@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FutureBoxSystems.MpfBcpServer
 {
-    public struct BcpMessage
+    public class BcpMessage
     {
         public string Command { get; private set; }
-        public readonly IReadOnlyList<BcpParameter> Parameters => parameters.AsReadOnly();
+        public IReadOnlyList<BcpParameter> Parameters => parameters.AsReadOnly();
         private readonly List<BcpParameter> parameters;
         private const char commandParamsSeparator = '?';
         private const char paramsSeparator = '&';
@@ -17,7 +19,13 @@ namespace FutureBoxSystems.MpfBcpServer
             this.parameters = parameters;
         }
 
-        public override readonly string ToString()
+        public string FindParamValue(string name, string typeHint = null)
+        {
+            var param = parameters.First(p => p.MatchesPattern(name, typeHint));
+            return param.Value;
+        }
+
+        public override string ToString()
         {
             var sb = new StringBuilder(Command);
             if (parameters.Count > 0)
@@ -46,7 +54,7 @@ namespace FutureBoxSystems.MpfBcpServer
         }
     }
 
-    public struct BcpParameter
+    public class BcpParameter
     {
         public string Name { get; private set; }
         public string TypeHint { get; private set; }
@@ -59,11 +67,18 @@ namespace FutureBoxSystems.MpfBcpServer
             Value = value;
         }
 
-        public override readonly string ToString()
+        public override string ToString()
         {
             if (string.IsNullOrEmpty(TypeHint))
                 return $"{Name}={Value}";
             return $"{Name}={TypeHint}:{Value}";
+        }
+
+        public bool MatchesPattern(string name, string typeHint)
+        {
+            return Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                (TypeHint == typeHint ||
+                TypeHint.Equals(typeHint, StringComparison.OrdinalIgnoreCase));
         }
 
         public static BcpParameter FromString(string str)
@@ -80,6 +95,93 @@ namespace FutureBoxSystems.MpfBcpServer
                 value = parts[2];
             }
             return new BcpParameter(name, typeHint, value);
+        }
+    }
+
+    public interface IBcpCommandDispatcher
+    {
+        public void Dispatch(BcpMessage message);
+    }
+
+    public class BcpCommandDispatcher<T> : IBcpCommandDispatcher where T : EventArgs
+    {
+        public delegate T ParseDelegate(BcpMessage genericMessage);
+        private event EventHandler<T> commandReceived;
+        public event EventHandler<T> CommandReceived
+        {
+            add
+            {
+                bool isFirstHandler = commandReceived == null;
+                commandReceived += value;
+                if (isFirstHandler)
+                    FirstHandlerAdded(this, EventArgs.Empty);
+            }
+            remove
+            {
+                commandReceived -= value;
+                if (commandReceived == null)
+                    LastHandlerRemoved(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler FirstHandlerAdded;
+        public event EventHandler LastHandlerRemoved;
+
+        private readonly ParseDelegate Parse;        
+
+        public BcpCommandDispatcher(ParseDelegate parse)
+        {
+            Parse = parse;
+        }
+
+        public void Dispatch(BcpMessage genericMessage)
+        {
+            T specificMessage;
+
+            try
+            {
+                specificMessage = Parse(genericMessage);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new BcpParseException(genericMessage, e);
+            }
+
+            commandReceived?.Invoke(this, specificMessage);
+        }
+    }
+
+    public class BcpParseException : Exception
+    {
+        public BcpMessage Culprit { get; private set; }
+
+        public BcpParseException(BcpMessage culprit, Exception innerException) : base($"Failed to parse bcp message: {culprit}", innerException)
+        {
+            Culprit = culprit;
+        }
+    }
+
+    public class HelloMessage : EventArgs
+    {
+        public const string command = "hello";
+        public string Version { get; private set; }
+        public string ControllerName { get; private set; }
+        public string ControllerVersion { get; private set; }
+
+        public HelloMessage(string version, string controllerName, string controllerVersion)
+        {
+            Version = version;
+            ControllerName = controllerName;
+            ControllerVersion = controllerVersion;
+        }
+
+        public static HelloMessage Parse(BcpMessage bcpMessage)
+        {
+            return new(
+                version: bcpMessage.FindParamValue("version"),
+                controllerName: bcpMessage.FindParamValue("controller_name"),
+                controllerVersion: bcpMessage.FindParamValue("controller_version")
+                );
         }
     }
 }
