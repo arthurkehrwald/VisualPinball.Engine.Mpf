@@ -53,10 +53,13 @@ namespace FutureBoxSystems.MpfBcpServer
         }
 
         private CancellationTokenSource cts = null;
-        private Task receiveMessagesTask = null;
-        private readonly object messageQueueLock = new();
-        private readonly Queue<string> messageQueue = new();
+        private Task communicationTask = null;
+        private readonly object receivedMessagesLock = new();
+        private readonly Queue<string> receivedMessages = new();
+        private readonly object outboundMessagesLock = new();
+        private readonly Queue<string> outboundMessages = new();
         private readonly int port;
+        private enum ReceiveEndReason { Finished, Canceled, ClientDisconnected };
 
         public BcpServer(int port)
         {
@@ -67,11 +70,11 @@ namespace FutureBoxSystems.MpfBcpServer
         {
             while (ConnectionState == ConnectionState.Disconnecting)
                 await Task.Yield();
-            if (ConnectionState == ConnectionState.NotConnected)      
+            if (ConnectionState == ConnectionState.NotConnected)
             {
                 cts = new CancellationTokenSource();
                 ConnectionState = ConnectionState.Connecting;
-                receiveMessagesTask = Task.Run(() => ReceiveMessages(port, cts.Token));
+                communicationTask = Task.Run(() => CommunicateAsync(port, cts.Token));
             }
         }
 
@@ -84,18 +87,32 @@ namespace FutureBoxSystems.MpfBcpServer
                 cts.Cancel();
                 cts.Dispose();
                 cts = null;
-                await receiveMessagesTask;
+                await communicationTask;
                 ConnectionState = ConnectionState.NotConnected;
             }
         }
 
-        public bool TryDequeueMessage(out string message)
+        public bool TryDequeueReceivedMessage(out string message)
         {
-            lock (messageQueueLock)
-                return messageQueue.TryDequeue(out message);
+            lock (receivedMessagesLock)
+                return receivedMessages.TryDequeue(out message);
         }
 
-        private async Task ReceiveMessages(int port, CancellationToken ct)
+        public void EnqueueMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return;
+            lock (outboundMessagesLock)
+                outboundMessages.Enqueue(message);
+        }
+
+        private bool TryDequeueOutboundMessage(out string message)
+        {
+            lock (outboundMessagesLock)
+                return outboundMessages.TryDequeue(out message);
+        }
+
+        private async Task CommunicateAsync(int port, CancellationToken ct)
         {
             var listener = new TcpListener(IPAddress.Any, port);
             try
@@ -113,38 +130,13 @@ namespace FutureBoxSystems.MpfBcpServer
                         var stringBuffer = new StringBuilder();
                         while (!ct.IsCancellationRequested)
                         {
-                            int numBytesRead = 0;
-
-                            if (!stream.DataAvailable)
-                            {
-                                await Task.Delay(10);
-                                continue;
-                            }
-
-                            try
-                            {
-                                numBytesRead = await stream.ReadAsync(byteBuffer, 0, bufferSize, ct);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                break;
-                            }
-
-                            if (numBytesRead == 0)
+                            var sendTask = SendMessagesAsync(stream, ct);
+                            var endReason = await ReceiveMessagesAsync(stream, byteBuffer, stringBuffer, ct);
+                            await sendTask;
+                            if (endReason == ReceiveEndReason.Canceled || endReason == ReceiveEndReason.ClientDisconnected)
                                 break;
 
-                            var stringRead = Encoding.UTF8.GetString(byteBuffer, 0, numBytesRead);
-                            stringBuffer.Append(stringRead);
-                            const char terminator = '\n';
-                            int messageLength;
-                            while (!ct.IsCancellationRequested && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1)
-                            {
-                                var message = stringBuffer.ToString(0, messageLength);
-                                stringBuffer.Remove(0, messageLength + 1);
-                                message = UnityWebRequest.UnEscapeURL(message);
-                                lock (messageQueueLock)
-                                    messageQueue.Enqueue(message);
-                            }
+                            await Task.Delay(10);
                         }
                     }
                     else
@@ -156,6 +148,57 @@ namespace FutureBoxSystems.MpfBcpServer
             finally
             {
                 listener.Stop();
+            }
+        }
+
+        private async Task<ReceiveEndReason> ReceiveMessagesAsync (NetworkStream stream, byte[] byteBuffer, StringBuilder stringBuffer, CancellationToken ct)
+        {
+            while (stream.DataAvailable)
+            {
+                int numBytesRead;
+                try
+                {
+                    numBytesRead = await stream.ReadAsync(byteBuffer, 0, byteBuffer.Length, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    return ReceiveEndReason.Canceled;
+                }
+
+                if (numBytesRead == 0)
+                    return ReceiveEndReason.ClientDisconnected;
+
+                var stringRead = Encoding.UTF8.GetString(byteBuffer, 0, numBytesRead);
+                stringBuffer.Append(stringRead);
+                const char terminator = '\n';
+                int messageLength;
+                while (!ct.IsCancellationRequested && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1)
+                {
+                    var message = stringBuffer.ToString(0, messageLength);
+                    stringBuffer.Remove(0, messageLength + 1);
+                    message = UnityWebRequest.UnEscapeURL(message);
+                    lock (receivedMessagesLock)
+                        receivedMessages.Enqueue(message);
+                }
+            }
+
+            return ReceiveEndReason.Finished;
+        }
+
+        private async Task SendMessagesAsync(NetworkStream stream, CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested && TryDequeueOutboundMessage(out var message))
+            {
+                var packet = Encoding.UTF8.GetBytes(message);
+                try
+                {
+                    await stream.WriteAsync(packet, ct);
+                    await stream.FlushAsync(ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
             }
         }
     }

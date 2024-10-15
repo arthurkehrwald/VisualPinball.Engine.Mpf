@@ -42,6 +42,15 @@ namespace FutureBoxSystems.MpfBcpServer
             return false;
         }
 
+        public bool TrySendMessage(BcpMessage message)
+        {
+            if (ConnectionState == ConnectionState.Connected)
+            {
+                server.EnqueueMessage(message.ToString());
+            }
+            return false;
+        }
+
         private async void OnEnable()
         {
             server ??= new BcpServer(port);
@@ -52,7 +61,7 @@ namespace FutureBoxSystems.MpfBcpServer
         {
             float startTime = Time.unscaledTime;
             float timeSpentMs = 0f;
-            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueMessage(out var messageAsString))
+            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var messageAsString))
             {
                 var message = BcpMessage.FromString(messageAsString);
                 HandleReceivedMessage(message);
