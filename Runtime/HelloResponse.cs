@@ -7,17 +7,22 @@ namespace FutureBoxSystems.MpfBcpServer
         [SerializeField]
         private BcpInterface bcpInterface;
 
-        private void Start()
+        private void OnEnable()
         {
             bcpInterface.AddCommandListener<HelloMessage>(HelloMessage.command, HelloMessageReceived);
         }
 
+        private void OnDisable()
+        {
+            bcpInterface.TryRemoveCommandListener<HelloMessage>(HelloMessage.command, HelloMessageReceived);
+        }
+
         private void HelloMessageReceived(object sender, HelloMessage message)
         {
-            BcpMessage response = new HelloMessage(
+            var response = new HelloMessage(
                 Constants.bcpSpecVersion,
                 Constants.mediaControllerName,
-                Constants.mediaControllerVersion).Parse();
+                Constants.mediaControllerVersion);
             bcpInterface.TrySendMessage(response);
         }
     }

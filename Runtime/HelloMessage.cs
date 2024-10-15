@@ -5,7 +5,7 @@ using System;
 
 namespace FutureBoxSystems.MpfBcpServer
 {
-    public class HelloMessage : EventArgs
+    public class HelloMessage : EventArgs, ISentMessage
     {
         public const string command = "hello";
         public const string versionName = "version";

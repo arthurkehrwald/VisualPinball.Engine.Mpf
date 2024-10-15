@@ -19,6 +19,8 @@ namespace FutureBoxSystems.MpfBcpServer
             this.parameters = parameters;
         }
 
+        public BcpMessage(string command) : this(command, new()) { }
+
         public string FindParamValue(string name, string typeHint = null)
         {
             var param = parameters.First(p => p.MatchesPattern(name, typeHint));
@@ -155,9 +157,14 @@ namespace FutureBoxSystems.MpfBcpServer
     {
         public BcpMessage Culprit { get; private set; }
 
-        public BcpParseException(BcpMessage culprit, Exception innerException) : base($"Failed to parse bcp message: {culprit}", innerException)
+        public BcpParseException(BcpMessage culprit, Exception innerException = null) : base($"Failed to parse bcp message: {culprit}", innerException)
         {
             Culprit = culprit;
         }
+    }
+
+    public interface ISentMessage
+    {
+        public BcpMessage Parse();
     }
 }

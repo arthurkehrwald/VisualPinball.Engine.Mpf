@@ -58,6 +58,7 @@ namespace FutureBoxSystems.MpfBcpServer
         private readonly Queue<string> receivedMessages = new();
         private readonly object outboundMessagesLock = new();
         private readonly Queue<string> outboundMessages = new();
+        private readonly ManualResetEventSlim disconnectRequested = new(false);
         private readonly int port;
         private enum ReceiveEndReason { Finished, Canceled, ClientDisconnected };
 
@@ -72,6 +73,7 @@ namespace FutureBoxSystems.MpfBcpServer
                 await Task.Yield();
             if (ConnectionState == ConnectionState.NotConnected)
             {
+                disconnectRequested.Reset();
                 cts = new CancellationTokenSource();
                 ConnectionState = ConnectionState.Connecting;
                 communicationTask = Task.Run(() => CommunicateAsync(port, cts.Token));
@@ -106,6 +108,12 @@ namespace FutureBoxSystems.MpfBcpServer
                 outboundMessages.Enqueue(message);
         }
 
+        public void RequestDisconnect()
+        {
+            if (ConnectionState == ConnectionState.Connected)
+                disconnectRequested.Set();
+        }
+
         private bool TryDequeueOutboundMessage(out string message)
         {
             lock (outboundMessagesLock)
@@ -120,6 +128,7 @@ namespace FutureBoxSystems.MpfBcpServer
                 listener.Start();
                 while (!ct.IsCancellationRequested)
                 {
+                    ConnectionState = ConnectionState.Connecting;
                     if (listener.Pending())
                     {
                         using TcpClient client = listener.AcceptTcpClient();
@@ -128,16 +137,17 @@ namespace FutureBoxSystems.MpfBcpServer
                         const int bufferSize = 1024;
                         var byteBuffer = new byte[bufferSize];
                         var stringBuffer = new StringBuilder();
-                        while (!ct.IsCancellationRequested)
+                        while (!ct.IsCancellationRequested && !disconnectRequested.IsSet)
                         {
                             var sendTask = SendMessagesAsync(stream, ct);
                             var endReason = await ReceiveMessagesAsync(stream, byteBuffer, stringBuffer, ct);
                             await sendTask;
                             if (endReason == ReceiveEndReason.Canceled || endReason == ReceiveEndReason.ClientDisconnected)
                                 break;
-
                             await Task.Delay(10);
                         }
+                        await SendMessagesAsync(stream, ct);
+                        disconnectRequested.Reset();
                     }
                     else
                     {
@@ -151,7 +161,7 @@ namespace FutureBoxSystems.MpfBcpServer
             }
         }
 
-        private async Task<ReceiveEndReason> ReceiveMessagesAsync (NetworkStream stream, byte[] byteBuffer, StringBuilder stringBuffer, CancellationToken ct)
+        private async Task<ReceiveEndReason> ReceiveMessagesAsync(NetworkStream stream, byte[] byteBuffer, StringBuilder stringBuffer, CancellationToken ct)
         {
             while (stream.DataAvailable)
             {

@@ -17,10 +17,10 @@ namespace FutureBoxSystems.MpfBcpServer
         private BcpServer server;
 
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
-        public readonly BcpCommandDispatcher<HelloMessage> Hello = new(HelloMessage.Parse);
         private readonly Dictionary<string, IBcpCommandDispatcher> commandDispatchers = new()
         {
-            { HelloMessage.command, new BcpCommandDispatcher<HelloMessage>(HelloMessage.Parse) }
+            { HelloMessage.command, new BcpCommandDispatcher<HelloMessage>(HelloMessage.Parse) },
+            { GoodbyeMessage.command, new BcpCommandDispatcher<GoodbyeMessage>(GoodbyeMessage.Parse) }
         };
 
         public void AddCommandListener<T>(string command, EventHandler<T> listener) where T : EventArgs
@@ -42,13 +42,21 @@ namespace FutureBoxSystems.MpfBcpServer
             return false;
         }
 
-        public bool TrySendMessage(BcpMessage message)
+        public bool TrySendMessage(ISentMessage message)
         {
             if (ConnectionState == ConnectionState.Connected)
             {
-                server.EnqueueMessage(message.ToString());
+                BcpMessage bcpMessage = message.Parse();
+                string stringMessage = bcpMessage.ToString();
+                server.EnqueueMessage(stringMessage);
             }
             return false;
+        }
+
+        public void RequestDisconnect()
+        {
+            if (ConnectionState == ConnectionState.Connected)
+                server.RequestDisconnect();
         }
 
         private async void OnEnable()
@@ -63,6 +71,7 @@ namespace FutureBoxSystems.MpfBcpServer
             float timeSpentMs = 0f;
             while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var messageAsString))
             {
+                Debug.Log(messageAsString);
                 var message = BcpMessage.FromString(messageAsString);
                 HandleReceivedMessage(message);
                 MessageReceived?.Invoke(this, new(message));
