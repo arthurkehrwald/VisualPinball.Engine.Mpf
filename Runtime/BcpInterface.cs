@@ -47,8 +47,7 @@ namespace FutureBoxSystems.MpfMediaController
             if (ConnectionState == ConnectionState.Connected)
             {
                 BcpMessage bcpMessage = message.Parse();
-                string stringMessage = bcpMessage.ToString();
-                server.EnqueueMessage(stringMessage);
+                server.EnqueueMessage(bcpMessage);
             }
             return false;
         }
@@ -69,10 +68,8 @@ namespace FutureBoxSystems.MpfMediaController
         {
             float startTime = Time.unscaledTime;
             float timeSpentMs = 0f;
-            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var messageAsString))
+            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var message))
             {
-                Debug.Log(messageAsString);
-                var message = BcpMessage.FromString(messageAsString);
                 HandleReceivedMessage(message);
                 MessageReceived?.Invoke(this, new(message));
                 timeSpentMs = (Time.unscaledTime - startTime) * 1000f;

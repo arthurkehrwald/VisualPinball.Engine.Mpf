@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using UnityEngine.Networking;
 
 namespace FutureBoxSystems.MpfMediaController
@@ -55,9 +56,9 @@ namespace FutureBoxSystems.MpfMediaController
         private CancellationTokenSource cts = null;
         private Task communicationTask = null;
         private readonly object receivedMessagesLock = new();
-        private readonly Queue<string> receivedMessages = new();
+        private readonly Queue<BcpMessage> receivedMessages = new();
         private readonly object outboundMessagesLock = new();
-        private readonly Queue<string> outboundMessages = new();
+        private readonly Queue<BcpMessage> outboundMessages = new();
         private readonly ManualResetEventSlim disconnectRequested = new(false);
         private readonly int port;
         private enum ReceiveEndReason { Finished, Canceled, ClientDisconnected };
@@ -94,16 +95,14 @@ namespace FutureBoxSystems.MpfMediaController
             }
         }
 
-        public bool TryDequeueReceivedMessage(out string message)
+        public bool TryDequeueReceivedMessage(out BcpMessage message)
         {
             lock (receivedMessagesLock)
                 return receivedMessages.TryDequeue(out message);
         }
 
-        public void EnqueueMessage(string message)
+        public void EnqueueMessage(BcpMessage message)
         {
-            if (string.IsNullOrEmpty(message))
-                return;
             lock (outboundMessagesLock)
                 outboundMessages.Enqueue(message);
         }
@@ -114,7 +113,7 @@ namespace FutureBoxSystems.MpfMediaController
                 disconnectRequested.Set();
         }
 
-        private bool TryDequeueOutboundMessage(out string message)
+        private bool TryDequeueOutboundMessage(out BcpMessage message)
         {
             lock (outboundMessagesLock)
                 return outboundMessages.TryDequeue(out message);
@@ -186,9 +185,10 @@ namespace FutureBoxSystems.MpfMediaController
                 {
                     var message = stringBuffer.ToString(0, messageLength);
                     stringBuffer.Remove(0, messageLength + 1);
-                    message = UnityWebRequest.UnEscapeURL(message);
+                    message = Uri.UnescapeDataString(message);
+                    var bcpMessage = BcpMessage.FromString(message);
                     lock (receivedMessagesLock)
-                        receivedMessages.Enqueue(message);
+                        receivedMessages.Enqueue(bcpMessage);
                 }
             }
 
@@ -197,9 +197,11 @@ namespace FutureBoxSystems.MpfMediaController
 
         private async Task SendMessagesAsync(NetworkStream stream, CancellationToken ct)
         {
-            while (!ct.IsCancellationRequested && TryDequeueOutboundMessage(out var message))
+            while (!ct.IsCancellationRequested && TryDequeueOutboundMessage(out BcpMessage bcpMessage))
             {
-                var packet = Encoding.UTF8.GetBytes(message);
+                var stringMessage = bcpMessage.ToString();
+                stringMessage = Uri.EscapeDataString(stringMessage);
+                var packet = Encoding.UTF8.GetBytes(stringMessage);
                 try
                 {
                     await stream.WriteAsync(packet, ct);
