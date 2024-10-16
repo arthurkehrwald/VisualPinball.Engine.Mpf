@@ -45,14 +45,14 @@ namespace FutureBoxSystems.MpfMediaController
         public static BcpMessage FromString(string str)
         {
             var parts = str.Split(commandParamsSeparator, paramsSeparator);
-            var name = parts[0];
+            var command = parts[0].Trim().ToLower();
             var bcpParams = new List<BcpParameter>();
             for (int i = 1; i < parts.Length; i++)
             {
                 var param = BcpParameter.FromString(parts[i]);
                 bcpParams.Add(param);
             }
-            return new BcpMessage(name, bcpParams);
+            return new BcpMessage(command, bcpParams);
         }
     }
 
@@ -86,7 +86,7 @@ namespace FutureBoxSystems.MpfMediaController
         public static BcpParameter FromString(string str)
         {
             string[] parts = str.Split(new char[] { '=', ':' }, 3);
-            var name = parts[0].ToLower(); // Not case sensitive
+            var name = parts[0].Trim().ToLower(); // Not case sensitive
             string typeHint = null;
             string value = null;
             if (parts.Length == 2)
