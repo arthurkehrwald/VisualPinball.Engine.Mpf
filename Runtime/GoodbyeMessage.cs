@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfBcpServer
+namespace FutureBoxSystems.MpfMediaController
 {
     public class GoodbyeMessage : EventArgs, ISentMessage
     {

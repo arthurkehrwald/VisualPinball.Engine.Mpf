@@ -1,4 +1,4 @@
-namespace FutureBoxSystems.MpfBcpServer
+namespace FutureBoxSystems.MpfMediaController
 {
     public static class Constants
     {

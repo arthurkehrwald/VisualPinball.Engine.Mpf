@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
-namespace FutureBoxSystems.MpfBcpServer
+namespace FutureBoxSystems.MpfMediaController
 {
     public class ConnectionStateChangedEventArgs : EventArgs
     {

@@ -1,8 +1,8 @@
 {
-    "name": "FutureBoxSystems.MpfUnityBcpServer.Editor",
+    "name": "FutureBoxSystems.MpfUnityMediaController.Editor",
     "rootNamespace": "",
     "references": [
-        "FutureBoxSystems.MpfUnityBcpServer"
+        "FutureBoxSystems.MpfUnityMediaController"
     ],
     "includePlatforms": [
         "Editor"

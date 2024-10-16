@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfBcpServer
+namespace FutureBoxSystems.MpfMediaController
 {
     [CustomEditor(typeof(BcpInterface))]
     public class BcpInterfaceInspector : Editor

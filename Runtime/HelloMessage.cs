@@ -1,9 +1,8 @@
 
-using FutureBoxSystems.MpfBcpServer;
 using System.Collections.Generic;
 using System;
 
-namespace FutureBoxSystems.MpfBcpServer
+namespace FutureBoxSystems.MpfMediaController
 {
     public class HelloMessage : EventArgs, ISentMessage
     {
