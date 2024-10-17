@@ -6,15 +6,18 @@ namespace FutureBoxSystems.MpfMediaController
     {
         [SerializeField]
         private BcpInterface bcpInterface;
+        [SerializeField]
+        private BcpMessageHandlers messageHandlers;
 
         private void OnEnable()
         {
-            bcpInterface.AddCommandListener<HelloMessage>(HelloMessage.command, HelloMessageReceived);
+            messageHandlers.Hello.Received += HelloMessageReceived;
         }
 
         private void OnDisable()
         {
-            bcpInterface.TryRemoveCommandListener<HelloMessage>(HelloMessage.command, HelloMessageReceived);
+            if (bcpInterface )
+                messageHandlers.Hello.Received -= HelloMessageReceived;
         }
 
         private void HelloMessageReceived(object sender, HelloMessage message)

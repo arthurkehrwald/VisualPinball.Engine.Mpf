@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Android;
+using UnityEngine.Assertions;
 
 namespace FutureBoxSystems.MpfMediaController
 {
@@ -16,38 +16,28 @@ namespace FutureBoxSystems.MpfMediaController
 
         private BcpServer server;
 
-        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
-        private readonly Dictionary<string, IBcpCommandDispatcher> commandDispatchers = new()
-        {
-            { HelloMessage.command, new BcpCommandDispatcher<HelloMessage>(HelloMessage.Parse) },
-            { GoodbyeMessage.command, new BcpCommandDispatcher<GoodbyeMessage>(GoodbyeMessage.Parse) }
-        };
+        public delegate void HandleMessage(BcpMessage message);
+        private readonly Dictionary<string, HandleMessage> messageHandlers = new();
 
-        public void AddCommandListener<T>(string command, EventHandler<T> listener) where T : EventArgs
+        public void RegisterMessageHandler(string command, HandleMessage handle)
         {
-            var dispatcher = commandDispatchers[command] as BcpCommandDispatcher<T>;
-            dispatcher.CommandReceived += listener;
+            if (!messageHandlers.TryAdd(command, handle))
+                Debug.LogWarning($"[BcpInterface] Cannot add message handler, because command '{command}' already has a handler.");
         }
 
-        public bool TryRemoveCommandListener<T>(string command, EventHandler<T> listener) where T : EventArgs
+        public void UnregisterMessageHandler(string command, HandleMessage handle)
         {
-            if (commandDispatchers.TryGetValue(command, out var dispatcherInterface))
-            {
-                if (dispatcherInterface is BcpCommandDispatcher<T> dispatcher)
-                {
-                    dispatcher.CommandReceived -= listener;
-                    return true;
-                }
-            }
-            return false;
+            if (!messageHandlers.Remove(command))
+                Debug.LogWarning("[BcpInterface] Cannot remove message handler, because it is not registered.");
         }
 
         public bool TrySendMessage(ISentMessage message)
         {
             if (ConnectionState == ConnectionState.Connected)
             {
-                BcpMessage bcpMessage = message.Parse();
+                BcpMessage bcpMessage = message.ToGenericMessage();
                 server.EnqueueMessage(bcpMessage);
+                return true;
             }
             return false;
         }
@@ -71,19 +61,17 @@ namespace FutureBoxSystems.MpfMediaController
             while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var message))
             {
                 HandleReceivedMessage(message);
-                MessageReceived?.Invoke(this, new(message));
                 timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
             }
         }
 
-
         private void HandleReceivedMessage(BcpMessage message)
         {
-            if (commandDispatchers.TryGetValue(message.Command, out var dispatcher))
+            if (messageHandlers.TryGetValue(message.Command, out var handler))
             {
                 try
                 {
-                    dispatcher.Dispatch(message);
+                    handler(message);
                 }
                 catch (BcpParseException)
                 {
@@ -101,16 +89,6 @@ namespace FutureBoxSystems.MpfMediaController
         private async void OnDisable()
         {
             await server.CloseConnectionAsync();
-        }
-    }
-
-    public class MessageReceivedEventArgs : EventArgs
-    {
-        public BcpMessage Message { get; private set; }
-
-        public MessageReceivedEventArgs(BcpMessage message)
-        {
-            Message = message;
         }
     }
 }

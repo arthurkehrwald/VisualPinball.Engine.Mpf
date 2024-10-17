@@ -4,11 +4,11 @@ namespace FutureBoxSystems.MpfMediaController
 {
     public class GoodbyeMessage : EventArgs, ISentMessage
     {
-        public const string command = "goodbye";
-        public BcpMessage Parse() => new(command);
-        public static GoodbyeMessage Parse(BcpMessage bcpMessage)
+        public const string Command = "goodbye";
+        public BcpMessage ToGenericMessage() => new(Command);
+        public static GoodbyeMessage FromGenericMessage(BcpMessage bcpMessage)
         {
-            if (bcpMessage.Command != command)
+            if (bcpMessage.Command != Command)
                 throw new BcpParseException(bcpMessage);
             return new();
         }

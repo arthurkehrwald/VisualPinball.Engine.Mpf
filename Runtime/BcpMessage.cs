@@ -23,8 +23,15 @@ namespace FutureBoxSystems.MpfMediaController
 
         public string FindParamValue(string name, string typeHint = null)
         {
-            var param = parameters.First(p => p.MatchesPattern(name, typeHint));
-            return param.Value;
+            try
+            {
+                var param = parameters.First(p => p.MatchesPattern(name, typeHint));
+                return param.Value;
+            }
+            catch (InvalidOperationException ioe)
+            {
+                throw new BcpParseException(this, ioe);
+            }
         }
 
         public override string ToString()
@@ -100,16 +107,13 @@ namespace FutureBoxSystems.MpfMediaController
         }
     }
 
-    public interface IBcpCommandDispatcher
+    public class BcpMessageHandler<T> where T : EventArgs
     {
-        public void Dispatch(BcpMessage message);
-    }
-
-    public class BcpCommandDispatcher<T> : IBcpCommandDispatcher where T : EventArgs
-    {
+        public string Command { get; private set; }
+        public delegate void Test();
         public delegate T ParseDelegate(BcpMessage genericMessage);
         private event EventHandler<T> commandReceived;
-        public event EventHandler<T> CommandReceived
+        public event EventHandler<T> Received
         {
             add
             {
@@ -129,26 +133,28 @@ namespace FutureBoxSystems.MpfMediaController
         public event EventHandler FirstHandlerAdded;
         public event EventHandler LastHandlerRemoved;
 
+        private readonly BcpInterface bcpInterface;
         private readonly ParseDelegate Parse;
 
-        public BcpCommandDispatcher(ParseDelegate parse)
+        public BcpMessageHandler(string command, ParseDelegate parse, BcpInterface bcpInterface)
         {
+            Command = command;
             Parse = parse;
+            this.bcpInterface = bcpInterface;
+            bcpInterface.RegisterMessageHandler(Command, Handle);
         }
 
-        public void Dispatch(BcpMessage genericMessage)
+        ~BcpMessageHandler()
         {
-            T specificMessage;
+            if (bcpInterface != null)
+                bcpInterface.UnregisterMessageHandler(Command, Handle);
+        }
 
-            try
-            {
-                specificMessage = Parse(genericMessage);
-            }
-            catch (InvalidOperationException e)
-            {
-                throw new BcpParseException(genericMessage, e);
-            }
-
+        private void Handle(BcpMessage message)
+        {
+            if (message.Command != Command)
+                throw new BcpParseException(message);
+            T specificMessage = Parse(message);
             commandReceived?.Invoke(this, specificMessage);
         }
     }
@@ -163,8 +169,12 @@ namespace FutureBoxSystems.MpfMediaController
         }
     }
 
+    /// <summary>
+    /// Most message types are only received and never sent.
+    /// The ones that are sent must implement this interface
+    /// </summary>
     public interface ISentMessage
     {
-        public BcpMessage Parse();
+        public BcpMessage ToGenericMessage();
     }
 }

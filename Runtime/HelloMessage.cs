@@ -1,15 +1,16 @@
 
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
     public class HelloMessage : EventArgs, ISentMessage
     {
-        public const string command = "hello";
-        public const string versionName = "version";
-        public const string controllerNameName = "controller_name";
-        public const string controllerVersionName = "controller_version";
+        public const string Command = "hello";
+        private const string versionName = "version";
+        private const string controllerNameName = "controller_name";
+        private const string controllerVersionName = "controller_version";
         public string Version { get; private set; }
         public string ControllerName { get; private set; }
         public string ControllerVersion { get; private set; }
@@ -21,10 +22,10 @@ namespace FutureBoxSystems.MpfMediaController
             ControllerVersion = controllerVersion;
         }
 
-        public BcpMessage Parse()
+        public BcpMessage ToGenericMessage()
         {
             return new BcpMessage(
-                command: command,
+                command: Command,
                 parameters: new List<BcpParameter>()
                 {
                     new(versionName, null, Version),
@@ -34,7 +35,7 @@ namespace FutureBoxSystems.MpfMediaController
             );
         }
 
-        public static HelloMessage Parse(BcpMessage bcpMessage)
+        public static HelloMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new(
                 version: bcpMessage.FindParamValue(versionName),
