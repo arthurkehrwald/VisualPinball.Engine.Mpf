@@ -27,8 +27,10 @@ namespace FutureBoxSystems.MpfMediaController
 
         public void UnregisterMessageHandler(string command, HandleMessage handle)
         {
-            if (!messageHandlers.Remove(command))
-                Debug.LogWarning("[BcpInterface] Cannot remove message handler, because it is not registered.");
+            if (messageHandlers.TryGetValue(command, out var registeredHandle) && registeredHandle == handle)
+                messageHandlers.Remove(command);
+            else
+                Debug.LogWarning($"[BcpInterface] Cannot remove message handler for command '{command}', because it is not registered.");
         }
 
         public bool TrySendMessage(ISentMessage message)
