@@ -162,7 +162,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         private async Task<ReceiveEndReason> ReceiveMessagesAsync(NetworkStream stream, byte[] byteBuffer, StringBuilder stringBuffer, CancellationToken ct)
         {
-            while (stream.DataAvailable)
+            while (stream.DataAvailable && ct.IsCancellationRequested)
             {
                 int numBytesRead;
                 try
@@ -191,6 +191,9 @@ namespace FutureBoxSystems.MpfMediaController
                         receivedMessages.Enqueue(bcpMessage);
                 }
             }
+
+            if (ct.IsCancellationRequested)
+                return ReceiveEndReason.Canceled;
 
             return ReceiveEndReason.Finished;
         }
