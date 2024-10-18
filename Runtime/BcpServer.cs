@@ -186,9 +186,12 @@ namespace FutureBoxSystems.MpfMediaController
                     var message = stringBuffer.ToString(0, messageLength);
                     stringBuffer.Remove(0, messageLength + 1);
                     message = Uri.UnescapeDataString(message);
-                    var bcpMessage = BcpMessage.FromString(message);
-                    lock (receivedMessagesLock)
-                        receivedMessages.Enqueue(bcpMessage);
+                    if (message.Length > 0 && !message.StartsWith("#"))
+                    {
+                        var bcpMessage = BcpMessage.FromString(message);
+                        lock (receivedMessagesLock)
+                            receivedMessages.Enqueue(bcpMessage);
+                    }
                 }
             }
 
