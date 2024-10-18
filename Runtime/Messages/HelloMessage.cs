@@ -1,7 +1,6 @@
 
 using System.Collections.Generic;
 using System;
-using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
@@ -11,13 +10,13 @@ namespace FutureBoxSystems.MpfMediaController
         private const string versionName = "version";
         private const string controllerNameName = "controller_name";
         private const string controllerVersionName = "controller_version";
-        public string Version { get; private set; }
+        public string BcpSpecVersion { get; private set; }
         public string ControllerName { get; private set; }
         public string ControllerVersion { get; private set; }
 
         public HelloMessage(string version, string controllerName, string controllerVersion)
         {
-            Version = version;
+            BcpSpecVersion = version;
             ControllerName = controllerName;
             ControllerVersion = controllerVersion;
         }
@@ -28,9 +27,9 @@ namespace FutureBoxSystems.MpfMediaController
                 command: Command,
                 parameters: new List<BcpParameter>()
                 {
-                    new(versionName, null, Version),
-                    new(controllerNameName, null, ControllerName),
-                    new(controllerVersionName, null, ControllerVersion)
+                    new(versionName, BcpSpecVersion),
+                    new(controllerNameName, ControllerName),
+                    new(controllerVersionName, ControllerVersion)
                 }
             );
         }

@@ -22,10 +22,21 @@ namespace FutureBoxSystems.MpfMediaController
 
         private void HelloMessageReceived(object sender, HelloMessage message)
         {
-            var response = new HelloMessage(
-                Constants.bcpSpecVersion,
-                Constants.mediaControllerName,
-                Constants.mediaControllerVersion);
+            ISentMessage response;
+            if (message.BcpSpecVersion == Constants.BcpSpecVersion)
+            {
+                response = new HelloMessage(
+                    Constants.BcpSpecVersion,
+                    Constants.MediaControllerName,
+                    Constants.MediaControllerVersion);
+            }
+            else
+            {
+                string originalHelloMessage = message.ToGenericMessage().ToString();
+                response = new ErrorMessage(
+                    message: "unknown protocol version",
+                    commandThatCausedError: originalHelloMessage);
+            }
             bcpInterface.TrySendMessage(response);
         }
     }

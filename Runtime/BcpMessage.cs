@@ -69,7 +69,7 @@ namespace FutureBoxSystems.MpfMediaController
         public string TypeHint { get; private set; }
         public string Value { get; private set; }
 
-        public BcpParameter(string name, string typeHint, string value)
+        public BcpParameter(string name, string value, string typeHint = null)
         {
             Name = name;
             TypeHint = typeHint;
@@ -103,7 +103,7 @@ namespace FutureBoxSystems.MpfMediaController
                 typeHint = parts[1];
                 value = parts[2];
             }
-            return new BcpParameter(name, typeHint, value);
+            return new BcpParameter(name, value, typeHint);
         }
     }
 
