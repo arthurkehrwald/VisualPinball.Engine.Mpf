@@ -7,17 +7,17 @@ namespace FutureBoxSystems.MpfMediaController
         [SerializeField]
         private BcpInterface bcpInterface;
         [SerializeField]
-        private BcpMessageHandlers messageHandlers;
+        private HelloMessageHandler helloHandler;
 
         private void OnEnable()
         {
-            messageHandlers.Hello.Received += HelloMessageReceived;
+            helloHandler.Received += HelloMessageReceived;
         }
 
         private void OnDisable()
         {
             if (bcpInterface )
-                messageHandlers.Hello.Received -= HelloMessageReceived;
+                helloHandler.Received -= HelloMessageReceived;
         }
 
         private void HelloMessageReceived(object sender, HelloMessage message)

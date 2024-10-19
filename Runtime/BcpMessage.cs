@@ -107,58 +107,6 @@ namespace FutureBoxSystems.MpfMediaController
         }
     }
 
-    public class BcpMessageHandler<T> where T : EventArgs
-    {
-        public string Command { get; private set; }
-        public delegate void Test();
-        public delegate T ParseDelegate(BcpMessage genericMessage);
-        private event EventHandler<T> commandReceived;
-        public event EventHandler<T> Received
-        {
-            add
-            {
-                bool isFirstHandler = commandReceived == null;
-                commandReceived += value;
-                if (isFirstHandler)
-                    FirstHandlerAdded?.Invoke(this, EventArgs.Empty);
-            }
-            remove
-            {
-                commandReceived -= value;
-                if (commandReceived == null)
-                    LastHandlerRemoved?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        public event EventHandler FirstHandlerAdded;
-        public event EventHandler LastHandlerRemoved;
-
-        private readonly BcpInterface bcpInterface;
-        private readonly ParseDelegate Parse;
-
-        public BcpMessageHandler(string command, ParseDelegate parse, BcpInterface bcpInterface)
-        {
-            Command = command;
-            Parse = parse;
-            this.bcpInterface = bcpInterface;
-            bcpInterface.RegisterMessageHandler(Command, Handle);
-        }
-
-        ~BcpMessageHandler()
-        {
-            if (bcpInterface != null)
-                bcpInterface.UnregisterMessageHandler(Command, Handle);
-        }
-
-        private void Handle(BcpMessage message)
-        {
-            if (message.Command != Command)
-                throw new BcpParseException(message);
-            T specificMessage = Parse(message);
-            commandReceived?.Invoke(this, specificMessage);
-        }
-    }
-
     public class BcpParseException : Exception
     {
         public BcpMessage Culprit { get; private set; }
