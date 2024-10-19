@@ -30,7 +30,7 @@ namespace FutureBoxSystems.MpfMediaController
             }
             catch (InvalidOperationException ioe)
             {
-                throw new BcpParseException(this, ioe);
+                throw new ParameterException(this, name, ioe);
             }
         }
 
@@ -121,7 +121,13 @@ namespace FutureBoxSystems.MpfMediaController
     public class WrongParserException : BcpParseException
     {
         public WrongParserException(BcpMessage culprit, string expectedCommand, string actualCommand, Exception innerException = null)
-            : base(culprit, innerException, $"Wrong parser chosen for message. Parser expected command type: {expectedCommand} Actual: {actualCommand}") { }
+            : base(culprit, innerException, $"Wrong parser chosen for message. Parser expected command type: '{expectedCommand}' Actual: '{actualCommand}'") { }
+    }
+
+    public class ParameterException : BcpParseException
+    {
+        public ParameterException(BcpMessage culprit, string parameterName, Exception innerException = null)
+            : base(culprit, innerException, $"Missing or invalid parameter '{parameterName}'") { }
     }
 
     /// <summary>

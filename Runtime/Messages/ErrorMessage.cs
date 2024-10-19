@@ -31,8 +31,6 @@ namespace FutureBoxSystems.MpfMediaController
 
         public static ErrorMessage FromGenericMessage(BcpMessage bcpMessage)
         {
-            if (bcpMessage.Command != Command)
-                throw new WrongParserException(bcpMessage, Command, bcpMessage.Command);
             return new ErrorMessage(
                 message: bcpMessage.FindParamValue(messageName),
                 commandThatCausedError: bcpMessage.FindParamValue(commandThatCausedErrorName)

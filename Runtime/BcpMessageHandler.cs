@@ -44,7 +44,7 @@ namespace FutureBoxSystems.MpfMediaController
         private void Handle(BcpMessage message)
         {
             if (message.Command != Command)
-                throw new BcpParseException(message);
+                throw new WrongParserException(message, Command, message.Command);
             T specificMessage = Parse(message);
             CommandReceived?.Invoke(this, specificMessage);
         }
