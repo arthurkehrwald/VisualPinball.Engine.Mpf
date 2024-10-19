@@ -163,10 +163,17 @@ namespace FutureBoxSystems.MpfMediaController
     {
         public BcpMessage Culprit { get; private set; }
 
-        public BcpParseException(BcpMessage culprit, Exception innerException = null) : base($"Failed to parse bcp message: {culprit}", innerException)
+        public BcpParseException(BcpMessage culprit, Exception innerException = null, string failReason = null)
+            : base($"Failed to parse bcp message: '{culprit}' Reason: {(failReason ?? "None given")}", innerException)
         {
             Culprit = culprit;
         }
+    }
+
+    public class WrongParserException : BcpParseException
+    {
+        public WrongParserException(BcpMessage culprit, string expectedCommand, string actualCommand, Exception innerException = null)
+            : base(culprit, innerException, $"Wrong parser chosen for message. Parser expected command type: {expectedCommand} Actual: {actualCommand}") { }
     }
 
     /// <summary>

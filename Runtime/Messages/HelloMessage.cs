@@ -36,7 +36,9 @@ namespace FutureBoxSystems.MpfMediaController
 
         public static HelloMessage FromGenericMessage(BcpMessage bcpMessage)
         {
-            return new(
+            if (bcpMessage.Command != Command)
+                throw new WrongParserException(bcpMessage, Command, bcpMessage.Command);
+            return new HelloMessage(
                 version: bcpMessage.FindParamValue(versionName),
                 controllerName: bcpMessage.FindParamValue(controllerNameName),
                 controllerVersion: bcpMessage.FindParamValue(controllerVersionName)

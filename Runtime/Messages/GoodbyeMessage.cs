@@ -9,8 +9,8 @@ namespace FutureBoxSystems.MpfMediaController
         public static GoodbyeMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             if (bcpMessage.Command != Command)
-                throw new BcpParseException(bcpMessage);
-            return new();
+                throw new WrongParserException(bcpMessage, Command, bcpMessage.Command);
+            return new GoodbyeMessage();
         }
     }
 }
