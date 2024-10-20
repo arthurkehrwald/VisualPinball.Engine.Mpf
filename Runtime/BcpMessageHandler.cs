@@ -46,7 +46,12 @@ namespace FutureBoxSystems.MpfMediaController
             if (message.Command != Command)
                 throw new WrongParserException(message, Command, message.Command);
             T specificMessage = Parse(message);
+            BeforeEvent();
             CommandReceived?.Invoke(this, specificMessage);
+            AfterEvent();
         }
+
+        protected virtual void BeforeEvent() { }
+        protected virtual void AfterEvent() { }
     }
 }
