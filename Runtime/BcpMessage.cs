@@ -78,9 +78,11 @@ namespace FutureBoxSystems.MpfMediaController
 
         public override string ToString()
         {
+            var nameEncoded = Uri.EscapeDataString(Name);
+            var valueEncoded = Uri.EscapeDataString(Value);
             if (string.IsNullOrEmpty(TypeHint))
-                return $"{Name}={Value}";
-            return $"{Name}={TypeHint}:{Value}";
+                return $"{nameEncoded}={valueEncoded}";
+            return $"{nameEncoded}={TypeHint}:{valueEncoded}";
         }
 
         public bool MatchesPattern(string name, string typeHint)

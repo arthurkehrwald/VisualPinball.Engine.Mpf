@@ -206,7 +206,7 @@ namespace FutureBoxSystems.MpfMediaController
             while (!ct.IsCancellationRequested && TryDequeueOutboundMessage(out BcpMessage bcpMessage))
             {
                 var stringMessage = bcpMessage.ToString();
-                stringMessage = Uri.EscapeDataString(stringMessage);
+                stringMessage += "\n";
                 var packet = Encoding.UTF8.GetBytes(stringMessage);
                 try
                 {
