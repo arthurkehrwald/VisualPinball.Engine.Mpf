@@ -9,7 +9,7 @@ namespace FutureBoxSystems.MpfMediaController
         protected BcpInterface bcpInterface;
 
         public abstract string Command { get; }
-        public virtual string MonitoringCategory => null;
+        public virtual MonitoringCategory MonitoringCategory => MonitoringCategory.None;
         protected abstract ParseDelegate Parse { get; }
         public delegate T ParseDelegate(BcpMessage genericMessage);
         private event EventHandler<T> CommandReceived;
@@ -19,13 +19,13 @@ namespace FutureBoxSystems.MpfMediaController
             {
                 bool isFirstHandler = CommandReceived == null;
                 CommandReceived += value;
-                if (isFirstHandler && MonitoringCategory != null)
+                if (isFirstHandler && MonitoringCategory != MonitoringCategory.None)
                     bcpInterface.AddMonitoringCategoryUser(MonitoringCategory);
             }
             remove
             {
                 CommandReceived -= value;
-                if (CommandReceived == null && MonitoringCategory != null)
+                if (CommandReceived == null && MonitoringCategory != MonitoringCategory.None)
                     bcpInterface.RemoveMonitoringCategoryUser(MonitoringCategory);
             }
         }
