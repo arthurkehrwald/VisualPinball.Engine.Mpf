@@ -16,7 +16,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         private void OnDisable()
         {
-            if (bcpInterface )
+            if (helloHandler)
                 helloHandler.Received -= HelloMessageReceived;
         }
 
