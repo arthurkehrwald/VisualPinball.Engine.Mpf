@@ -8,7 +8,7 @@ namespace FutureBoxSystems.MpfMediaController
     {
         public const string Command = "monitor_stop";
         private const string categoryName = "category";
-        public MonitoringCategory Category { get; private set; }
+        public readonly MonitoringCategory Category;
 
         public MonitorStopMessage(MonitoringCategory category)
         {

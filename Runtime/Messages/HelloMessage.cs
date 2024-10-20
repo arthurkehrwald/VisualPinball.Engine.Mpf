@@ -10,9 +10,9 @@ namespace FutureBoxSystems.MpfMediaController
         private const string versionName = "version";
         private const string controllerNameName = "controller_name";
         private const string controllerVersionName = "controller_version";
-        public string BcpSpecVersion { get; private set; }
-        public string ControllerName { get; private set; }
-        public string ControllerVersion { get; private set; }
+        public readonly string BcpSpecVersion;
+        public readonly string ControllerName;
+        public readonly string ControllerVersion;
 
         public HelloMessage(string version, string controllerName, string controllerVersion)
         {
