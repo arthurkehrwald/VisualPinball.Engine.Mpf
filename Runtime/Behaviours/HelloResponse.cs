@@ -1,6 +1,9 @@
 using UnityEngine;
+using FutureBoxSystems.MpfMediaController.Messages.Hello;
+using FutureBoxSystems.MpfMediaController.Messages.Error;
 
-namespace FutureBoxSystems.MpfMediaController
+
+namespace FutureBoxSystems.MpfMediaController.Behaviours
 {
     public class HelloResponse : MonoBehaviour
     {

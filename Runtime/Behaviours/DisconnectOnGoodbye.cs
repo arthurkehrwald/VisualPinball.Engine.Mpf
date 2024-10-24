@@ -1,6 +1,7 @@
 using UnityEngine;
+using FutureBoxSystems.MpfMediaController.Messages.Goodbye;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace FutureBoxSystems.MpfMediaController.Behaviours
 {
     public class DisconnectOnGoodbye : MonoBehaviour
     {

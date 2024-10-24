@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1824319182504738973}
   - component: {fileID: 3006042140711521680}
   - component: {fileID: 4146686170121310886}
+  - component: {fileID: 7019407901035039939}
   m_Layer: 0
   m_Name: MessageHandlers
   m_TagString: Untagged
@@ -59,7 +60,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4502278156144720521}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ad4af17d27824a418620638a7c60d96, type: 3}
+  m_Script: {fileID: 11500000, guid: 6f9bc1ba9f51a604db49e1a6e7f59a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bcpInterface: {fileID: 3405300645593462295}
@@ -112,6 +113,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 587867a0f90cc0947a58c70dd2a7eff6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bcpInterface: {fileID: 3405300645593462295}
+--- !u!114 &7019407901035039939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4502278156144720521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88948b8ed19a20e40a42d16e46c70610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bcpInterface: {fileID: 3405300645593462295}
