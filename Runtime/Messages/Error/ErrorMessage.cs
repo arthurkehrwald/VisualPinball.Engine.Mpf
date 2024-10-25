@@ -32,8 +32,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
         public static ErrorMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new ErrorMessage(
-                message: bcpMessage.FindParamValue(messageName),
-                commandThatCausedError: bcpMessage.FindParamValue(commandThatCausedErrorName)
+                message: bcpMessage.GetParamValue(messageName),
+                commandThatCausedError: bcpMessage.GetParamValue(commandThatCausedErrorName)
             );
         }
     }

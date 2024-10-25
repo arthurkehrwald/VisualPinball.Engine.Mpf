@@ -21,7 +21,14 @@ namespace FutureBoxSystems.MpfMediaController
 
         public BcpMessage(string command) : this(command, new()) { }
 
-        public string FindParamValue(string name, string typeHint = null)
+        public bool TryGetParamValue(string name, out string value, string typeHint = null)
+        {
+            BcpParameter param = parameters.FirstOrDefault(p => p.MatchesPattern(name, typeHint));
+            value = param?.Value;
+            return param != null;
+        }
+
+        public string GetParamValue(string name, string typeHint = null)
         {
             try
             {

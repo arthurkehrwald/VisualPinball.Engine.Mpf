@@ -23,7 +23,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
 
         public static DeviceMessage FromGenericMessage(BcpMessage bcpMessage)
         {
-            var jsonString = bcpMessage.FindParamValue(jsonParamName);
+            var jsonString = bcpMessage.GetParamValue(jsonParamName);
             try
             {
                 var jsonObject = JObject.Parse(jsonString);

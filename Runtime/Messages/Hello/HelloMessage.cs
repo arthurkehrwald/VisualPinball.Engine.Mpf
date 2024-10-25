@@ -36,9 +36,9 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Hello
         public static HelloMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new HelloMessage(
-                version: bcpMessage.FindParamValue(versionName),
-                controllerName: bcpMessage.FindParamValue(controllerNameName),
-                controllerVersion: bcpMessage.FindParamValue(controllerVersionName)
+                version: bcpMessage.GetParamValue(versionName),
+                controllerName: bcpMessage.GetParamValue(controllerNameName),
+                controllerVersion: bcpMessage.GetParamValue(controllerVersionName)
             );
         }
     }
