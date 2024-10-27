@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
 {
-    public abstract class PrimitiveMachineVarMessageHandler<T> : MonoBehaviour
+    public abstract class PrimitiveMachineVarMonitor<T> : MonoBehaviour where T : IEquatable<T>
     {
         [SerializeField]
         protected string varName;
@@ -11,6 +11,19 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
         private MachineVarMessageHandler machineVarMessageHandler;
 
         public event EventHandler<T> ValueUpdated;
+        private T varValue = default;
+        public T VarValue
+        {
+            get => varValue;
+            set
+            {
+                if (value.Equals(varValue))
+                    return;
+                varValue = value;
+                ValueUpdated?.Invoke(this, varValue);
+            }
+        }
+        public bool WasEverUpdated { get; private set; } = false;
 
         private void OnEnable()
         {
@@ -42,7 +55,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
                 throw new ParameterException(MachineVarMessage.ValueParamName, null, e);
             }
 
-            ValueUpdated?.Invoke(this, convertedValue);
+            WasEverUpdated = true;
+            VarValue = convertedValue;
         }
     }
 }
