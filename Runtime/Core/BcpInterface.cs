@@ -99,7 +99,6 @@ namespace FutureBoxSystems.MpfMediaController
                     if (userCount > 0)
                         TrySendMessage(new MonitorStartMessage(category));
                 }
-                TrySendMessage(new MonitorStartMessage(MonitoringCategory.MachineVars));
             }
         }
 
