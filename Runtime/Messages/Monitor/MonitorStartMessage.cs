@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
                 Debug.LogError("[MonitorStartMessage] Cannot create proper BCP message because monitoring category has no associated string value");
             return new(
                 command: Command,
-                parameters: new List<BcpParameter>() { new(categoryName, categoryString) }
+                parameters: new JObject { [categoryName] = categoryString }
             );
         }
     }

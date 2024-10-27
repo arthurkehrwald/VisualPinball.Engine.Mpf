@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Error
 {
@@ -10,21 +10,20 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
         private const string commandThatCausedErrorName = "command";
         public string Message { get; private set; }
         public string CommandThatCausedError { get; private set; }
-        
+
         public ErrorMessage(string message, string commandThatCausedError)
         {
             Message = message;
             CommandThatCausedError = commandThatCausedError;
         }
-        
+
         public BcpMessage ToGenericMessage()
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new List<BcpParameter>()
-                {
-                    new(messageName, Message),
-                    new(commandThatCausedErrorName, CommandThatCausedError)
+                parameters: new JObject{
+                    { messageName, Message },
+                    { commandThatCausedErrorName, CommandThatCausedError }
                 }
             );
         }
@@ -32,8 +31,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
         public static ErrorMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new ErrorMessage(
-                message: bcpMessage.GetParamValue(messageName),
-                commandThatCausedError: bcpMessage.GetParamValue(commandThatCausedErrorName)
+                message: bcpMessage.GetParamValue<string>(messageName),
+                commandThatCausedError: bcpMessage.GetParamValue<string>(commandThatCausedErrorName)
             );
         }
     }

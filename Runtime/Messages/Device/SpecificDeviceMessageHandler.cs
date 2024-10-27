@@ -41,14 +41,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             StateJsonFormat deserializedState;
             try
             {
-                deserializedState = JsonConvert.DeserializeObject<StateJsonFormat>(deviceMessage.StateJson, new JsonSerializerSettings
-                {
-                    MissingMemberHandling = MissingMemberHandling.Error
-                });
+                deserializedState = deviceMessage.State.ToObject<StateJsonFormat>();
             }
-            catch (JsonSerializationException jse)
+            catch (JsonException e)
             {
-                throw new InvalidDeviceStateException(deviceMessage.Type, typeof(StateJsonFormat), jse);
+                throw new InvalidDeviceStateException(deviceMessage.Type, typeof(StateJsonFormat), e);
             }
 
             MessageType specificDeviceMessage = ParseState(deserializedState, deviceMessage.Name);

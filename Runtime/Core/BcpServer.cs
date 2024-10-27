@@ -182,8 +182,7 @@ namespace FutureBoxSystems.MpfMediaController
                 while (!ct.IsCancellationRequested && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1)
                 {
                     var message = stringBuffer.ToString(0, messageLength);
-                    stringBuffer.Remove(0, messageLength + 1);                    
-                    message = Uri.UnescapeDataString(message);
+                    stringBuffer.Remove(0, messageLength + 1);
                     if (message.Length > 0 && !message.StartsWith("#"))
                     {
                         var bcpMessage = BcpMessage.FromString(message);

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Hello
@@ -24,11 +24,10 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Hello
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new List<BcpParameter>()
-                {
-                    new(versionName, BcpSpecVersion),
-                    new(controllerNameName, ControllerName),
-                    new(controllerVersionName, ControllerVersion)
+                parameters: new JObject{
+                    { versionName, BcpSpecVersion },
+                    { controllerNameName, ControllerName },
+                    { controllerVersionName, ControllerVersion }
                 }
             );
         }
@@ -36,10 +35,9 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Hello
         public static HelloMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new HelloMessage(
-                version: bcpMessage.GetParamValue(versionName),
-                controllerName: bcpMessage.GetParamValue(controllerNameName),
-                controllerVersion: bcpMessage.GetParamValue(controllerVersionName)
-            );
+                version: bcpMessage.GetParamValue<string>(versionName),
+                controllerName: bcpMessage.GetParamValue<string>(controllerNameName),
+                controllerVersion: bcpMessage.GetParamValue<string>(controllerVersionName));
         }
     }
 }
