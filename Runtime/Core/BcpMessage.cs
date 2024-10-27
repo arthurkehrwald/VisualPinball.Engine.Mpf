@@ -63,7 +63,7 @@ namespace FutureBoxSystems.MpfMediaController
                 for (int i = 0; i < properties.Count(); i++)
                 {
                     JProperty prop = properties.ElementAt(i);
-                    string propStr = PropertyToString(prop, encode);
+                    string propStr = PropertyToParameterString(prop, encode);
                     sb.Append(propStr);
                     bool isLastParam = i == parameters.Count - 1;
                     if (!isLastParam)
@@ -81,7 +81,7 @@ namespace FutureBoxSystems.MpfMediaController
             JObject parameters = new();
             for (int i = 1; i < parts.Length; i++)
             {
-                JProperty property = StringToProperty(parts[i]);
+                JProperty property = ParameterStringToProperty(parts[i]);
                 if (property.Name == "json" && property.Value is JObject)
                 {
                     containsJson = true;
@@ -97,7 +97,7 @@ namespace FutureBoxSystems.MpfMediaController
             return new BcpMessage(command, parameters, containsJson);
         }
 
-        private static string PropertyToString(JProperty property, bool encode)
+        private static string PropertyToParameterString(JProperty property, bool encode)
         {
             var name = property.Name;
             string value;
@@ -125,7 +125,7 @@ namespace FutureBoxSystems.MpfMediaController
             return $"{name}={typeHint}:{value}";
         }
 
-        private static JProperty StringToProperty(string str)
+        private static JProperty ParameterStringToProperty(string str)
         {
             string[] parts = str.Split('=', 2);
             string name = parts[0].Trim().ToLower(); // Not case sensitive
@@ -162,7 +162,6 @@ namespace FutureBoxSystems.MpfMediaController
                     };
                 }
             }
-
 
             return new JProperty(name, value);
         }
