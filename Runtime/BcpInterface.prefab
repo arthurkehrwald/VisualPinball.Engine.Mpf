@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 3090677156515762911}
   - component: {fileID: 7662757724108484360}
   - component: {fileID: 7963542148954742278}
+  - component: {fileID: 491971619498350422}
   m_Layer: 0
   m_Name: MessageHandlers
   m_TagString: Untagged
@@ -196,6 +197,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35edded1d3e1dbf43abd87fd5af57e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bcpInterface: {fileID: 3405300645593462295}
+--- !u!114 &491971619498350422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4502278156144720521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dab47b28efdc1874687cf7a107bab2c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bcpInterface: {fileID: 3405300645593462295}
