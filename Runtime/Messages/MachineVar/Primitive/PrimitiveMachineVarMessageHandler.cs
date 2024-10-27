@@ -39,7 +39,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
                 e is OverflowException ||
                 e is ArgumentNullException)
             {
-                throw new ParameterException(MachineVarMessage.valueName, null, e);
+                throw new ParameterException(MachineVarMessage.ValueParamName, null, e);
             }
 
             ValueUpdated?.Invoke(this, convertedValue);

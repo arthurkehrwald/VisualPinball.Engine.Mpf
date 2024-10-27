@@ -6,8 +6,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
     public class MachineVarMessage : EventArgs
     {
         public const string Command = "machine_variable";
-        private const string nameName = "name";
-        private const string valueName = "value";
+        public const string NameParamName = "name";
+        public const string ValueParamName = "value";
         public readonly string Name;
         public readonly JToken Value;
 
@@ -20,8 +20,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
         public static MachineVarMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new MachineVarMessage(
-                name: bcpMessage.GetParamValue<string>(nameName),
-                value: bcpMessage.GetParamValue<JToken>(valueName)
+                name: bcpMessage.GetParamValue<string>(NameParamName),
+                value: bcpMessage.GetParamValue<JToken>(ValueParamName)
             );
         }
     }
