@@ -32,7 +32,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
 
         private void OnDisable()
         {
-            machineVarMessageHandler.Received -= MachineVarMessageHandler_Received;
+            if (machineVarMessageHandler)
+                machineVarMessageHandler.Received -= MachineVarMessageHandler_Received;
         }
 
         private void MachineVarMessageHandler_Received(object sender, MachineVarMessage msg)
