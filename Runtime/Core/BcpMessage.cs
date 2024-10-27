@@ -33,7 +33,10 @@ namespace FutureBoxSystems.MpfMediaController
                 // If string is requested, but parsed type is different, just return the unparsed JSON string
                 if (typeof(T) == typeof(string) && token.Type != JTokenType.String)
                     return (T)Convert.ChangeType(token.ToString(Formatting.None), typeof(T));
-                
+
+                if (typeof(JToken).IsAssignableFrom(typeof(T)))
+                    return (T)(object)parameters[name];
+
                 return (T)Convert.ChangeType(token, typeof(T));
             }
             catch (Exception e) when (e is KeyNotFoundException || e is InvalidCastException)
