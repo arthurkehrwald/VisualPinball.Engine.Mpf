@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
-    public class SharedEventListener<EventType>
+    public class MpfEventRequester<EventType>
     {
         public delegate ISentMessage CreateMessage(EventType _event);
 
@@ -12,7 +12,7 @@ namespace FutureBoxSystems.MpfMediaController
         private readonly CreateMessage createStopListeningMessage;
         private readonly Dictionary<EventType, HashSet<object>> listeners = new();
 
-        public SharedEventListener(
+        public MpfEventRequester(
             BcpInterface bcpInterface,
             CreateMessage createStartListeningMessage,
             CreateMessage createStopListeningMessage)

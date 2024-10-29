@@ -25,14 +25,14 @@ namespace FutureBoxSystems.MpfMediaController
 
         public delegate void HandleMessage(BcpMessage message);
         private readonly Dictionary<string, HandleMessage> messageHandlers = new();
-        private SharedEventListener<MonitoringCategory> monitoringCategories;
-        public SharedEventListener<MonitoringCategory> MonitoringCategories => monitoringCategories ??= new(
+        private MpfEventRequester<MonitoringCategory> monitoringCategories;
+        public MpfEventRequester<MonitoringCategory> MonitoringCategories => monitoringCategories ??= new(
             bcpInterface: this,
             createStartListeningMessage: category => new MonitorStartMessage(category),
             createStopListeningMessage: category => new MonitorStopMessage(category));
 
-        private SharedEventListener<string> mpfEvents;
-        public SharedEventListener<string> MpfEvents => mpfEvents ??= new(
+        private MpfEventRequester<string> mpfEvents;
+        public MpfEventRequester<string> MpfEvents => mpfEvents ??= new(
             bcpInterface: this,
             createStartListeningMessage: category => new RegisterTriggerMessage(category),
             createStopListeningMessage: category => new RemoveTriggerMessage(category));
