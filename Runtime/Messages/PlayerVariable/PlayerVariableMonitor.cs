@@ -5,7 +5,7 @@ using UnityEngine;
     
 namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
 {
-    public abstract class PlayerVariableMonitorBase<VarType> : MpfVariableMonitorBase<VarType, PlayerVariableMessage> where VarType : IEquatable<VarType>
+    public abstract class PlayerVariableMonitor<VarType> : MpfVariableMonitorBase<VarType, PlayerVariableMessage> where VarType : IEquatable<VarType>
     {
         [SerializeField]
         CurrentPlayerMonitor currentPlayerMonitor;

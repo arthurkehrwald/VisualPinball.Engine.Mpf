@@ -1,4 +1,4 @@
 namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
 {
-    public class FloatPlayerVariableMonitor : PlayerVariableMonitorBase<float> { }
+    public class FloatPlayerVariableMonitor : PlayerVariableMonitor<float> { }
 }
