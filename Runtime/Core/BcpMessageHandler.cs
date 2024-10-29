@@ -21,13 +21,17 @@ namespace FutureBoxSystems.MpfMediaController
                 bool isFirstHandler = CommandReceived == null;
                 CommandReceived += value;
                 if (isFirstHandler && MonitoringCategory != MonitoringCategory.None)
-                    bcpInterface.AddMonitoringCategoryUser(MonitoringCategory);
+                    bcpInterface.MonitoringCategories.AddListener(this, MonitoringCategory);
             }
             remove
             {
                 CommandReceived -= value;
-                if (CommandReceived == null && MonitoringCategory != MonitoringCategory.None)
-                    bcpInterface.RemoveMonitoringCategoryUser(MonitoringCategory);
+                if (bcpInterface != null &&
+                    CommandReceived == null &&
+                    MonitoringCategory != MonitoringCategory.None)
+                {
+                    bcpInterface.MonitoringCategories.RemoveListener(this, MonitoringCategory);
+                }
             }
         }
 
