@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages
 {
-    public abstract class MpfVariableMonitorBase<VarType, MsgType> : MonitorBase<VarType, MsgType> where VarType : IEquatable<VarType> where MsgType : MpfVariableMessageBase
+    public abstract class MpfVariableMonitorBase<VarType, MsgType> : MonitorBase<VarType, MsgType>
+        where VarType : IEquatable<VarType>
+        where MsgType : MpfVariableMessageBase
     {
         [SerializeField]
         protected string varName;
