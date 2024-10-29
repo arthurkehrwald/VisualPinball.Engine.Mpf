@@ -1,4 +1,4 @@
 namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
 {
-    public class BoolMachineVariableMonitor : PrimitiveMachineVariableBase<bool> { }
+    public class BoolMachineVariableMonitor : MachineVariableMonitor<bool> { }
 }

@@ -1,4 +1,4 @@
 namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar.Primitive
 {
-    public class StringMachineVariableMonitor : PrimitiveMachineVariableBase<string> { }
+    public class StringMachineVariableMonitor : MachineVariableMonitor<string> { }
 }
