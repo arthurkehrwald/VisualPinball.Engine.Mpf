@@ -38,8 +38,6 @@ namespace FutureBoxSystems.MpfMediaController
             createStopListeningMessage: category => new RemoveTriggerMessage(category));
 
 
-        public event EventHandler<ConnectionState> ConnectionStateChanged;
-
         public void RegisterMessageHandler(string command, HandleMessage handle)
         {
             if (!messageHandlers.TryAdd(command, handle))
@@ -64,19 +62,18 @@ namespace FutureBoxSystems.MpfMediaController
 
         public void RequestDisconnect()
         {
-            if (ConnectionState == ConnectionState.Connected)
+            if (Server.ConnectionState == ConnectionState.Connected)
                 Server.RequestDisconnect();
         }
 
         private async void OnEnable()
         {
-            Server.StateChanged += HandleServerStateChanged;
             await Server.OpenConnectionAsync();
         }
 
-        private void HandleServerStateChanged(object sender, ConnectionStateChangedEventArgs e)
+        private async void OnDisable()
         {
-            ConnectionStateChanged?.Invoke(this, e.CurrentState);
+            await Server.CloseConnectionAsync();
         }
 
         private void Update()
@@ -111,12 +108,6 @@ namespace FutureBoxSystems.MpfMediaController
                 Debug.LogError($"[BcpInterface] No parser registered for message with command '{message.Command}' Message: {message}");
                 EnqueueMessage(new ErrorMessage("unknown command", message.ToString()));
             }
-        }
-
-        private async void OnDisable()
-        {
-            await Server.CloseConnectionAsync();
-            Server.StateChanged -= HandleServerStateChanged;
         }
     }
 }
