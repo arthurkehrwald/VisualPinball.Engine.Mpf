@@ -40,7 +40,7 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
                     message: "unknown protocol version",
                     commandThatCausedError: originalHelloMessage);
             }
-            bcpInterface.TrySendMessage(response);
+            bcpInterface.EnqueueMessage(response);
         }
     }
 }

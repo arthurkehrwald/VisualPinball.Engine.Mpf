@@ -9,7 +9,7 @@ namespace FutureBoxSystems.MpfMediaController
 {
     public class BcpInterface : MonoBehaviour
     {
-        public ConnectionState ConnectionState => server != null ? server.ConnectionState : ConnectionState.NotConnected;
+        public ConnectionState ConnectionState => Server.ConnectionState;
         [SerializeField]
         private int port = 5050;
         [SerializeField]
@@ -21,6 +21,7 @@ namespace FutureBoxSystems.MpfMediaController
         private bool logSentMessages = false;
 
         private BcpServer server;
+        private BcpServer Server => server ??= new BcpServer(port);
 
         public delegate void HandleMessage(BcpMessage message);
         private readonly Dictionary<string, HandleMessage> messageHandlers = new();
@@ -53,30 +54,24 @@ namespace FutureBoxSystems.MpfMediaController
                 Debug.LogWarning($"[BcpInterface] Cannot remove message handler for command '{command}', because it is not registered.");
         }
 
-        public bool TrySendMessage(ISentMessage message)
+        public void EnqueueMessage(ISentMessage message)
         {
-            if (ConnectionState == ConnectionState.Connected)
-            {
-                BcpMessage bcpMessage = message.ToGenericMessage();
-                if (logSentMessages)
-                    Debug.Log($"[BcpInterface] Sending message: {bcpMessage}");
-                server.EnqueueMessage(bcpMessage);
-                return true;
-            }
-            return false;
+            BcpMessage bcpMessage = message.ToGenericMessage();
+            if (logSentMessages)
+                Debug.Log($"[BcpInterface] Sending message: {bcpMessage}");
+            Server.EnqueueMessage(bcpMessage);
         }
 
         public void RequestDisconnect()
         {
             if (ConnectionState == ConnectionState.Connected)
-                server.RequestDisconnect();
+                Server.RequestDisconnect();
         }
 
         private async void OnEnable()
         {
-            server ??= new BcpServer(port);
-            server.StateChanged += HandleServerStateChanged;
-            await server.OpenConnectionAsync();
+            Server.StateChanged += HandleServerStateChanged;
+            await Server.OpenConnectionAsync();
         }
 
         private void HandleServerStateChanged(object sender, ConnectionStateChangedEventArgs e)
@@ -88,7 +83,7 @@ namespace FutureBoxSystems.MpfMediaController
         {
             float startTime = Time.unscaledTime;
             float timeSpentMs = 0f;
-            while (timeSpentMs < frameTimeBudgetMs && server.TryDequeueReceivedMessage(out var message))
+            while (timeSpentMs < frameTimeBudgetMs && Server.TryDequeueReceivedMessage(out var message))
             {
                 HandleReceivedMessage(message);
                 timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
@@ -114,14 +109,14 @@ namespace FutureBoxSystems.MpfMediaController
             else
             {
                 Debug.LogError($"[BcpInterface] No parser registered for message with command '{message.Command}' Message: {message}");
-                TrySendMessage(new ErrorMessage("unknown command", message.ToString()));
+                EnqueueMessage(new ErrorMessage("unknown command", message.ToString()));
             }
         }
 
         private async void OnDisable()
         {
-            await server.CloseConnectionAsync();
-            server.StateChanged -= HandleServerStateChanged;
+            await Server.CloseConnectionAsync();
+            Server.StateChanged -= HandleServerStateChanged;
         }
     }
 }
