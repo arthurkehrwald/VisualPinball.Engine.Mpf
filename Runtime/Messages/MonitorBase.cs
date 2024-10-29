@@ -19,7 +19,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages
             protected set
             {
                 WasEverUpdated = true;
-                if (value.Equals(varValue))
+                if ((value == null && VarValue == null)|| value.Equals(varValue))
                     return;
                 varValue = value;
                 ValueChanged?.Invoke(this, varValue);
