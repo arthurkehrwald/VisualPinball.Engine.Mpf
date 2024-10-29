@@ -1,3 +1,4 @@
+using FutureBoxSystems.MpfMediaController.Messages.Reset;
 using System;
 using UnityEngine;
 
@@ -7,6 +8,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages
     {
         [SerializeField]
         private BcpMessageHandler<MsgType> messageHandler;
+        [SerializeField]
+        private ResetMessageHandler resetMessageHandler;
 
         public event EventHandler<VarType> ValueChanged;
         private VarType varValue = default;
@@ -27,12 +30,21 @@ namespace FutureBoxSystems.MpfMediaController.Messages
         protected virtual void OnEnable()
         {
             messageHandler.Received += MessageHandler_Received;
+            resetMessageHandler.Received += ResetMessageHandler_Received;
         }
 
         protected virtual void OnDisable()
         {
             if (messageHandler)
                 messageHandler.Received -= MessageHandler_Received;
+            if (resetMessageHandler)
+                resetMessageHandler.Received -= ResetMessageHandler_Received;
+        }
+
+        private void ResetMessageHandler_Received(object sender, ResetMessage msg)
+        {
+            VarValue = default;
+            WasEverUpdated = false;
         }
 
         protected virtual void MessageHandler_Received(object sender, MsgType msg)
