@@ -21,7 +21,7 @@ namespace FutureBoxSystems.MpfMediaController
             if (bcpInterface != null)
             {
                 var connectionState = bcpInterface.ConnectionState;
-                EditorGUILayout.LabelField("Connection status:", connectionState.ToString());
+                EditorGUILayout.LabelField("Connection status", connectionState.ToString());
             }
             base.OnInspectorGUI();
         }
