@@ -20,18 +20,11 @@ namespace VisualPinball.Engine.Mpf
 	public class MpfApi : IDisposable
 	{
 		public readonly MpfClient Client = new MpfClient();
-		private readonly MpfSpawner _spawner;
 
-		public MpfApi(string machineFolder)
-		{
-			_spawner = new MpfSpawner(Path.GetFullPath(machineFolder));
-		}
-
-		public static MachineDescription GetMachineDescription(string machineFolder)
+		public static MachineDescription GetMachineDescription(string mpfBinary, string machineFolder)
 		{
 			var client = new MpfClient();
-			var spawner = new MpfSpawner(machineFolder);
-			spawner.Spawn(new MpfConsoleOptions { ShowLogInsteadOfConsole = true });
+			MpfSpawner.Spawn(mpfBinary, machineFolder, new MpfConsoleOptions { OutputType = OutputType.Log, VerboseLogging = true });
 			client.Connect("localhost:50051");
 			client.StartGame(new Dictionary<string, bool>(), false);
 			var description = client.GetMachineDescription();
@@ -45,9 +38,9 @@ namespace VisualPinball.Engine.Mpf
 		/// <param name="options">MPF options</param>
 		/// <param name="port">gRPC port to use for MPC/VPE communication</param>
 		/// <returns></returns>
-		public void Launch(MpfConsoleOptions options, int port = 50051)
+		public void Launch(string mpfBinary, string machineFolder, MpfConsoleOptions options, int port = 50051)
 		{
-			_spawner.Spawn(options);
+			MpfSpawner.Spawn(mpfBinary, machineFolder, options);
 			Client.Connect($"localhost:{port}");
 		}
 

@@ -12,109 +12,93 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 using NLog;
 
 namespace VisualPinball.Engine.Mpf
 {
-	internal class MpfSpawner
+	internal static class MpfSpawner
 	{
-		private Thread _thread;
-		private readonly string _pwd;
-		private readonly string _machineFolder;
-
-		private readonly SemaphoreSlim _ready = new SemaphoreSlim(0, 1);
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-		public MpfSpawner(string machineFolder)
+		public static void Spawn(string mpfBinary, string machineFolder, MpfConsoleOptions options)
 		{
-			_pwd = Path.GetDirectoryName(machineFolder);
-			_machineFolder = Path.GetFileName(machineFolder);
-		}
-
-		public void Spawn(MpfConsoleOptions options)
-		{
-			var mpfExe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "mpf.exe" : "mpf";
-			var mpfExePath = GetFullPath(mpfExe);
-			if (mpfExePath == null) {
-				throw new InvalidOperationException($"Could not find {mpfExe}!");
-			}
-
-			_thread = new Thread(() => {
+			var readySemaphore = new SemaphoreSlim(0, 1);
+			var thread = new Thread(() => {
 				Thread.CurrentThread.IsBackground = true;
-				RunMpf(mpfExePath, options);
+				RunMpf(mpfBinary, machineFolder, options, readySemaphore);
 			});
 
-			_thread.Start();
-			_ready.Wait();
+			thread.Start();
+			readySemaphore.Wait();
 		}
 
-		private void RunMpf(string mpfExePath, MpfConsoleOptions options)
+		private static void RunMpf(string mpfBinary, string machineFolder, MpfConsoleOptions options, SemaphoreSlim readySemaphore)
 		{
-			var args = $"\"{_machineFolder}\"";
-			if (options.UseMediaController) {
-				args = "both " + args;
-			} else {
-				args += " -b";
-			}
+			var args = BuildProcessArgs(machineFolder, options);
 
-			if (options.ShowLogInsteadOfConsole) {
-				args += " -t";
-			}
-			if (options.VerboseLogging) {
-				args += " -v -V";
-			}
-			var info = new ProcessStartInfo {
-				FileName = mpfExePath,
-				WorkingDirectory = _pwd,
+            var info = new ProcessStartInfo {
+				FileName = mpfBinary,
+				WorkingDirectory = FindBinaryInEnvironment(machineFolder),
 				Arguments = args,
 				UseShellExecute = !options.CatchStdOut,
 				RedirectStandardOutput = options.CatchStdOut,
 			};
 
-			Logger.Info($"[MPF] Spawning: > {mpfExePath} {args}");
+			Logger.Info($"[MPF] Spawning: > {mpfBinary} {args}");
 
-			using (var process = Process.Start(info)) {
-				Thread.Sleep(1500);
+            using var process = Process.Start(info);
+            Thread.Sleep(1500);
+            readySemaphore.Release();
 
-				_ready.Release();
-				if (!options.CatchStdOut) {
-					process.WaitForExit();
+            if (!options.CatchStdOut)
+            {
+                process.WaitForExit();
 
-				} else {
-					using (var reader = process.StandardOutput) {
-						var result = reader.ReadToEnd();
-						Console.Write(result);
-						process.WaitForExit();
-					}
-				}
-			}
-		}
+            }
+            else
+            {
+                using var reader = process.StandardOutput;
+                var result = reader.ReadToEnd();
+                Console.Write(result);
+                process.WaitForExit();
+            }
+        }
 
-		/// <summary>
-		/// Goes through the OS's PATHs to find the provided executable.
-		/// </summary>
-		/// <param name="fileName">Executable filename</param>
-		/// <returns>Full path or null of not found.</returns>
-		private static string GetFullPath(string fileName)
+		private static string BuildProcessArgs(string machineFolder, MpfConsoleOptions options)
 		{
-			// in current working directory?
-			if (File.Exists(fileName)) {
-				return Path.GetFullPath(fileName);
-			}
+            var args = $"\"{machineFolder}\"";
 
-			// go through all PATHs
-			var values = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
-			values += Path.PathSeparator + Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-			foreach (var path in values.Split(Path.PathSeparator)) {
-				var fullPath = Path.Combine(path, fileName);
-				if (File.Exists(fullPath)) {
-					return fullPath;
-				}
-			}
-			return null;
-		}
+            switch (options.MediaController)
+            {
+                case MediaController.None:
+                    args += " -b";
+                    break;
+                case MediaController.MpfMc:
+                    args = "both " + args;
+                    break;
+                case MediaController.Other:
+                    // Default behavior of MPF
+                    break;
+            }
+
+            switch (options.OutputType)
+            {
+                case OutputType.TextUi:
+                    // Default behavior of MPF
+                    break;
+                case OutputType.Log:
+                    args += " -t";
+                    break;
+            }
+
+            if (options.VerboseLogging) args += " -v -V";
+            if (!options.cacheConfigFiles) args += " -A";
+            if (options.forceReloadConfig) args += " -a";
+            if (options.forceLoadAllAssetsOnStart) args += " -f";
+
+			return args;
+        }
 	}
 
 	/// <summary>
