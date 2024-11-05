@@ -40,7 +40,8 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public GamelogicEngineLamp[] RequestedLamps => requiredLamps;
 		public GamelogicEngineWire[] AvailableWires => availableWires;
 
-		public event EventHandler<EventArgs> OnStarted;
+#pragma warning disable CS0067
+        public event EventHandler<EventArgs> OnStarted;
 		public event EventHandler<LampEventArgs> OnLampChanged;
 		public event EventHandler<LampsEventArgs> OnLampsChanged;
 		public event EventHandler<CoilEventArgs> OnCoilChanged;
@@ -48,8 +49,9 @@ namespace VisualPinball.Engine.Mpf.Unity
 		public event EventHandler<string> OnDisplayClear;
 		public event EventHandler<DisplayFrameData> OnDisplayUpdateFrame;
 		public event EventHandler<SwitchEventArgs2> OnSwitchChanged;
+#pragma warning restore CS0067
 
-		[NonSerialized]
+        [NonSerialized]
 		private MpfApi _api;
 
 		public string MachineFolder
