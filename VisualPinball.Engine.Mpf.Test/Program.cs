@@ -38,8 +38,7 @@ namespace MpfTest
 			var mpfApi = new MpfApi(machineFolder);
 
 			mpfApi.Launch(new MpfConsoleOptions {
-				//ShowLogInsteadOfConsole = true,
-				//CatchStdOut = true,
+				MediaController = MediaController.None
 			});
 
 			mpfApi.StartGame(new Dictionary<string, bool> {
@@ -87,10 +86,10 @@ namespace MpfTest
 				key = Console.ReadKey();
 				switch (key.Key) {
 					case ConsoleKey.A:
-						await mpfApi.Switch("0", true);
+						await mpfApi.Switch("22", true);
 						break;
 					case ConsoleKey.S:
-						await mpfApi.Switch("0", false);
+						await mpfApi.Switch("22", false);
 						break;
 				}
 			} while (key.Key != ConsoleKey.Escape);
