@@ -36,9 +36,10 @@ namespace VisualPinball.Engine.Mpf
 		private MpfHardwareService.MpfHardwareServiceClient _client;
 
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-		private Thread _commandsThread;
-		private AsyncServerStreamingCall<Commands> _commandStream;
+		private Task _receiveCommandsTask;
+		private Task _writeSwitchChangeTask;
 		private AsyncClientStreamingCall<SwitchChanges, EmptyResponse> _switchStream;
+		private CancellationTokenSource _cts;
 
 		public void Connect(string serverIpPort = "127.0.0.1:50051")
 		{
@@ -55,11 +56,12 @@ namespace VisualPinball.Engine.Mpf
 			}
 
 			Logger.Info("Starting player with machine state: " + ms);
-			_commandStream = _client.Start(ms);
+
+			_cts = new CancellationTokenSource();
 
 			if (handleStream) {
-				_commandsThread = new Thread(ReceiveCommands) { IsBackground = true };
-				_commandsThread.Start();
+				AsyncServerStreamingCall<Commands> commandsStream = _client.Start(ms);
+				_receiveCommandsTask = ReceiveCommands(commandsStream, _cts.Token);
 			}
 
 			_switchStream = _client.SendSwitchChanges();
@@ -67,17 +69,19 @@ namespace VisualPinball.Engine.Mpf
 
 		public async Task Switch(string swName, bool swValue)
 		{
-			await _switchStream.RequestStream.WriteAsync(new SwitchChanges
+			_writeSwitchChangeTask = _switchStream.RequestStream.WriteAsync(new SwitchChanges
 				{SwitchNumber = swName, SwitchState = swValue});
+			await _writeSwitchChangeTask;
+			_writeSwitchChangeTask = null;
 		}
 
-		private async void ReceiveCommands()
+		private async Task ReceiveCommands(AsyncServerStreamingCall<Commands> commandsStream, CancellationToken ct)
 		{
 			Logger.Info("Client started, retrieving commands...");
 
 			try {
-				while (await _commandStream.ResponseStream.MoveNext()) {
-					var commands = _commandStream.ResponseStream.Current;
+				while (await commandsStream.ResponseStream.MoveNext(ct)) {
+					var commands = commandsStream.ResponseStream.Current;
 					switch (commands.CommandCase) {
 						case Commands.CommandOneofCase.None:
 							break;
@@ -107,9 +111,11 @@ namespace VisualPinball.Engine.Mpf
 					}
 				}
 			}
-
 			catch(RpcException e) {
-				Logger.Error($"Unable to retrieve commands: Status={e.Status}");
+				if (!ct.IsCancellationRequested)
+					Logger.Error($"Unable to retrieve commands: Status={e.Status}");
+			} finally {
+				commandsStream.Dispose();
 			}
 		}
 
@@ -122,8 +128,16 @@ namespace VisualPinball.Engine.Mpf
 		public void Shutdown()
 		{
 			Logger.Info("Shutting down...");
-			_client.Quit(new QuitRequest());
-			_commandStream?.Dispose();
+			if (_channel.State == ChannelState.Ready)
+				_client.Quit(new QuitRequest());
+			_cts?.Cancel();
+			_cts?.Dispose();
+			_cts = null;
+			_receiveCommandsTask.Wait();
+			_receiveCommandsTask = null;
+			_writeSwitchChangeTask?.Wait();
+			_writeSwitchChangeTask = null;
+			_switchStream?.Dispose();
 			_channel.ShutdownAsync().Wait();
 			Logger.Info("All down.");
 		}
