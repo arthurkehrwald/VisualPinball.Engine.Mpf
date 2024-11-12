@@ -61,7 +61,7 @@ namespace VisualPinball.Engine.Mpf
 
 			if (handleStream) {
 				AsyncServerStreamingCall<Commands> commandsStream = _client.Start(ms);
-				_receiveCommandsTask = ReceiveCommands(commandsStream, _cts.Token);
+				_receiveCommandsTask = Task.Run(() => ReceiveCommands(commandsStream, _cts.Token));
 			}
 
 			_switchStream = _client.SendSwitchChanges();
@@ -133,13 +133,16 @@ namespace VisualPinball.Engine.Mpf
 			_cts?.Cancel();
 			_cts?.Dispose();
 			_cts = null;
-			_receiveCommandsTask.Wait();
+			if (!_receiveCommandsTask.Wait(500))
+				Logger.Warn("Receive commands task shutdown timed out after 500ms");
 			_receiveCommandsTask = null;
-			_writeSwitchChangeTask?.Wait();
-			_writeSwitchChangeTask = null;
+			if (_writeSwitchChangeTask != null && !_writeSwitchChangeTask.Wait(500))
+                Logger.Warn("Write switch change task shutdown timed out after 500ms");
+            _writeSwitchChangeTask = null;
 			_switchStream?.Dispose();
-			_channel.ShutdownAsync().Wait();
-			Logger.Info("All down.");
+			if (!_channel.ShutdownAsync().Wait(500))
+                Logger.Warn("GRPC channel shutdown timed out after 500ms");
+            Logger.Info("All down.");
 		}
 	}
 }
