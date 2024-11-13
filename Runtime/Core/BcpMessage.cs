@@ -39,7 +39,7 @@ namespace FutureBoxSystems.MpfMediaController
 
                 return (T)Convert.ChangeType(token, typeof(T));
             }
-            catch (Exception e) when (e is KeyNotFoundException || e is InvalidCastException)
+            catch (Exception e) when (e is KeyNotFoundException || e is InvalidCastException || e is NullReferenceException)
             {
                 throw new ParameterException(name, this, e);
             }
