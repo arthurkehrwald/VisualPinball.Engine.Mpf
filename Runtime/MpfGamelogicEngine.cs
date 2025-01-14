@@ -13,6 +13,8 @@ using Cysharp.Net.Http;
 using NLog;
 using Logger = NLog.Logger;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
@@ -41,6 +43,8 @@ namespace VisualPinball.Engine.Mpf.Unity
         private GrpcChannel _grpcChannel;
         private AsyncServerStreamingCall<Commands> _mpfCommandStreamCall;
         private AsyncClientStreamingCall<SwitchChanges, EmptyResponse> _mpfSwitchStreamCall;
+        private CancellationTokenSource _mpfCommunicationCts;
+        private Task _receiveMpfCommandsTask;
 
         private const string _grpcAddress = "http://localhost:50051";
 
@@ -120,6 +124,8 @@ namespace VisualPinball.Engine.Mpf.Unity
             MachineState initialState = CompileMachineState(player);
             _mpfCommandStreamCall = client.Start(initialState);
             _mpfSwitchStreamCall = client.SendSwitchChanges();
+            _mpfCommunicationCts = new();
+            _receiveMpfCommandsTask = ReceiveMpfCommands();
             OnStarted?.Invoke(this, EventArgs.Empty);
         }
 
@@ -127,8 +133,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             var initialState = new MachineState();
             foreach (var switchName in player.SwitchStatuses.Keys) {
-                if (_mpfSwitchNumbers.ContainsName(switchName)) {
-                    var number = _mpfSwitchNumbers.GetNumberByName(switchName);
+                if (_mpfSwitchNumbers.TryGetNumberByName(switchName, out var number)) {
                     var isClosed = player.SwitchStatuses[switchName].IsSwitchClosed;
                     initialState.InitialSwitchStates.Add(number, isClosed);
                 }
@@ -139,6 +144,11 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         private async void OnDestroy()
         {
+            _mpfCommunicationCts?.Cancel();
+            await _receiveMpfCommandsTask;
+            _receiveMpfCommandsTask = null;
+            _mpfCommunicationCts?.Dispose();
+            _mpfCommunicationCts = null;
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             await client.QuitAsync(new QuitRequest());
             _mpfCommandStreamCall?.Dispose();
@@ -151,6 +161,60 @@ namespace VisualPinball.Engine.Mpf.Unity
                 _mpfProcess?.Kill();
             _mpfProcess?.Dispose();
             _mpfProcess = null;
+        }
+
+        private async Task ReceiveMpfCommands()
+        {
+            try {
+                while (await _mpfCommandStreamCall.ResponseStream.MoveNext(_mpfCommunicationCts.Token)) {
+                    var command = _mpfCommandStreamCall.ResponseStream.Current;
+                    ExecuteMpfCommand(command);
+                }
+            } catch (RpcException ex) {
+                if (!_mpfCommunicationCts.IsCancellationRequested)
+                    Logger.Error($"Unable to reveive commands from MPF. RPC Status: {ex.Status}");
+            }
+        }
+
+        private void ExecuteMpfCommand(Commands command)
+        {
+            switch (command.CommandCase) {
+                case Commands.CommandOneofCase.None:
+                    break;
+                case Commands.CommandOneofCase.FadeLight:
+                    break;
+                case Commands.CommandOneofCase.PulseCoil:
+                    if (_mpfCoilNumbers.TryGetNameByNumber(command.PulseCoil.CoilNumber, out var coilName)) {
+                        SetCoil(coilName, true);
+                        _player.ScheduleAction(command.PulseCoil.PulseMs, () => SetCoil(coilName, false));
+                    } else
+                        Logger.Error($"MPF sent a coil number '{command.PulseCoil.CoilNumber}'" +
+                            $" that is not associated with a coil id.");
+                    break;
+                case Commands.CommandOneofCase.EnableCoil:
+                    if (_mpfCoilNumbers.TryGetNameByNumber(command.EnableCoil.CoilNumber, out coilName))
+                        SetCoil(coilName, true);
+                    else
+                        Logger.Error($"MPF sent a coil number '{command.EnableCoil.CoilNumber}'" +
+                            $" that is not associated with a coil id.");
+                    break;
+                case Commands.CommandOneofCase.DisableCoil:
+                    if (_mpfCoilNumbers.TryGetNameByNumber(command.DisableCoil.CoilNumber, out coilName))
+                        SetCoil(coilName, false);
+                    else
+                        Logger.Error($"MPF sent a coil number '{command.DisableCoil.CoilNumber}'" +
+                            $" that is not associated with a coil id.");
+                    break;
+                case Commands.CommandOneofCase.ConfigureHardwareRule:
+                    break;
+                case Commands.CommandOneofCase.RemoveHardwareRule:
+                    break;
+                case Commands.CommandOneofCase.DmdFrameRequest:
+                    break;
+                default:
+                    Logger.Error($"MPF sent an unknown commnand '{command}'");
+                    break;
+            }
         }
 
         public void DisplayChanged(DisplayFrameData displayFrameData) { }
@@ -177,7 +241,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             if (_mpfSwitchNumbers.ContainsName(id)) {
                 var number = _mpfSwitchNumbers.GetNumberByName(id);
                 var change = new SwitchChanges { SwitchNumber = number, SwitchState = isClosed };
-                await _mpfSwitchStreamCall.RequestStream.WriteAsync(change);
+                await _mpfSwitchStreamCall.RequestStream.WriteAsync(change, _mpfCommunicationCts.Token);
             } else {
                 Logger.Error($"Switch '{id}' is defined in the MPF game logic engine but not" +
                     $" associated with an MPF number. State change cannot be forwarded to MPF.");

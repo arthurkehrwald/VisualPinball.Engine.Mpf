@@ -98,5 +98,15 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             return _namesByNumber.ContainsKey(number);
         }
+
+        public bool TryGetNameByNumber(string number, out string name)
+        {
+            return _namesByNumber.TryGetValue(number, out name);
+        }
+
+        public bool TryGetNumberByName(string name, out string number)
+        {
+            return _numbersByName.TryGetValue(name, out number);
+        }
     }
 }
