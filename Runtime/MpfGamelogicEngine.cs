@@ -82,14 +82,12 @@ namespace VisualPinball.Engine.Mpf.Unity
 #pragma warning restore CS0067
 
 #if UNITY_EDITOR
-        public void QueryParseAndStoreMpfMachineDescriptionAsync()
+        public void QueryParseAndStoreMpfMachineDescription()
         {
             var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
             using var mpfProcess = Process.Start("mpf", args);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
-            var options = new GrpcChannelOptions() {
-                HttpHandler = handler,
-            };
+            var options = new GrpcChannelOptions() { HttpHandler = handler };
             using var grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
             var client = new MpfHardwareService.MpfHardwareServiceClient(grpcChannel);
             client.Start(new MachineState(), deadline: DateTime.UtcNow.AddSeconds(3));
