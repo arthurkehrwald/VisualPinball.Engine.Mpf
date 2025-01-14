@@ -15,6 +15,7 @@ using Logger = NLog.Logger;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
@@ -182,6 +183,16 @@ namespace VisualPinball.Engine.Mpf.Unity
                 case Commands.CommandOneofCase.None:
                     break;
                 case Commands.CommandOneofCase.FadeLight:
+                    var args = new List<LampEventArgs>();
+                    foreach (var fade in command.FadeLight.Fades) {
+                        if (_mpfLampNumbers.TryGetNameByNumber(fade.LightNumber, out var lampName))
+                            args.Add(new LampEventArgs(lampName, fade.TargetBrightness));
+                        else
+                            Logger.Error($"MPF sent a lamp number '{fade.LightNumber}' that is" +
+                                $" not associated with a lamp id.");
+
+                        OnLampsChanged?.Invoke(this, new LampsEventArgs(args.ToArray()));
+                    }
                     break;
                 case Commands.CommandOneofCase.PulseCoil:
                     if (_mpfCoilNumbers.TryGetNameByNumber(command.PulseCoil.CoilNumber, out var coilName)) {
