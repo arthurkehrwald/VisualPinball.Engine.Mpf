@@ -41,7 +41,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 			_consoleOptionsProperty = serializedObject.FindProperty("_mpfArguments");
 		}
 
-		public override void OnInspectorGUI()
+		public async override void OnInspectorGUI()
 		{
 			if (!_tableComponent) {
 				EditorGUILayout.HelpBox($"Cannot find table. The gamelogic engine must be applied to a table object or one of its children.", MessageType.Error);
@@ -78,8 +78,10 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 				} else if (!Directory.Exists(Path.Combine(_mpfEngine.MachineFolder, "config"))) {
 					EditorUtility.DisplayDialog("Mission Pinball Framework", $"{_mpfEngine.MachineFolder} doesn't seem a valid machine folder. We expect a \"config\" subfolder in there!", "Okay");
 				} else {
-					//_mpfEngine.GetMachineDescription();
-				}
+                    Undo.RecordObject(_mpfEngine, "Get machine description");
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(_mpfEngine);
+					_mpfEngine.QueryParseAndStoreMpfMachineDescriptionAsync();
+                }
 			}
 
 			EditorGUI.BeginDisabledGroup(!HasData);
