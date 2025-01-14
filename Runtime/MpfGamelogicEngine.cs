@@ -10,13 +10,15 @@ using Mpf.Vpe;
 using Grpc.Net.Client;
 using Grpc.Core;
 using Cysharp.Net.Http;
+using NLog;
+using Logger = NLog.Logger;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
     public class MpfGamelogicEngine : MonoBehaviour, IGamelogicEngine
     {
-        private Player _player;
         [SerializeField]
         private SerializedGamelogicEngineSwitch[] _requestedSwitches
             = Array.Empty<SerializedGamelogicEngineSwitch>();
@@ -27,10 +29,20 @@ namespace VisualPinball.Engine.Mpf.Unity
         private SerializedGamelogicEngineCoil[] _requestedCoils
             = Array.Empty<SerializedGamelogicEngineCoil>();
         [SerializeField] private MpfArgs _mpfArguments;
+        // MPF uses names and numbers (for hardware mapping) to identify switches, coils, and lamps.
+        // VPE only uses names, which is why the arrays above do not store the numbers.
+        // These dictionaries store the numbers to make communication with MPF possible.
+        [SerializeField] private MpfNameNumberDictionary _mpfSwitchNumbers = new();
+        [SerializeField] private MpfNameNumberDictionary _mpfCoilNumbers = new();
+        [SerializeField] private MpfNameNumberDictionary _mpfLampNumbers = new();
+        [SerializeField] private string _machineFolder;
+
+        private Player _player;
         private Process _mpfProcess;
         private GrpcChannel _grpcChannel;
-        private AsyncServerStreamingCall<Commands> _mpfCommandStreamCall; 
-        [SerializeField] private string _machineFolder;
+        private AsyncServerStreamingCall<Commands> _mpfCommandStreamCall;
+
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public string MachineFolder {
             get {
@@ -69,6 +81,31 @@ namespace VisualPinball.Engine.Mpf.Unity
         public event EventHandler<SwitchEventArgs2> OnSwitchChanged;
 #pragma warning restore CS0067
 
+#if UNITY_EDITOR
+        public void QueryParseAndStoreMpfMachineDescriptionAsync()
+        {
+            var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
+            using var mpfProcess = Process.Start("mpf", args);
+            using var handler = new YetAnotherHttpHandler() { Http2Only = true };
+            var options = new GrpcChannelOptions() {
+                HttpHandler = handler,
+            };
+            using var grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
+            var client = new MpfHardwareService.MpfHardwareServiceClient(grpcChannel);
+            client.Start(new MachineState(), deadline: DateTime.UtcNow.AddSeconds(3));
+            var md = client.GetMachineDescription(
+                new EmptyRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
+            client.Quit(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
+
+            _requestedSwitches = md.GetSwitches().ToArray();
+            _requestedCoils = md.GetCoils().ToArray();
+            _requestedLamps = md.GetLights().ToArray();
+            _mpfSwitchNumbers.Init(md.GetSwitchNumbersByNameDict());
+            _mpfCoilNumbers.Init(md.GetCoilNumbersByNameDict());
+            _mpfLampNumbers.Init(md.GetLampNumbersByNameDict());
+        }
+#endif
+
         public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
@@ -76,14 +113,11 @@ namespace VisualPinball.Engine.Mpf.Unity
             var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() {
                 HttpHandler = handler,
-                DisposeHttpClient = true,
-                UnsafeUseInsecureChannelCallCredentials = true
+                DisposeHttpClient = true
             };
             _grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
             // Clients are lightweight. No need to cache and reuse.
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
-            var ms = new MachineState();
-
             _mpfCommandStreamCall = client.Start(new MachineState());
             // Tell MPF about initial switch states
             OnStarted?.Invoke(this, EventArgs.Empty);
