@@ -38,7 +38,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 			if (_mpfEngine != null) {
 				_tableComponent = _mpfEngine.gameObject.GetComponentInParent<TableComponent>();
 			}
-			_consoleOptionsProperty = serializedObject.FindProperty(nameof(MpfGamelogicEngine.ConsoleOptions));
+			_consoleOptionsProperty = serializedObject.FindProperty("_mpfArguments");
 		}
 
 		public override void OnInspectorGUI()
@@ -78,7 +78,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 				} else if (!Directory.Exists(Path.Combine(_mpfEngine.MachineFolder, "config"))) {
 					EditorUtility.DisplayDialog("Mission Pinball Framework", $"{_mpfEngine.MachineFolder} doesn't seem a valid machine folder. We expect a \"config\" subfolder in there!", "Okay");
 				} else {
-					_mpfEngine.GetMachineDescription();
+					//_mpfEngine.GetMachineDescription();
 				}
 			}
 
