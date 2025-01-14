@@ -80,7 +80,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 				} else {
                     Undo.RecordObject(_mpfEngine, "Get machine description");
                     PrefabUtility.RecordPrefabInstancePropertyModifications(_mpfEngine);
-					_mpfEngine.QueryParseAndStoreMpfMachineDescriptionAsync();
+					_mpfEngine.QueryParseAndStoreMpfMachineDescription();
                 }
 			}
 
