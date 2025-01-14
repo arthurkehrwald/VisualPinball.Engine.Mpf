@@ -40,6 +40,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         private Process _mpfProcess;
         private GrpcChannel _grpcChannel;
         private AsyncServerStreamingCall<Commands> _mpfCommandStreamCall;
+        private AsyncClientStreamingCall<SwitchChanges, EmptyResponse> _mpfSwitchStreamCall;
 
         private const string _grpcAddress = "http://localhost:50051";
 
@@ -118,6 +119,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             MachineState initialState = CompileMachineState(player);
             _mpfCommandStreamCall = client.Start(initialState);
+            _mpfSwitchStreamCall = client.SendSwitchChanges();
             OnStarted?.Invoke(this, EventArgs.Empty);
         }
 
@@ -139,9 +141,14 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             await client.QuitAsync(new QuitRequest());
+            _mpfCommandStreamCall?.Dispose();
+            _mpfCommandStreamCall = null;
+            _mpfSwitchStreamCall?.Dispose();
+            _mpfSwitchStreamCall = null;
             _grpcChannel?.Dispose();
             _grpcChannel = null;
-            _mpfProcess?.Kill();
+            if (_mpfProcess != null && !_mpfProcess.HasExited)
+                _mpfProcess?.Kill();
             _mpfProcess?.Dispose();
             _mpfProcess = null;
         }
@@ -163,10 +170,18 @@ namespace VisualPinball.Engine.Mpf.Unity
         public void SetLamp(string id, float value, bool isCoil, LampSource source)
             => OnLampChanged?.Invoke(this, new LampEventArgs(id, value, isCoil, source));
 
-        public void Switch(string id, bool isClosed)
+        public async void Switch(string id, bool isClosed)
         {
-            // Tell MPF about the switch change
             OnSwitchChanged?.Invoke(this, new SwitchEventArgs2(id, isClosed));
+
+            if (_mpfSwitchNumbers.ContainsName(id)) {
+                var number = _mpfSwitchNumbers.GetNumberByName(id);
+                var change = new SwitchChanges { SwitchNumber = number, SwitchState = isClosed };
+                await _mpfSwitchStreamCall.RequestStream.WriteAsync(change);
+            } else {
+                Logger.Error($"Switch '{id}' is defined in the MPF game logic engine but not" +
+                    $" associated with an MPF number. State change cannot be forwarded to MPF.");
+            }
         }
 
         [Serializable]
