@@ -12,7 +12,6 @@ using Grpc.Core;
 using Cysharp.Net.Http;
 using NLog;
 using Logger = NLog.Logger;
-using System.Threading.Tasks;
 using System.Linq;
 
 namespace VisualPinball.Engine.Mpf.Unity
@@ -41,6 +40,8 @@ namespace VisualPinball.Engine.Mpf.Unity
         private Process _mpfProcess;
         private GrpcChannel _grpcChannel;
         private AsyncServerStreamingCall<Commands> _mpfCommandStreamCall;
+
+        private const string _grpcAddress = "http://localhost:50051";
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -88,19 +89,19 @@ namespace VisualPinball.Engine.Mpf.Unity
             using var mpfProcess = Process.Start("mpf", args);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
-            using var grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
+            using var grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
             var client = new MpfHardwareService.MpfHardwareServiceClient(grpcChannel);
             client.Start(new MachineState(), deadline: DateTime.UtcNow.AddSeconds(3));
-            var md = client.GetMachineDescription(
+            var machineDescription = client.GetMachineDescription(
                 new EmptyRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
             client.Quit(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
 
-            _requestedSwitches = md.GetSwitches().ToArray();
-            _requestedCoils = md.GetCoils().ToArray();
-            _requestedLamps = md.GetLights().ToArray();
-            _mpfSwitchNumbers.Init(md.GetSwitchNumbersByNameDict());
-            _mpfCoilNumbers.Init(md.GetCoilNumbersByNameDict());
-            _mpfLampNumbers.Init(md.GetLampNumbersByNameDict());
+            _requestedSwitches = machineDescription.GetSwitches().ToArray();
+            _requestedCoils = machineDescription.GetCoils().ToArray();
+            _requestedLamps = machineDescription.GetLights().ToArray();
+            _mpfSwitchNumbers.Init(machineDescription.GetSwitchNumbersByNameDict());
+            _mpfCoilNumbers.Init(machineDescription.GetCoilNumbersByNameDict());
+            _mpfLampNumbers.Init(machineDescription.GetLampNumbersByNameDict());
         }
 #endif
 
@@ -114,11 +115,24 @@ namespace VisualPinball.Engine.Mpf.Unity
                 DisposeHttpClient = true
             };
             _grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
-            // Clients are lightweight. No need to cache and reuse.
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
-            _mpfCommandStreamCall = client.Start(new MachineState());
-            // Tell MPF about initial switch states
+            MachineState initialState = CompileMachineState(player);
+            _mpfCommandStreamCall = client.Start(initialState);
             OnStarted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private MachineState CompileMachineState(Player player)
+        {
+            var initialState = new MachineState();
+            foreach (var switchName in player.SwitchStatuses.Keys) {
+                if (_mpfSwitchNumbers.ContainsName(switchName)) {
+                    var number = _mpfSwitchNumbers.GetNumberByName(switchName);
+                    var isClosed = player.SwitchStatuses[switchName].IsSwitchClosed;
+                    initialState.InitialSwitchStates.Add(number, isClosed);
+                }
+            }
+
+            return initialState;
         }
 
         private async void OnDestroy()
