@@ -31,12 +31,13 @@ namespace VisualPinball.Engine.Mpf.Unity
         private SerializedGamelogicEngineCoil[] _requestedCoils
             = Array.Empty<SerializedGamelogicEngineCoil>();
         [SerializeField] private MpfArgs _mpfArguments;
-        // MPF uses names and numbers (for hardware mapping) to identify switches, coils, and lamps.
-        // VPE only uses names, which is why the arrays above do not store the numbers.
+        // MPF uses names and numbers/ids (for hardware mapping) to identify switches, coils, and
+        // lamps. VPE only uses names, which is why the arrays above do not store the numbers.
         // These dictionaries store the numbers to make communication with MPF possible.
         [SerializeField] private MpfNameNumberDictionary _mpfSwitchNumbers = new();
         [SerializeField] private MpfNameNumberDictionary _mpfCoilNumbers = new();
         [SerializeField] private MpfNameNumberDictionary _mpfLampNumbers = new();
+        [SerializeField] private DisplayConfig[] _mpfDotMatrixDisplays;
         [SerializeField] private string _machineFolder;
 
         private Player _player;
@@ -108,6 +109,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             _mpfSwitchNumbers.Init(machineDescription.GetSwitchNumbersByNameDict());
             _mpfCoilNumbers.Init(machineDescription.GetCoilNumbersByNameDict());
             _mpfLampNumbers.Init(machineDescription.GetLampNumbersByNameDict());
+            _mpfDotMatrixDisplays = machineDescription.GetDmds().ToArray();
         }
 #endif
 
@@ -120,13 +122,14 @@ namespace VisualPinball.Engine.Mpf.Unity
                 HttpHandler = handler,
                 DisposeHttpClient = true
             };
-            _grpcChannel = GrpcChannel.ForAddress("http://localhost:50051", options);
+            _grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             MachineState initialState = CompileMachineState(player);
             _mpfCommandStreamCall = client.Start(initialState);
             _mpfSwitchStreamCall = client.SendSwitchChanges();
             _mpfCommunicationCts = new();
             _receiveMpfCommandsTask = ReceiveMpfCommands();
+            OnDisplaysRequested?.Invoke(this, new RequestedDisplays(_mpfDotMatrixDisplays));
             OnStarted?.Invoke(this, EventArgs.Empty);
         }
 
@@ -221,6 +224,14 @@ namespace VisualPinball.Engine.Mpf.Unity
                 case Commands.CommandOneofCase.RemoveHardwareRule:
                     break;
                 case Commands.CommandOneofCase.DmdFrameRequest:
+                    var frameData = new DisplayFrameData(
+                        command.DmdFrameRequest.Name,
+                        DisplayFrameFormat.Dmd24,
+                        command.DmdFrameRequest.Frame.ToByteArray());
+                    OnDisplayUpdateFrame?.Invoke(this, frameData);
+                    break;
+                case Commands.CommandOneofCase.SegmentDisplayFrameRequest:
+                    Logger.Error("Segment displays are not yet supported by VPEs MPF integration");
                     break;
                 default:
                     Logger.Error($"MPF sent an unknown commnand '{command}'");
