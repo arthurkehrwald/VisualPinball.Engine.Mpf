@@ -220,8 +220,26 @@ namespace VisualPinball.Engine.Mpf.Unity
                             $" that is not associated with a coil id.");
                     break;
                 case Commands.CommandOneofCase.ConfigureHardwareRule:
+                    var switchNumber = command.ConfigureHardwareRule.SwitchNumber;
+                    var coilNumber = command.ConfigureHardwareRule.CoilNumber;
+                    if (_mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out var switchName) &&
+                        _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName))
+                        _player.AddHardwareRule(switchName, coilName);
+                    else
+                        Logger.Error($"MPF wants to add a hardware rule for switch number " +
+                            $"'{switchNumber} and coil number '{coilNumber}.' At least one " +
+                            $"of them is not associated with an id.");
                     break;
                 case Commands.CommandOneofCase.RemoveHardwareRule:
+                    switchNumber = command.RemoveHardwareRule.SwitchNumber;
+                    coilNumber = command.RemoveHardwareRule.CoilNumber;
+                    if (_mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out switchName) &&
+                        _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName))
+                        _player.RemoveHardwareRule(switchName, coilName);
+                    else
+                        Logger.Error($"MPF wants to remove a hardware rule for switch number " +
+                            $"'{switchNumber} and coil number '{coilNumber}.' At least one " +
+                            $"of them is not associated with an id.");
                     break;
                 case Commands.CommandOneofCase.DmdFrameRequest:
                     var frameData = new DisplayFrameData(
