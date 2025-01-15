@@ -14,7 +14,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Mpf.Vpe;
 using VisualPinball.Engine.Common;
-using VisualPinball.Engine.Game.Engines;
 using VisualPinball.Unity;
 
 namespace VisualPinball.Engine.Mpf.Unity
@@ -140,6 +139,11 @@ namespace VisualPinball.Engine.Mpf.Unity
             }
 
             return ret;
+        }
+
+        public static IEnumerable<DisplayConfig> GetDmds(this MachineDescription md)
+        {
+            return md.Dmds.Select(dmd => new DisplayConfig ( dmd.Name, dmd.Width, dmd.Height));
         }
     }
 }
