@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Net.Http;
@@ -117,8 +116,13 @@ namespace VisualPinball.Engine.Mpf.Unity
         public void QueryParseAndStoreMpfMachineDescription()
         {
             // TODO: Ditch IMGUI for UiToolkit, then do this whole thing asynchronously
-            var args = new MpfArgs().BuildCommandLineArgs(MachineFolder);
-            using var mpfProcess = Process.Start("mpf", args);
+            var args = new MpfArgs()
+            {
+                mediaController = MpfArgs.MediaController.None,
+                outputType = MpfArgs.OutputType.Log,
+            };
+            string argsString = args.BuildCommandLineArgs(MachineFolder);
+            using var mpfProcess = Process.Start("mpf", argsString);
             Thread.Sleep(1500);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
@@ -182,7 +186,6 @@ namespace VisualPinball.Engine.Mpf.Unity
                     initialState.InitialSwitchStates.Add(number, isClosed);
                 }
             }
-
             return initialState;
         }
 
@@ -378,88 +381,6 @@ namespace VisualPinball.Engine.Mpf.Unity
                     $"Switch '{id}' is defined in the MPF game logic engine but not"
                         + $" associated with an MPF number. State change cannot be forwarded to MPF."
                 );
-            }
-        }
-
-        [Serializable]
-        public class MpfArgs
-        {
-            // GodotOrLegacyMc: MPF versions pre v0.80 use a discontinued kivvy-based media
-            // controller, newer versions use Godot.
-            public enum MediaController
-            {
-                None,
-                GodotOrLegacyMc,
-                Other,
-            };
-
-            public enum OutputType
-            {
-                Table,
-                Log,
-            };
-
-            [SerializeField]
-            private MediaController _mediaController = MediaController.None;
-
-            [SerializeField]
-            private OutputType _outputType = OutputType.Table;
-
-            [SerializeField]
-            private bool _verboseLogging = false;
-
-            [SerializeField]
-            private bool _catchStdOut = false;
-
-            [SerializeField]
-            private bool _cacheConfigFiles = true;
-
-            [SerializeField]
-            private bool _forceReloadConfig = false;
-
-            [SerializeField]
-            private bool _forceLoadAllAssetsOnStart = false;
-
-            public string BuildCommandLineArgs(string machineFolder)
-            {
-                var args = new StringBuilder(machineFolder);
-
-                switch (_mediaController)
-                {
-                    case MediaController.None:
-                        args.Append(" -b");
-                        break;
-                    case MediaController.GodotOrLegacyMc:
-                        args.Insert(0, "both ");
-                        break;
-                    case MediaController.Other:
-                        // Default behavior of MPF
-                        break;
-                }
-
-                switch (_outputType)
-                {
-                    case OutputType.Table:
-                        // Default behavior of MPF
-                        break;
-                    case OutputType.Log:
-                        args.Append(" -t");
-                        break;
-                }
-
-                if (_verboseLogging)
-                    args.Append(" -v -V");
-
-                if (!_cacheConfigFiles)
-                    args.Append(" -A");
-
-                if (_forceReloadConfig)
-                    args.Append(" -a");
-
-                if (_forceLoadAllAssetsOnStart)
-                    args.Append(" -f");
-
-                return args.ToString();
             }
         }
     }
