@@ -1,44 +1,58 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Cysharp.Net.Http;
+using Grpc.Core;
+using Grpc.Net.Client;
+using Mpf.Vpe;
+using NLog;
 using UnityEditor;
 using UnityEngine;
 using VisualPinball.Engine.Game.Engines;
 using VisualPinball.Unity;
-using Mpf.Vpe;
-using Grpc.Net.Client;
-using Grpc.Core;
-using Cysharp.Net.Http;
-using NLog;
 using Logger = NLog.Logger;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
     public class MpfGamelogicEngine : MonoBehaviour, IGamelogicEngine
     {
         [SerializeField]
-        private SerializedGamelogicEngineSwitch[] _requestedSwitches
-            = Array.Empty<SerializedGamelogicEngineSwitch>();
+        private SerializedGamelogicEngineSwitch[] _requestedSwitches =
+            Array.Empty<SerializedGamelogicEngineSwitch>();
+
         [SerializeField]
-        private SerializedGamelogicEngineLamp[] _requestedLamps
-            = Array.Empty<SerializedGamelogicEngineLamp>();
+        private SerializedGamelogicEngineLamp[] _requestedLamps =
+            Array.Empty<SerializedGamelogicEngineLamp>();
+
         [SerializeField]
-        private SerializedGamelogicEngineCoil[] _requestedCoils
-            = Array.Empty<SerializedGamelogicEngineCoil>();
-        [SerializeField] private MpfArgs _mpfArguments;
+        private SerializedGamelogicEngineCoil[] _requestedCoils =
+            Array.Empty<SerializedGamelogicEngineCoil>();
+
+        [SerializeField]
+        private MpfArgs _mpfArguments;
+
         // MPF uses names and numbers/ids (for hardware mapping) to identify switches, coils, and
         // lamps. VPE only uses names, which is why the arrays above do not store the numbers.
         // These dictionaries store the numbers to make communication with MPF possible.
-        [SerializeField] private MpfNameNumberDictionary _mpfSwitchNumbers = new();
-        [SerializeField] private MpfNameNumberDictionary _mpfCoilNumbers = new();
-        [SerializeField] private MpfNameNumberDictionary _mpfLampNumbers = new();
-        [SerializeField] private DisplayConfig[] _mpfDotMatrixDisplays;
-        [SerializeField] private string _machineFolder;
+        [SerializeField]
+        private MpfNameNumberDictionary _mpfSwitchNumbers = new();
+
+        [SerializeField]
+        private MpfNameNumberDictionary _mpfCoilNumbers = new();
+
+        [SerializeField]
+        private MpfNameNumberDictionary _mpfLampNumbers = new();
+
+        [SerializeField]
+        private DisplayConfig[] _mpfDotMatrixDisplays;
+
+        [SerializeField]
+        private string _machineFolder;
 
         private Player _player;
         private Process _mpfProcess;
@@ -52,21 +66,31 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public string MachineFolder {
-            get {
-                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets/")) {
-                    return Path.Combine(Application.streamingAssetsPath, _machineFolder.Split("StreamingAssets/")[1]);
+        public string MachineFolder
+        {
+            get
+            {
+                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets/"))
+                {
+                    return Path.Combine(
+                        Application.streamingAssetsPath,
+                        _machineFolder.Split("StreamingAssets/")[1]
+                    );
                 }
                 return _machineFolder;
             }
-            set {
+            set
+            {
 #if UNITY_EDITOR
                 Undo.RecordObject(this, "Set MPF machine folder");
                 PrefabUtility.RecordPrefabInstancePropertyModifications(this);
 #endif
-                if (value.Contains("StreamingAssets/")) {
+                if (value.Contains("StreamingAssets/"))
+                {
                     _machineFolder = "./StreamingAssets/" + value.Split("StreamingAssets/")[1];
-                } else {
+                }
+                else
+                {
                     _machineFolder = value;
                 }
             }
@@ -102,7 +126,9 @@ namespace VisualPinball.Engine.Mpf.Unity
             var client = new MpfHardwareService.MpfHardwareServiceClient(grpcChannel);
             client.Start(new MachineState());
             var machineDescription = client.GetMachineDescription(
-                new EmptyRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
+                new EmptyRequest(),
+                deadline: DateTime.UtcNow.AddSeconds(3)
+            );
             client.Quit(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
 
             _requestedSwitches = machineDescription.GetSwitches().ToArray();
@@ -127,7 +153,8 @@ namespace VisualPinball.Engine.Mpf.Unity
             // https://github.com/grpc/grpc-dotnet/blob/c9d26719e8b2a8f03424cacbb168540e35a94b0b/src/Grpc.Net.Client/Grpc.Net.Client.csproj#L21C1-L23C19
             var connectDelay = Task.Delay(1500);
             var handler = new YetAnotherHttpHandler() { Http2Only = true };
-            var options = new GrpcChannelOptions() {
+            var options = new GrpcChannelOptions()
+            {
                 HttpHandler = handler,
                 DisposeHttpClient = true,
             };
@@ -147,8 +174,10 @@ namespace VisualPinball.Engine.Mpf.Unity
         private MachineState CompileMachineState(Player player)
         {
             var initialState = new MachineState();
-            foreach (var switchName in player.SwitchStatuses.Keys) {
-                if (_mpfSwitchNumbers.TryGetNumberByName(switchName, out var number)) {
+            foreach (var switchName in player.SwitchStatuses.Keys)
+            {
+                if (_mpfSwitchNumbers.TryGetNumberByName(switchName, out var number))
+                {
                     var isClosed = player.SwitchStatuses[switchName].IsSwitchClosed;
                     initialState.InitialSwitchStates.Add(number, isClosed);
                 }
@@ -180,12 +209,18 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         private async Task ReceiveMpfCommands()
         {
-            try {
-                while (await _mpfCommandStreamCall.ResponseStream.MoveNext(_mpfCommunicationCts.Token)) {
+            try
+            {
+                while (
+                    await _mpfCommandStreamCall.ResponseStream.MoveNext(_mpfCommunicationCts.Token)
+                )
+                {
                     var command = _mpfCommandStreamCall.ResponseStream.Current;
                     ExecuteMpfCommand(command);
                 }
-            } catch (RpcException ex) {
+            }
+            catch (RpcException ex)
+            {
                 if (!_mpfCommunicationCts.IsCancellationRequested)
                     Logger.Error($"Unable to reveive commands from MPF. RPC Status: {ex.Status}");
             }
@@ -193,70 +228,109 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         private void ExecuteMpfCommand(Commands command)
         {
-            switch (command.CommandCase) {
+            switch (command.CommandCase)
+            {
                 case Commands.CommandOneofCase.None:
                     break;
                 case Commands.CommandOneofCase.FadeLight:
                     var args = new List<LampEventArgs>();
-                    foreach (var fade in command.FadeLight.Fades) {
+                    foreach (var fade in command.FadeLight.Fades)
+                    {
                         if (_mpfLampNumbers.TryGetNameByNumber(fade.LightNumber, out var lampName))
                             args.Add(new LampEventArgs(lampName, fade.TargetBrightness));
                         else
-                            Logger.Error($"MPF sent a lamp number '{fade.LightNumber}' that is" +
-                                $" not associated with a lamp id.");
+                            Logger.Error(
+                                $"MPF sent a lamp number '{fade.LightNumber}' that is"
+                                    + $" not associated with a lamp id."
+                            );
 
                         OnLampsChanged?.Invoke(this, new LampsEventArgs(args.ToArray()));
                     }
                     break;
                 case Commands.CommandOneofCase.PulseCoil:
-                    if (_mpfCoilNumbers.TryGetNameByNumber(command.PulseCoil.CoilNumber, out var coilName)) {
+                    if (
+                        _mpfCoilNumbers.TryGetNameByNumber(
+                            command.PulseCoil.CoilNumber,
+                            out var coilName
+                        )
+                    )
+                    {
                         SetCoil(coilName, true);
-                        _player.ScheduleAction(command.PulseCoil.PulseMs, () => SetCoil(coilName, false));
-                    } else
-                        Logger.Error($"MPF sent a coil number '{command.PulseCoil.CoilNumber}'" +
-                            $" that is not associated with a coil id.");
+                        _player.ScheduleAction(
+                            command.PulseCoil.PulseMs,
+                            () => SetCoil(coilName, false)
+                        );
+                    }
+                    else
+                        Logger.Error(
+                            $"MPF sent a coil number '{command.PulseCoil.CoilNumber}'"
+                                + $" that is not associated with a coil id."
+                        );
                     break;
                 case Commands.CommandOneofCase.EnableCoil:
-                    if (_mpfCoilNumbers.TryGetNameByNumber(command.EnableCoil.CoilNumber, out coilName))
+                    if (
+                        _mpfCoilNumbers.TryGetNameByNumber(
+                            command.EnableCoil.CoilNumber,
+                            out coilName
+                        )
+                    )
                         SetCoil(coilName, true);
                     else
-                        Logger.Error($"MPF sent a coil number '{command.EnableCoil.CoilNumber}'" +
-                            $" that is not associated with a coil id.");
+                        Logger.Error(
+                            $"MPF sent a coil number '{command.EnableCoil.CoilNumber}'"
+                                + $" that is not associated with a coil id."
+                        );
                     break;
                 case Commands.CommandOneofCase.DisableCoil:
-                    if (_mpfCoilNumbers.TryGetNameByNumber(command.DisableCoil.CoilNumber, out coilName))
+                    if (
+                        _mpfCoilNumbers.TryGetNameByNumber(
+                            command.DisableCoil.CoilNumber,
+                            out coilName
+                        )
+                    )
                         SetCoil(coilName, false);
                     else
-                        Logger.Error($"MPF sent a coil number '{command.DisableCoil.CoilNumber}'" +
-                            $" that is not associated with a coil id.");
+                        Logger.Error(
+                            $"MPF sent a coil number '{command.DisableCoil.CoilNumber}'"
+                                + $" that is not associated with a coil id."
+                        );
                     break;
                 case Commands.CommandOneofCase.ConfigureHardwareRule:
                     var switchNumber = command.ConfigureHardwareRule.SwitchNumber;
                     var coilNumber = command.ConfigureHardwareRule.CoilNumber;
-                    if (_mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out var switchName) &&
-                        _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName))
+                    if (
+                        _mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out var switchName)
+                        && _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName)
+                    )
                         _player.AddHardwareRule(switchName, coilName);
                     else
-                        Logger.Error($"MPF wants to add a hardware rule for switch number " +
-                            $"'{switchNumber} and coil number '{coilNumber}.' At least one " +
-                            $"of them is not associated with an id.");
+                        Logger.Error(
+                            $"MPF wants to add a hardware rule for switch number "
+                                + $"'{switchNumber} and coil number '{coilNumber}.' At least one "
+                                + $"of them is not associated with an id."
+                        );
                     break;
                 case Commands.CommandOneofCase.RemoveHardwareRule:
                     switchNumber = command.RemoveHardwareRule.SwitchNumber;
                     coilNumber = command.RemoveHardwareRule.CoilNumber;
-                    if (_mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out switchName) &&
-                        _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName))
+                    if (
+                        _mpfSwitchNumbers.TryGetNameByNumber(switchNumber, out switchName)
+                        && _mpfCoilNumbers.TryGetNameByNumber(coilNumber, out coilName)
+                    )
                         _player.RemoveHardwareRule(switchName, coilName);
                     else
-                        Logger.Error($"MPF wants to remove a hardware rule for switch number " +
-                            $"'{switchNumber} and coil number '{coilNumber}.' At least one " +
-                            $"of them is not associated with an id.");
+                        Logger.Error(
+                            $"MPF wants to remove a hardware rule for switch number "
+                                + $"'{switchNumber} and coil number '{coilNumber}.' At least one "
+                                + $"of them is not associated with an id."
+                        );
                     break;
                 case Commands.CommandOneofCase.DmdFrameRequest:
                     var frameData = new DisplayFrameData(
                         command.DmdFrameRequest.Name,
                         DisplayFrameFormat.Dmd24,
-                        command.DmdFrameRequest.Frame.ToByteArray());
+                        command.DmdFrameRequest.Frame.ToByteArray()
+                    );
                     OnDisplayUpdateFrame?.Invoke(this, frameData);
                     break;
                 case Commands.CommandOneofCase.SegmentDisplayFrameRequest:
@@ -270,32 +344,40 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         public void DisplayChanged(DisplayFrameData displayFrameData) { }
 
-        public bool GetCoil(string id)
-            => _player.CoilStatuses.ContainsKey(id) && _player.CoilStatuses[id];
+        public bool GetCoil(string id) =>
+            _player.CoilStatuses.ContainsKey(id) && _player.CoilStatuses[id];
 
-        public LampState GetLamp(string id)
-            => _player.LampStatuses.ContainsKey(id) ? _player.LampStatuses[id] : LampState.Default;
+        public LampState GetLamp(string id) =>
+            _player.LampStatuses.ContainsKey(id) ? _player.LampStatuses[id] : LampState.Default;
 
-        public bool GetSwitch(string id)
-            => _player.SwitchStatuses.ContainsKey(id) && _player.SwitchStatuses[id].IsSwitchEnabled;
+        public bool GetSwitch(string id) =>
+            _player.SwitchStatuses.ContainsKey(id) && _player.SwitchStatuses[id].IsSwitchEnabled;
 
-        public void SetCoil(string id, bool isEnabled)
-            => OnCoilChanged?.Invoke(this, new CoilEventArgs(id, isEnabled));
+        public void SetCoil(string id, bool isEnabled) =>
+            OnCoilChanged?.Invoke(this, new CoilEventArgs(id, isEnabled));
 
-        public void SetLamp(string id, float value, bool isCoil, LampSource source)
-            => OnLampChanged?.Invoke(this, new LampEventArgs(id, value, isCoil, source));
+        public void SetLamp(string id, float value, bool isCoil, LampSource source) =>
+            OnLampChanged?.Invoke(this, new LampEventArgs(id, value, isCoil, source));
 
         public async void Switch(string id, bool isClosed)
         {
             OnSwitchChanged?.Invoke(this, new SwitchEventArgs2(id, isClosed));
 
-            if (_mpfSwitchNumbers.ContainsName(id)) {
+            if (_mpfSwitchNumbers.ContainsName(id))
+            {
                 var number = _mpfSwitchNumbers.GetNumberByName(id);
                 var change = new SwitchChanges { SwitchNumber = number, SwitchState = isClosed };
-                await _mpfSwitchStreamCall.RequestStream.WriteAsync(change, _mpfCommunicationCts.Token);
-            } else {
-                Logger.Error($"Switch '{id}' is defined in the MPF game logic engine but not" +
-                    $" associated with an MPF number. State change cannot be forwarded to MPF.");
+                await _mpfSwitchStreamCall.RequestStream.WriteAsync(
+                    change,
+                    _mpfCommunicationCts.Token
+                );
+            }
+            else
+            {
+                Logger.Error(
+                    $"Switch '{id}' is defined in the MPF game logic engine but not"
+                        + $" associated with an MPF number. State change cannot be forwarded to MPF."
+                );
             }
         }
 
@@ -304,22 +386,46 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             // GodotOrLegacyMc: MPF versions pre v0.80 use a discontinued kivvy-based media
             // controller, newer versions use Godot.
-            public enum MediaController { None, GodotOrLegacyMc, Other };
-            public enum OutputType { Table, Log };
+            public enum MediaController
+            {
+                None,
+                GodotOrLegacyMc,
+                Other,
+            };
 
-            [SerializeField] private MediaController _mediaController = MediaController.None;
-            [SerializeField] private OutputType _outputType = OutputType.Table;
-            [SerializeField] private bool _verboseLogging = false;
-            [SerializeField] private bool _catchStdOut = false;
-            [SerializeField] private bool _cacheConfigFiles = true;
-            [SerializeField] private bool _forceReloadConfig = false;
-            [SerializeField] private bool _forceLoadAllAssetsOnStart = false;
+            public enum OutputType
+            {
+                Table,
+                Log,
+            };
+
+            [SerializeField]
+            private MediaController _mediaController = MediaController.None;
+
+            [SerializeField]
+            private OutputType _outputType = OutputType.Table;
+
+            [SerializeField]
+            private bool _verboseLogging = false;
+
+            [SerializeField]
+            private bool _catchStdOut = false;
+
+            [SerializeField]
+            private bool _cacheConfigFiles = true;
+
+            [SerializeField]
+            private bool _forceReloadConfig = false;
+
+            [SerializeField]
+            private bool _forceLoadAllAssetsOnStart = false;
 
             public string BuildCommandLineArgs(string machineFolder)
             {
                 var args = new StringBuilder(machineFolder);
 
-                switch (_mediaController) {
+                switch (_mediaController)
+                {
                     case MediaController.None:
                         args.Append(" -b");
                         break;
@@ -331,7 +437,8 @@ namespace VisualPinball.Engine.Mpf.Unity
                         break;
                 }
 
-                switch (_outputType) {
+                switch (_outputType)
+                {
                     case OutputType.Table:
                         // Default behavior of MPF
                         break;

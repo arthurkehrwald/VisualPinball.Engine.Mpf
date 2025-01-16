@@ -11,8 +11,8 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using NLog;
+using UnityEngine;
 using Logger = NLog.Logger;
 
 namespace VisualPinball.Engine.Mpf.Unity
@@ -20,8 +20,11 @@ namespace VisualPinball.Engine.Mpf.Unity
     [Serializable]
     public class MpfNameNumberDictionary : ISerializationCallbackReceiver
     {
-        [SerializeField] private List<string> _names = new();
-        [SerializeField] private List<string> _numbers = new();
+        [SerializeField]
+        private List<string> _names = new();
+
+        [SerializeField]
+        private List<string> _numbers = new();
 
         // Unity doesn't know how to serialize a Dictionary
         private Dictionary<string, string> _namesByNumber = new();
@@ -67,9 +70,12 @@ namespace VisualPinball.Engine.Mpf.Unity
 
             if (_names.Count != _numbers.Count)
             {
-                Logger.Warn("Mismatch between number of serialized names and numbers of coils, " +
-                    "switches, or lamps in machine description. Update the machine description " +
-                    "by clicking 'Get Machine Description' in the Inspector of the MpfGameLogicEngine component.");
+                Logger.Warn(
+                    "Mismatch between number of serialized names and numbers of coils, switches, "
+                        + "or lamps in machine description. Update the machine description by "
+                        + "clicking 'Get Machine Description' in the Inspector of the "
+                        + "MpfGameLogicEngine component."
+                );
             }
 
             for (int i = 0; i != System.Math.Min(_names.Count, _numbers.Count); i++)
@@ -86,7 +92,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         public string GetNumberByName(string name)
         {
-            return _numbersByName[name];    
+            return _numbersByName[name];
         }
 
         public bool ContainsName(string name)
