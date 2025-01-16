@@ -18,106 +18,187 @@ using VisualPinball.Unity;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
-	public static class MpfExtensions
-	{
-		public static IEnumerable<SerializedGamelogicEngineSwitch> GetSwitches(this MachineDescription md)
-		{
-			return md.Switches.Select(sw => {
-				var gleSw = new SerializedGamelogicEngineSwitch(sw.Name) {
-					NormallyClosed = sw.SwitchType.ToLower() == "nc"
-				};
+    public static class MpfExtensions
+    {
+        public static IEnumerable<SerializedGamelogicEngineSwitch> GetSwitches(
+            this MachineDescription md
+        )
+        {
+            return md.Switches.Select(sw =>
+            {
+                var gleSw = new SerializedGamelogicEngineSwitch(sw.Name)
+                {
+                    NormallyClosed = sw.SwitchType.ToLower() == "nc",
+                };
 
-				if (Regex.Match(sw.Name, "l(eft)?_?flipper|flipper_?l(eft)?", RegexOptions.IgnoreCase).Success) {
-					gleSw.Description = "Left Flipper Button";
-					gleSw.InputActionHint = InputConstants.ActionLeftFlipper;
+                if (
+                    Regex
+                        .Match(
+                            sw.Name,
+                            "l(eft)?_?flipper|flipper_?l(eft)?",
+                            RegexOptions.IgnoreCase
+                        )
+                        .Success
+                )
+                {
+                    gleSw.Description = "Left Flipper Button";
+                    gleSw.InputActionHint = InputConstants.ActionLeftFlipper;
+                }
+                if (
+                    Regex
+                        .Match(
+                            sw.Name,
+                            "r(ight)?_?flipper|flipper_?r(ight)?",
+                            RegexOptions.IgnoreCase
+                        )
+                        .Success
+                )
+                {
+                    gleSw.Description = "Right Flipper Button";
+                    gleSw.InputActionHint = InputConstants.ActionRightFlipper;
+                }
+                else if (Regex.Match(sw.Name, "plunger", RegexOptions.IgnoreCase).Success)
+                {
+                    gleSw.Description = "Plunger Button";
+                    gleSw.InputActionHint = InputConstants.ActionPlunger;
+                }
+                else if (Regex.Match(sw.Name, "start", RegexOptions.IgnoreCase).Success)
+                {
+                    gleSw.Description = "Start Button";
+                    gleSw.InputActionHint = InputConstants.ActionStartGame;
+                }
+                else if (Regex.Match(sw.Name, "trough_?jam", RegexOptions.IgnoreCase).Success)
+                {
+                    gleSw.Description = "Trough: Jam Switch";
+                    gleSw.DeviceHint = "^Trough\\s*\\d?";
+                    gleSw.DeviceItemHint = "jam";
+                }
+                else
+                {
+                    var troughSwitchMatch = Regex.Match(
+                        sw.Name,
+                        "trough_?(\\d+)",
+                        RegexOptions.IgnoreCase
+                    );
+                    if (troughSwitchMatch.Success)
+                    {
+                        var num = troughSwitchMatch.Groups[1].Value;
+                        gleSw.Description = $"Trough {num}";
+                        gleSw.DeviceHint = "^Trough\\s*\\d?";
+                        gleSw.DeviceItemHint = num;
+                    }
+                }
 
-				} if (Regex.Match(sw.Name, "r(ight)?_?flipper|flipper_?r(ight)?", RegexOptions.IgnoreCase).Success) {
-					gleSw.Description = "Right Flipper Button";
-					gleSw.InputActionHint = InputConstants.ActionRightFlipper;
+                return gleSw;
+            });
+        }
 
-				} else if (Regex.Match(sw.Name, "plunger", RegexOptions.IgnoreCase).Success) {
-					gleSw.Description = "Plunger Button";
-					gleSw.InputActionHint = InputConstants.ActionPlunger;
+        public static IEnumerable<SerializedGamelogicEngineCoil> GetCoils(
+            this MachineDescription md
+        )
+        {
+            var coils = md
+                .Coils.Select(coil =>
+                {
+                    var gleCoil = new SerializedGamelogicEngineCoil(coil.Name);
 
-				} else if (Regex.Match(sw.Name, "start", RegexOptions.IgnoreCase).Success) {
-					gleSw.Description = "Start Button";
-					gleSw.InputActionHint = InputConstants.ActionStartGame;
+                    if (
+                        Regex
+                            .Match(
+                                coil.Name,
+                                "(l(eft)?_?flipper|flipper_?l(eft)?_?(main)?)$",
+                                RegexOptions.IgnoreCase
+                            )
+                            .Success
+                    )
+                    {
+                        gleCoil.Description = "Left Flipper";
+                        gleCoil.DeviceHint = "^(LeftFlipper|LFlipper|FlipperLeft|FlipperL)$";
+                        gleCoil.DeviceItemHint = FlipperComponent.MainCoilItem;
+                    }
+                    else if (
+                        Regex
+                            .Match(
+                                coil.Name,
+                                "(l(eft)?_?flipper|flipper_?l(eft)?)_?hold$",
+                                RegexOptions.IgnoreCase
+                            )
+                            .Success
+                    )
+                    {
+                        gleCoil.Description = "Left Flipper (Hold)";
+                        gleCoil.DeviceHint = "^(LeftFlipper|LFlipper|FlipperLeft|FlipperL)$";
+                        gleCoil.DeviceItemHint = FlipperComponent.HoldCoilItem;
+                    }
+                    else if (
+                        Regex
+                            .Match(
+                                coil.Name,
+                                "(r(ight)?_?flipper|flipper_?r(ight)?_?(main)?)$",
+                                RegexOptions.IgnoreCase
+                            )
+                            .Success
+                    )
+                    {
+                        gleCoil.Description = "Right Flipper";
+                        gleCoil.DeviceHint = "^(RightFlipper|RFlipper|FlipperRight|FlipperR)$";
+                        gleCoil.DeviceItemHint = FlipperComponent.HoldCoilItem;
+                    }
+                    else if (
+                        Regex
+                            .Match(
+                                coil.Name,
+                                "(r(ight)?_?flipper|flipper_?r(ight)?)_?hold$",
+                                RegexOptions.IgnoreCase
+                            )
+                            .Success
+                    )
+                    {
+                        gleCoil.Description = "Right Flipper (Hold)";
+                        gleCoil.DeviceHint = "^(RightFlipper|RFlipper|FlipperRight|FlipperR)$";
+                        gleCoil.DeviceItemHint = FlipperComponent.MainCoilItem;
+                    }
+                    else if (
+                        Regex.Match(coil.Name, "trough_?eject", RegexOptions.IgnoreCase).Success
+                    )
+                    {
+                        gleCoil.Description = "Trough Eject";
+                        gleCoil.DeviceHint = "^Trough\\s*\\d?";
+                        gleCoil.DeviceItemHint = "eject";
+                    }
 
-				} else if (Regex.Match(sw.Name, "trough_?jam", RegexOptions.IgnoreCase).Success) {
-					gleSw.Description = "Trough: Jam Switch";
-					gleSw.DeviceHint = "^Trough\\s*\\d?";
-					gleSw.DeviceItemHint = "jam";
+                    return gleCoil;
+                })
+                .ToArray();
 
-				} else {
-					var troughSwitchMatch = Regex.Match(sw.Name, "trough_?(\\d+)", RegexOptions.IgnoreCase);
-					if (troughSwitchMatch.Success) {
-						var num = troughSwitchMatch.Groups[1].Value;
-						gleSw.Description = $"Trough {num}";
-						gleSw.DeviceHint = "^Trough\\s*\\d?";
-						gleSw.DeviceItemHint = num;
-					}
-				}
+            return coils;
+        }
 
-				return gleSw;
-			});
-		}
+        public static IEnumerable<SerializedGamelogicEngineLamp> GetLights(
+            this MachineDescription md
+        )
+        {
+            // todo color
+            return md.Lights.Select(light => new SerializedGamelogicEngineLamp(light.Name));
+        }
 
-		public static IEnumerable<SerializedGamelogicEngineCoil> GetCoils(this MachineDescription md)
-		{
-			var coils = md.Coils.Select(coil => {
-				var gleCoil = new SerializedGamelogicEngineCoil(coil.Name);
+        public static Dictionary<string, string> GetSwitchNumbersByNameDict(
+            this MachineDescription md
+        )
+        {
+            Dictionary<string, string> ret = new();
 
-				if (Regex.Match(coil.Name, "(l(eft)?_?flipper|flipper_?l(eft)?_?(main)?)$", RegexOptions.IgnoreCase).Success) {
-					gleCoil.Description = "Left Flipper";
-					gleCoil.DeviceHint = "^(LeftFlipper|LFlipper|FlipperLeft|FlipperL)$";
-					gleCoil.DeviceItemHint = FlipperComponent.MainCoilItem;
+            foreach (SwitchDescription sw in md.Switches)
+            {
+                ret[sw.Name] = sw.HardwareNumber;
+            }
 
-				} else if (Regex.Match(coil.Name, "(l(eft)?_?flipper|flipper_?l(eft)?)_?hold$", RegexOptions.IgnoreCase).Success) {
-					gleCoil.Description = "Left Flipper (Hold)";
-					gleCoil.DeviceHint = "^(LeftFlipper|LFlipper|FlipperLeft|FlipperL)$";
-					gleCoil.DeviceItemHint = FlipperComponent.HoldCoilItem;
+            return ret;
+        }
 
-				} else if (Regex.Match(coil.Name, "(r(ight)?_?flipper|flipper_?r(ight)?_?(main)?)$", RegexOptions.IgnoreCase).Success) {
-					gleCoil.Description = "Right Flipper";
-					gleCoil.DeviceHint = "^(RightFlipper|RFlipper|FlipperRight|FlipperR)$";
-					gleCoil.DeviceItemHint = FlipperComponent.HoldCoilItem;
-
-				} else if (Regex.Match(coil.Name, "(r(ight)?_?flipper|flipper_?r(ight)?)_?hold$", RegexOptions.IgnoreCase).Success) {
-					gleCoil.Description = "Right Flipper (Hold)";
-					gleCoil.DeviceHint = "^(RightFlipper|RFlipper|FlipperRight|FlipperR)$";
-					gleCoil.DeviceItemHint = FlipperComponent.MainCoilItem;
-
-				} else if (Regex.Match(coil.Name, "trough_?eject", RegexOptions.IgnoreCase).Success) {
-					gleCoil.Description = "Trough Eject";
-					gleCoil.DeviceHint = "^Trough\\s*\\d?";
-					gleCoil.DeviceItemHint = "eject";
-				}
-
-				return gleCoil;
-			}).ToArray();
-
-			return coils;
-		}
-
-		public static IEnumerable<SerializedGamelogicEngineLamp> GetLights(this MachineDescription md)
-		{
-			// todo color
-			return md.Lights.Select(light => new SerializedGamelogicEngineLamp(light.Name));
-		}
-
-		public static Dictionary<string, string> GetSwitchNumbersByNameDict(this MachineDescription md)
-		{
-			Dictionary<string, string> ret = new();
-
-			foreach (SwitchDescription sw in md.Switches)
-			{
-				ret[sw.Name] = sw.HardwareNumber;
-			}
-
-			return ret;
-		}
-
-        public static Dictionary<string, string> GetCoilNumbersByNameDict(this MachineDescription md)
+        public static Dictionary<string, string> GetCoilNumbersByNameDict(
+            this MachineDescription md
+        )
         {
             Dictionary<string, string> ret = new();
 
@@ -129,13 +210,15 @@ namespace VisualPinball.Engine.Mpf.Unity
             return ret;
         }
 
-        public static Dictionary<string, string> GetLampNumbersByNameDict(this MachineDescription md)
+        public static Dictionary<string, string> GetLampNumbersByNameDict(
+            this MachineDescription md
+        )
         {
             Dictionary<string, string> ret = new();
 
             foreach (LightDescription light in md.Lights)
             {
-				ret[light.Name] = light.HardwareChannelColor;
+                ret[light.Name] = light.HardwareChannelColor;
             }
 
             return ret;
@@ -143,7 +226,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         public static IEnumerable<DisplayConfig> GetDmds(this MachineDescription md)
         {
-            return md.Dmds.Select(dmd => new DisplayConfig ( dmd.Name, dmd.Width, dmd.Height));
+            return md.Dmds.Select(dmd => new DisplayConfig(dmd.Name, dmd.Width, dmd.Height));
         }
     }
 }
