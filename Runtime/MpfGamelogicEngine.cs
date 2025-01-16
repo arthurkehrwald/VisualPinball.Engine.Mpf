@@ -92,13 +92,15 @@ namespace VisualPinball.Engine.Mpf.Unity
 #if UNITY_EDITOR
         public void QueryParseAndStoreMpfMachineDescription()
         {
-            var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
+            // TODO: Ditch IMGUI for UiToolkit, then do this whole thing asynchronously
+            var args = new MpfArgs().BuildCommandLineArgs(MachineFolder);
             using var mpfProcess = Process.Start("mpf", args);
+            Thread.Sleep(1500);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
             using var grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
             var client = new MpfHardwareService.MpfHardwareServiceClient(grpcChannel);
-            client.Start(new MachineState(), deadline: DateTime.UtcNow.AddSeconds(3));
+            client.Start(new MachineState());
             var machineDescription = client.GetMachineDescription(
                 new EmptyRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
             client.Quit(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
@@ -113,21 +115,30 @@ namespace VisualPinball.Engine.Mpf.Unity
         }
 #endif
 
-        public void OnInit(Player player, TableApi tableApi, BallManager ballManager)
+        public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
             _mpfProcess = Process.Start("mpf", _mpfArguments.BuildCommandLineArgs(MachineFolder));
+            // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
+            // feature instead, but it is not supported in .netstandard 2.1, which is mandated
+            // by Unity. Links:
+            // https://grpc.io/docs/guides/wait-for-ready/
+            // https://github.com/grpc/grpc-dotnet/issues/1190
+            // https://github.com/grpc/grpc-dotnet/blob/c9d26719e8b2a8f03424cacbb168540e35a94b0b/src/Grpc.Net.Client/Grpc.Net.Client.csproj#L21C1-L23C19
+            var connectDelay = Task.Delay(1500);
             var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() {
                 HttpHandler = handler,
-                DisposeHttpClient = true
+                DisposeHttpClient = true,
             };
             _grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             MachineState initialState = CompileMachineState(player);
-            _mpfCommandStreamCall = client.Start(initialState);
-            _mpfSwitchStreamCall = client.SendSwitchChanges();
             _mpfCommunicationCts = new();
+            var callOptions = new CallOptions(cancellationToken: _mpfCommunicationCts.Token);
+            await connectDelay;
+            _mpfCommandStreamCall = client.Start(initialState, callOptions);
+            _mpfSwitchStreamCall = client.SendSwitchChanges(callOptions);
             _receiveMpfCommandsTask = ReceiveMpfCommands();
             OnDisplaysRequested?.Invoke(this, new RequestedDisplays(_mpfDotMatrixDisplays));
             OnStarted?.Invoke(this, EventArgs.Empty);
@@ -154,7 +165,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             _mpfCommunicationCts?.Dispose();
             _mpfCommunicationCts = null;
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
-            await client.QuitAsync(new QuitRequest());
+            await client.QuitAsync(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
             _mpfCommandStreamCall?.Dispose();
             _mpfCommandStreamCall = null;
             _mpfSwitchStreamCall?.Dispose();
