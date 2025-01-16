@@ -347,20 +347,33 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         public void DisplayChanged(DisplayFrameData displayFrameData) { }
 
-        public bool GetCoil(string id) =>
-            _player.CoilStatuses.ContainsKey(id) && _player.CoilStatuses[id];
+        public bool GetCoil(string id)
+        {
+            return _player.CoilStatuses.ContainsKey(id) && _player.CoilStatuses[id];
+        }
 
-        public LampState GetLamp(string id) =>
-            _player.LampStatuses.ContainsKey(id) ? _player.LampStatuses[id] : LampState.Default;
+        public LampState GetLamp(string id)
+        {
+            return _player.LampStatuses.ContainsKey(id)
+                ? _player.LampStatuses[id]
+                : LampState.Default;
+        }
 
-        public bool GetSwitch(string id) =>
-            _player.SwitchStatuses.ContainsKey(id) && _player.SwitchStatuses[id].IsSwitchEnabled;
+        public bool GetSwitch(string id)
+        {
+            return _player.SwitchStatuses.ContainsKey(id)
+                && _player.SwitchStatuses[id].IsSwitchEnabled;
+        }
 
-        public void SetCoil(string id, bool isEnabled) =>
+        public void SetCoil(string id, bool isEnabled)
+        {
             OnCoilChanged?.Invoke(this, new CoilEventArgs(id, isEnabled));
+        }
 
-        public void SetLamp(string id, float value, bool isCoil, LampSource source) =>
+        public void SetLamp(string id, float value, bool isCoil, LampSource source)
+        {
             OnLampChanged?.Invoke(this, new LampEventArgs(id, value, isCoil, source));
+        }
 
         public async void Switch(string id, bool isClosed)
         {
