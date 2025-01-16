@@ -46,7 +46,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
             _consoleOptionsProperty = serializedObject.FindProperty("_mpfArguments");
         }
 
-        public override async void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             if (!_tableComponent)
             {
