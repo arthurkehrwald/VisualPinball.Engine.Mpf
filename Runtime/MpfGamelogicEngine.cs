@@ -159,7 +159,14 @@ namespace VisualPinball.Engine.Mpf.Unity
         public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
-            _mpfProcess = Process.Start("mpf", _mpfArguments.BuildCommandLineArgs(MachineFolder));
+            var fileName = "mpf";
+            var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
+            #if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+            fileName = "gnome-terminal";
+            args = $"-- mpf {args}";
+            #endif
+            var startOptions = new ProcessStartInfo(fileName, args);
+            _mpfProcess = Process.Start(startOptions);
             // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
             // feature instead, but it is not supported in .netstandard 2.1, which is mandated
             // by Unity. Links:
