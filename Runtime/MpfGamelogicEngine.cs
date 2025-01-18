@@ -161,10 +161,10 @@ namespace VisualPinball.Engine.Mpf.Unity
             _player = player;
             var fileName = "mpf";
             var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
-            #if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+#if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
             fileName = "gnome-terminal";
             args = $"-- mpf {args}";
-            #endif
+#endif
             var startOptions = new ProcessStartInfo(fileName, args);
             _mpfProcess = Process.Start(startOptions);
             // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
