@@ -162,8 +162,8 @@ namespace VisualPinball.Engine.Mpf.Unity
             var fileName = "mpf";
             var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
 #if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
-            fileName = "gnome-terminal";
-            args = $"-- mpf {args}";
+            fileName = "x-terminal-emulator";
+            args = $"-e mpf {args}";
 #endif
             var startOptions = new ProcessStartInfo(fileName, args);
             _mpfProcess = Process.Start(startOptions);
