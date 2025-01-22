@@ -132,9 +132,9 @@ namespace VisualPinball.Engine.Mpf.Unity
                 mediaController = MpfArgs.MediaController.None,
                 outputType = MpfArgs.OutputType.Log,
             };
-            string argsString = args.BuildCommandLineArgs(MachineFolder);
-            using var mpfProcess = Process.Start("mpf", argsString);
-            Thread.Sleep(1500);
+            ProcessStartInfo startInfo = args.GetStartInfo(MachineFolder);
+            using var mpfProcess = Process.Start(startInfo);
+            Thread.Sleep(15000);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
             using var grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
@@ -159,21 +159,15 @@ namespace VisualPinball.Engine.Mpf.Unity
         public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
-            var fileName = "mpf";
-            var args = _mpfArguments.BuildCommandLineArgs(MachineFolder);
-#if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
-            fileName = "x-terminal-emulator";
-            args = $"-e mpf {args}";
-#endif
-            var startOptions = new ProcessStartInfo(fileName, args);
-            _mpfProcess = Process.Start(startOptions);
+            var args = _mpfArguments.GetStartInfo(MachineFolder);
+            _mpfProcess = Process.Start(args);
             // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
             // feature instead, but it is not supported in .netstandard 2.1, which is mandated
             // by Unity. Links:
             // https://grpc.io/docs/guides/wait-for-ready/
             // https://github.com/grpc/grpc-dotnet/issues/1190
             // https://github.com/grpc/grpc-dotnet/blob/c9d26719e8b2a8f03424cacbb168540e35a94b0b/src/Grpc.Net.Client/Grpc.Net.Client.csproj#L21C1-L23C19
-            var connectDelay = Task.Delay(1500);
+            var connectDelay = Task.Delay(15000);
             var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions()
             {
@@ -191,6 +185,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             _receiveMpfCommandsTask = ReceiveMpfCommands();
             OnDisplaysRequested?.Invoke(this, new RequestedDisplays(_mpfDotMatrixDisplays));
             OnStarted?.Invoke(this, EventArgs.Empty);
+            Logger.Info("MPF init done");
         }
 
         private MachineState CompileMachineState(Player player)
@@ -243,7 +238,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             catch (RpcException ex)
             {
                 if (!_mpfCommunicationCts.IsCancellationRequested)
-                    Logger.Error($"Unable to reveive commands from MPF. RPC Status: {ex.Status}");
+                    Logger.Error($"Unable to receive commands from MPF. RPC Status: {ex.Status}");
             }
         }
 
