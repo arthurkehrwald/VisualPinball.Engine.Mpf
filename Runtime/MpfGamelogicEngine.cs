@@ -32,15 +32,15 @@ namespace VisualPinball.Engine.Mpf.Unity
     public class MpfGamelogicEngine : MonoBehaviour, IGamelogicEngine
     {
         [SerializeField]
-        private SerializedGamelogicEngineSwitch[] _requestedSwitches =
+        public SerializedGamelogicEngineSwitch[] _requestedSwitches =
             Array.Empty<SerializedGamelogicEngineSwitch>();
 
         [SerializeField]
-        private SerializedGamelogicEngineLamp[] _requestedLamps =
+        public SerializedGamelogicEngineLamp[] _requestedLamps =
             Array.Empty<SerializedGamelogicEngineLamp>();
 
         [SerializeField]
-        private SerializedGamelogicEngineCoil[] _requestedCoils =
+        public SerializedGamelogicEngineCoil[] _requestedCoils =
             Array.Empty<SerializedGamelogicEngineCoil>();
 
         [SerializeField]
@@ -61,8 +61,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         [SerializeField]
         private DisplayConfig[] _mpfDotMatrixDisplays;
 
-        [SerializeField]
-        private string _machineFolder;
+        public string _machineFolder;
 
         private Player _player;
         private Process _mpfProcess;
@@ -88,21 +87,6 @@ namespace VisualPinball.Engine.Mpf.Unity
                     );
                 }
                 return _machineFolder;
-            }
-            set
-            {
-#if UNITY_EDITOR
-                Undo.RecordObject(this, "Set MPF machine folder");
-                PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-#endif
-                if (value.Contains("StreamingAssets/"))
-                {
-                    _machineFolder = "./StreamingAssets/" + value.Split("StreamingAssets/")[1];
-                }
-                else
-                {
-                    _machineFolder = value;
-                }
             }
         }
 
