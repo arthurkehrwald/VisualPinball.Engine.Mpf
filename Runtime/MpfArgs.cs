@@ -10,7 +10,10 @@
 // SOFTWARE.
 
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
@@ -44,7 +47,25 @@ namespace VisualPinball.Engine.Mpf.Unity
         public bool forceReloadConfig = false;
         public bool forceLoadAllAssetsOnStart = false;
 
-        public string BuildCommandLineArgs(string machineFolder)
+        public ProcessStartInfo GetStartInfo(string machineFolder)
+        {
+            var fileName = Path.Combine(Application.streamingAssetsPath, "Bin", "mpf");
+            var args = GetCmdArgs(machineFolder);
+#if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+            args = $"-e {fileName} {args}";
+            fileName = "x-terminal-emulator";
+#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            string tmpScriptPath = Path.Combine(Application.temporaryCachePath, "mpf.sh");
+            File.WriteAllText(tmpScriptPath, $"#!/bin/bash\n{fileName} {args}");
+            Process.Start("chmod", $"u+x {tmpScriptPath}");  
+            args = $"-a Terminal {tmpScriptPath}";
+            fileName = "open";
+#endif
+            return new ProcessStartInfo(fileName, args);
+        }
+
+
+        private string GetCmdArgs(string machineFolder)
         {
             var sb = new StringBuilder(machineFolder);
 
