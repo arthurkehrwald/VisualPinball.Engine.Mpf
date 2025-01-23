@@ -8,8 +8,6 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 {
     public class PostInstallSetup
     {
-        private const string PackageName = "org.visualpinball.engine.missionpinball";
-
         [InitializeOnLoadMethod]
         private static void OnLoad()
         {
@@ -18,7 +16,9 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
 
         private static void RegisteredPackagesEventHandler(PackageRegistrationEventArgs args)
         {
-            var packageInfo = args.added.FirstOrDefault(package => package.name == PackageName);
+            var packageInfo = args.added.FirstOrDefault(package =>
+                package.name == Constants.PackageName
+            );
             if (packageInfo != default)
                 Setup(packageInfo.resolvedPath);
         }
