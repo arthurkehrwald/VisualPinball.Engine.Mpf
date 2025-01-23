@@ -1,9 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <uie:PropertyField name="mpf-arguments" binding-path="_mpfArguments" label="Mpf Arguments" />
-    <ui:TextField picking-mode="Ignore" label="Machine Folder" name="machine-folder" readonly="true" binding-path="_machineFolder" class="unity-base-field__aligned" />
-    <ui:Button text="Get Machine Description" parse-escape-sequences="true" display-tooltip-when-elided="true" name="get-machine-description" />
-    <ui:Button text="Populate Hardware" parse-escape-sequences="true" display-tooltip-when-elided="true" name="populate-hardware" />
-    <ui:Foldout text="Switches" name="switches" />
-    <ui:Foldout text="Coils" name="coils" />
-    <ui:Foldout text="Lamps" name="lamps" />
-</ui:UXML>
