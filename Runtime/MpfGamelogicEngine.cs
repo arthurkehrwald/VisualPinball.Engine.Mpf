@@ -61,7 +61,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         [SerializeField]
         private DisplayConfig[] _mpfDotMatrixDisplays;
 
-        public string _machineFolder;
+        public string _machineFolder = "./StreamingAssets/MpfMachineFolder";
 
         private Player _player;
         private Process _mpfProcess;
@@ -79,13 +79,14 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             get
             {
-                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets/"))
+                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets"))
                 {
-                    return Path.Combine(
-                        Application.streamingAssetsPath,
-                        _machineFolder.Split("StreamingAssets/")[1]
-                    );
+                    var m = _machineFolder.Replace("\\", "/");
+                    m = _machineFolder.Split("StreamingAssets")[1];
+                    m = m[1..];
+                    return Path.Combine(Application.streamingAssetsPath, m).Replace("\\", "/");
                 }
+
                 return _machineFolder;
             }
         }

@@ -53,6 +53,7 @@ namespace VisualPinball.Engine.Mpf.Unity.Editor
                     );
                     if (!string.IsNullOrWhiteSpace(path))
                     {
+                        path = path.Replace("\\", "/");
                         if (path.Contains("StreamingAssets/"))
                             path = "./StreamingAssets/" + path.Split("StreamingAssets/")[1];
 
