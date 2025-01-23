@@ -1,0 +1,3 @@
+GroupBox > Label {
+    -unity-font-style: bold;
+}

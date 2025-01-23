@@ -44,7 +44,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             Array.Empty<SerializedGamelogicEngineCoil>();
 
         [SerializeField]
-        private MpfStarter _mpfArguments;
+        private MpfStarter _mpfStarter;
 
         // MPF uses names and numbers/ids (for hardware mapping) to identify switches, coils, and
         // lamps. VPE only uses names, which is why the arrays above do not store the numbers.
@@ -61,8 +61,6 @@ namespace VisualPinball.Engine.Mpf.Unity
         [SerializeField]
         private DisplayConfig[] _mpfDotMatrixDisplays;
 
-        public string _machineFolder = "./StreamingAssets/MpfMachineFolder";
-
         private Player _player;
         private Process _mpfProcess;
         private GrpcChannel _grpcChannel;
@@ -74,22 +72,6 @@ namespace VisualPinball.Engine.Mpf.Unity
         private const string _grpcAddress = "http://localhost:50051";
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        public string MachineFolder
-        {
-            get
-            {
-                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets"))
-                {
-                    var m = _machineFolder.Replace("\\", "/");
-                    m = m.Split("StreamingAssets")[1];
-                    m = m.TrimStart('/');
-                    return Path.Combine(Application.streamingAssetsPath, m).Replace("\\", "/");
-                }
-
-                return _machineFolder;
-            }
-        }
 
         public string Name => "Mission Pinball Framework";
         public GamelogicEngineSwitch[] RequestedSwitches => _requestedSwitches;
@@ -114,10 +96,10 @@ namespace VisualPinball.Engine.Mpf.Unity
             // TODO: Ditch IMGUI for UiToolkit, then do this whole thing asynchronously
             var args = new MpfStarter()
             {
-                mediaController = MpfStarter.MediaController.None,
-                outputType = MpfStarter.OutputType.TerminalLog,
+                _mediaController = MpfStarter.MediaController.None,
+                _outputType = MpfStarter.OutputType.LogInTerminal,
             };
-            using var mpfProcess = args.StartMpf(MachineFolder);
+            using var mpfProcess = args.StartMpf();
             Thread.Sleep(15000);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
@@ -143,7 +125,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
-            _mpfProcess = _mpfArguments.StartMpf(MachineFolder);
+            _mpfProcess = _mpfStarter.StartMpf();
             // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
             // feature instead, but it is not supported in .netstandard 2.1, which is mandated
             // by Unity. Links:
