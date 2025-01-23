@@ -44,7 +44,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             Array.Empty<SerializedGamelogicEngineCoil>();
 
         [SerializeField]
-        private MpfArgs _mpfArguments;
+        private MpfStarter _mpfArguments;
 
         // MPF uses names and numbers/ids (for hardware mapping) to identify switches, coils, and
         // lamps. VPE only uses names, which is why the arrays above do not store the numbers.
@@ -82,8 +82,8 @@ namespace VisualPinball.Engine.Mpf.Unity
                 if (_machineFolder != null && _machineFolder.Contains("StreamingAssets"))
                 {
                     var m = _machineFolder.Replace("\\", "/");
-                    m = _machineFolder.Split("StreamingAssets")[1];
-                    m = m[1..];
+                    m = m.Split("StreamingAssets")[1];
+                    m = m.TrimStart('/');
                     return Path.Combine(Application.streamingAssetsPath, m).Replace("\\", "/");
                 }
 
@@ -112,13 +112,12 @@ namespace VisualPinball.Engine.Mpf.Unity
         public void QueryParseAndStoreMpfMachineDescription()
         {
             // TODO: Ditch IMGUI for UiToolkit, then do this whole thing asynchronously
-            var args = new MpfArgs()
+            var args = new MpfStarter()
             {
-                mediaController = MpfArgs.MediaController.None,
-                outputType = MpfArgs.OutputType.Log,
+                mediaController = MpfStarter.MediaController.None,
+                outputType = MpfStarter.OutputType.TerminalLog,
             };
-            ProcessStartInfo startInfo = args.GetStartInfo(MachineFolder);
-            using var mpfProcess = Process.Start(startInfo);
+            using var mpfProcess = args.StartMpf(MachineFolder);
             Thread.Sleep(15000);
             using var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions() { HttpHandler = handler };
@@ -144,8 +143,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
         {
             _player = player;
-            var args = _mpfArguments.GetStartInfo(MachineFolder);
-            _mpfProcess = Process.Start(args);
+            _mpfProcess = _mpfArguments.StartMpf(MachineFolder);
             // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
             // feature instead, but it is not supported in .netstandard 2.1, which is mandated
             // by Unity. Links:

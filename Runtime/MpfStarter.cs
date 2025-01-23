@@ -13,7 +13,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using UnityEngine;
+using NLog;
+using Logger = NLog.Logger;
 
 namespace VisualPinball.Engine.Mpf.Unity
 {
@@ -22,7 +23,7 @@ namespace VisualPinball.Engine.Mpf.Unity
     // parameters and private fields with the [UnityEngine.SerializeField] attribute, but this is
     // the only way to get the Unity editor to respect the default values of the fields when
     // adding a component with a field of this type to a game object.
-    public class MpfArgs
+    public class MpfStarter
     {
         // GodotOrLegacyMc: MPF versions pre v0.80 use a discontinued kivvy-based media
         // controller, newer versions use Godot.
@@ -35,8 +36,10 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         public enum OutputType
         {
-            Table,
-            Log,
+            None,
+            TerminalTable,
+            TerminalLog,
+            UnityConsoleLog,
         };
 
         public enum ExecutableSource
@@ -46,15 +49,16 @@ namespace VisualPinball.Engine.Mpf.Unity
         };
 
         public MediaController mediaController = MediaController.None;
-        public OutputType outputType = OutputType.Table;
+        public OutputType outputType = OutputType.TerminalTable;
         public bool verboseLogging = false;
-        public bool catchStdOut = false;
         public bool cacheConfigFiles = true;
         public bool forceReloadConfig = false;
         public bool forceLoadAllAssetsOnStart = false;
         public ExecutableSource executableSource = ExecutableSource.Included;
 
-        public ProcessStartInfo GetStartInfo(string machineFolder)
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public Process StartMpf(string machineFolder)
         {
             var fileName = GetExecutablePath();
             var args = GetCmdArgs(machineFolder);
@@ -62,13 +66,52 @@ namespace VisualPinball.Engine.Mpf.Unity
             args = $"-e {fileName} {args}";
             fileName = "x-terminal-emulator";
 #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+            // There is no way to pass arguments trough the macOS terminal,
+            // so create a temporary shell script that contains the arguments.
+            // So the logic goes: This process -> terminal -> shell script -> MPF
+            // Very convoluted but there is no other way as far as I know.
             string tmpScriptPath = Path.Combine(Application.temporaryCachePath, "mpf.sh");
             File.WriteAllText(tmpScriptPath, $"#!/bin/bash\n{fileName} {args}");
             Process.Start("chmod", $"u+x {tmpScriptPath}");
             args = $"-a Terminal {tmpScriptPath}";
             fileName = "open";
 #endif
-            return new ProcessStartInfo(fileName, args);
+            var process = new Process();
+            process.StartInfo.FileName = fileName;
+            process.StartInfo.Arguments = args;
+            var redirectOutput = outputType == OutputType.UnityConsoleLog;
+            process.StartInfo.UseShellExecute = !redirectOutput;
+            process.StartInfo.CreateNoWindow = outputType == OutputType.None || redirectOutput;
+            if (redirectOutput)
+            {
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.OutputDataReceived += new DataReceivedEventHandler(
+                    (sender, e) => Logger.Info($"MPF: {e.Data}")
+                );
+
+                process.ErrorDataReceived += new DataReceivedEventHandler(
+                    (sender, e) =>
+                    {
+                        // For some reason, all (?) output from MPF is routed to this error handler,
+                        // so filter manually. This is obviously flawed and will sometimes fail
+                        // to recognize errors.
+                        if (e.Data.Contains("ERROR") || e.Data.Contains("Exception"))
+                            Logger.Error($"MPF: {e.Data}");
+                        else if (e.Data.Contains("WARNING"))
+                            Logger.Warn($"MPF: {e.Data}");
+                        else
+                            Logger.Info($"MPF: {e.Data}");
+                    }
+                );
+            }
+            process.Start();
+            if (redirectOutput)
+            {
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+            }
+            return process;
         }
 
         private string GetExecutablePath()
@@ -119,15 +162,8 @@ namespace VisualPinball.Engine.Mpf.Unity
                     break;
             }
 
-            switch (outputType)
-            {
-                case OutputType.Table:
-                    // Default behavior of MPF
-                    break;
-                case OutputType.Log:
-                    sb.Append(" -t");
-                    break;
-            }
+            if (outputType != OutputType.TerminalTable)
+                sb.Append(" -t");
 
             if (verboseLogging)
                 sb.Append(" -v -V");
