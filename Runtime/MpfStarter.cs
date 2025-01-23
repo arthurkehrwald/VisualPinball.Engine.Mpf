@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using NLog;
+using UnityEngine;
 using Logger = NLog.Logger;
 
 namespace VisualPinball.Engine.Mpf.Unity
@@ -37,9 +38,9 @@ namespace VisualPinball.Engine.Mpf.Unity
         public enum OutputType
         {
             None,
-            TerminalTable,
-            TerminalLog,
-            UnityConsoleLog,
+            TableInTerminal,
+            LogInTerminal,
+            LogInUnityConsole,
         };
 
         public enum ExecutableSource
@@ -48,20 +49,37 @@ namespace VisualPinball.Engine.Mpf.Unity
             ManuallyInstalled,
         };
 
-        public MediaController mediaController = MediaController.None;
-        public OutputType outputType = OutputType.TerminalTable;
-        public bool verboseLogging = false;
-        public bool cacheConfigFiles = true;
-        public bool forceReloadConfig = false;
-        public bool forceLoadAllAssetsOnStart = false;
-        public ExecutableSource executableSource = ExecutableSource.Included;
+        public MediaController _mediaController = MediaController.None;
+        public OutputType _outputType = OutputType.TableInTerminal;
+        public bool _verboseLogging = false;
+        public bool _cacheConfigFiles = true;
+        public bool _forceReloadConfig = false;
+        public bool _forceLoadAllAssetsOnStart = false;
+        public ExecutableSource _executableSource = ExecutableSource.Included;
+        public string _machineFolder = "./StreamingAssets/MpfMachineFolder";
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public Process StartMpf(string machineFolder)
+        public string MachineFolder
+        {
+            get
+            {
+                if (_machineFolder != null && _machineFolder.Contains("StreamingAssets"))
+                {
+                    var m = _machineFolder.Replace("\\", "/");
+                    m = m.Split("StreamingAssets")[1];
+                    m = m.TrimStart('/');
+                    return Path.Combine(Application.streamingAssetsPath, m).Replace("\\", "/");
+                }
+
+                return _machineFolder;
+            }
+        }
+
+        public Process StartMpf()
         {
             var fileName = GetExecutablePath();
-            var args = GetCmdArgs(machineFolder);
+            var args = GetCmdArgs(MachineFolder);
 #if UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
             args = $"-e {fileName} {args}";
             fileName = "x-terminal-emulator";
@@ -79,9 +97,9 @@ namespace VisualPinball.Engine.Mpf.Unity
             var process = new Process();
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = args;
-            var redirectOutput = outputType == OutputType.UnityConsoleLog;
+            var redirectOutput = _outputType == OutputType.LogInUnityConsole;
             process.StartInfo.UseShellExecute = !redirectOutput;
-            process.StartInfo.CreateNoWindow = outputType == OutputType.None || redirectOutput;
+            process.StartInfo.CreateNoWindow = _outputType == OutputType.None || redirectOutput;
             if (redirectOutput)
             {
                 process.StartInfo.RedirectStandardError = true;
@@ -116,7 +134,7 @@ namespace VisualPinball.Engine.Mpf.Unity
 
         private string GetExecutablePath()
         {
-            switch (executableSource)
+            switch (_executableSource)
             {
                 case ExecutableSource.Included:
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -140,7 +158,7 @@ namespace VisualPinball.Engine.Mpf.Unity
                     return "mpf";
                 default:
                     throw new NotImplementedException(
-                        $"Cannot get path for unknown MPF executable source '{executableSource}'"
+                        $"Cannot get path for unknown MPF executable source '{_executableSource}'"
                     );
             }
         }
@@ -149,7 +167,7 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             var sb = new StringBuilder(machineFolder);
 
-            switch (mediaController)
+            switch (_mediaController)
             {
                 case MediaController.None:
                     sb.Append(" -b");
@@ -162,19 +180,19 @@ namespace VisualPinball.Engine.Mpf.Unity
                     break;
             }
 
-            if (outputType != OutputType.TerminalTable)
+            if (_outputType != OutputType.TableInTerminal)
                 sb.Append(" -t");
 
-            if (verboseLogging)
+            if (_verboseLogging)
                 sb.Append(" -v -V");
 
-            if (!cacheConfigFiles)
+            if (!_cacheConfigFiles)
                 sb.Append(" -A");
 
-            if (forceReloadConfig)
+            if (_forceReloadConfig)
                 sb.Append(" -a");
 
-            if (forceLoadAllAssetsOnStart)
+            if (_forceLoadAllAssetsOnStart)
                 sb.Append(" -f");
 
             return sb.ToString();
