@@ -9,11 +9,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// ReSharper disable AssignmentInConditionalExpression
-
 using System;
 using System.IO;
-using NLog;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
