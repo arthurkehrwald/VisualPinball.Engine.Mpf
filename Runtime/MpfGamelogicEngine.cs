@@ -44,6 +44,9 @@ namespace VisualPinball.Engine.Mpf.Unity
         [SerializeField]
         private MpfStarter _mpfStarter;
 
+        [SerializeField]
+        private float _connectTimeout = 20f;
+
         // MPF uses names and numbers/ids (for hardware mapping) to identify switches, coils, and
         // lamps. VPE only uses names, which is why the arrays above do not store the numbers.
         // These dictionaries store the numbers to make communication with MPF possible.
@@ -120,17 +123,15 @@ namespace VisualPinball.Engine.Mpf.Unity
         }
 #endif
 
-        public async Task OnInit(Player player, TableApi tableApi, BallManager ballManager)
+        public async Task OnInit(
+            Player player,
+            TableApi tableApi,
+            BallManager ballManager,
+            CancellationToken ct
+        )
         {
             _player = player;
             _mpfProcess = _mpfStarter.StartMpf();
-            // Wait for the server to be ready. Ideally, you would use gRPC's wait-for-ready
-            // feature instead, but it is not supported in .netstandard 2.1, which is mandated
-            // by Unity. Links:
-            // https://grpc.io/docs/guides/wait-for-ready/
-            // https://github.com/grpc/grpc-dotnet/issues/1190
-            // https://github.com/grpc/grpc-dotnet/blob/c9d26719e8b2a8f03424cacbb168540e35a94b0b/src/Grpc.Net.Client/Grpc.Net.Client.csproj#L21C1-L23C19
-            var connectDelay = Task.Delay(15000);
             var handler = new YetAnotherHttpHandler() { Http2Only = true };
             var options = new GrpcChannelOptions()
             {
@@ -138,17 +139,114 @@ namespace VisualPinball.Engine.Mpf.Unity
                 DisposeHttpClient = true,
             };
             _grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
+            _mpfCommunicationCts = new CancellationTokenSource();
+            _mpfCommandStreamCall = await EstablishGrpcConnection(ct);
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
-            MachineState initialState = CompileMachineState(player);
-            _mpfCommunicationCts = new();
-            var callOptions = new CallOptions(cancellationToken: _mpfCommunicationCts.Token);
-            await connectDelay;
-            _mpfCommandStreamCall = client.Start(initialState, callOptions);
-            _mpfSwitchStreamCall = client.SendSwitchChanges(callOptions);
+            _mpfSwitchStreamCall = client.SendSwitchChanges(
+                cancellationToken: _mpfCommunicationCts.Token
+            );
             _receiveMpfCommandsTask = ReceiveMpfCommands();
             OnDisplaysRequested?.Invoke(this, new RequestedDisplays(_mpfDotMatrixDisplays));
             OnStarted?.Invoke(this, EventArgs.Empty);
-            Logger.Info("MPF init done");
+        }
+
+        // This method repeatedly tries to connect to MPF. Ideally, you would use gRPC's
+        // wait-for-ready feature instead, but it is not supported in .netstandard 2.1, which is
+        // mandated by Unity. Links:
+        // https://grpc.io/docs/guides/wait-for-ready/
+        // https://github.com/grpc/grpc-dotnet/issues/1190
+        // https://github.com/grpc/grpc-dotnet/blob/c9d26719e8b2a8f03424cacbb168540e35a94b0b/src/Grpc.Net.Client/Grpc.Net.Client.csproj#L21C1-L23C19
+        // Alternatively, you could use the channel status, but that is also not supported:
+        // https://github.com/grpc/grpc-dotnet/issues/1275
+        // Previously, the problem was 'solved' by simply waiting 1.5 seconds to give MPF
+        // time to start up, but depending on the computer and whether or not prepackaged
+        // (pyinstaller) binaries are used, this is not always enough.
+        private async Task<AsyncServerStreamingCall<Commands>> EstablishGrpcConnection(
+            CancellationToken ct
+        )
+        {
+            Logger.Info("Attempting to connect to MPF...");
+            MachineState initialState = CompileMachineState(_player);
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(
+                _mpfCommunicationCts.Token
+            );
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(_connectTimeout), timeoutCts.Token);
+            var attempt = 0;
+
+            while (true)
+            {
+                attempt++;
+                using var currentAttemptCts = CancellationTokenSource.CreateLinkedTokenSource(
+                    _mpfCommunicationCts.Token,
+                    ct
+                );
+                var success = false;
+                var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
+                var streamingCall = client.Start(
+                    initialState,
+                    cancellationToken: currentAttemptCts.Token
+                );
+
+                try
+                {
+                    var responseTask = client
+                        .GetMachineDescriptionAsync(
+                            new EmptyRequest(),
+                            cancellationToken: currentAttemptCts.Token,
+                            deadline: DateTime.UtcNow.AddSeconds(1)
+                        )
+                        .ResponseAsync;
+
+                    if (await Task.WhenAny(responseTask, timeoutTask) == responseTask)
+                    {
+                        try
+                        {
+                            await responseTask;
+                        }
+                        catch (RpcException ex)
+                        {
+                            Logger.Error(
+                                $"Failed to connect to MPF. RPC Status: {ex.StatusCode}. "
+                                    + "Retrying..."
+                            );
+                            continue;
+                        }
+
+                        timeoutCts.Cancel();
+
+                        try
+                        {
+                            await timeoutTask;
+                        }
+                        catch (TaskCanceledException) { }
+
+                        success = true;
+                        Logger.Info("Successfully connected to MPF.");
+                        return streamingCall;
+                    }
+                    else
+                    {
+                        await timeoutTask;
+                        currentAttemptCts.Cancel();
+
+                        try
+                        {
+                            await responseTask;
+                        }
+                        catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
+
+                        throw new TimeoutException(
+                            "Timed out while trying to connect to MPF via gRPC after "
+                                + $"{_connectTimeout} seconds and {attempt} attempts."
+                        );
+                    }
+                }
+                finally
+                {
+                    if (!success)
+                        streamingCall?.Dispose();
+                }
+            }
         }
 
         private MachineState CompileMachineState(Player player)
@@ -169,9 +267,9 @@ namespace VisualPinball.Engine.Mpf.Unity
         {
             _mpfCommunicationCts?.Cancel();
             await _receiveMpfCommandsTask;
-            _receiveMpfCommandsTask = null;
             _mpfCommunicationCts?.Dispose();
             _mpfCommunicationCts = null;
+            _receiveMpfCommandsTask = null;
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             await client.QuitAsync(new QuitRequest(), deadline: DateTime.UtcNow.AddSeconds(3));
             _mpfCommandStreamCall?.Dispose();
