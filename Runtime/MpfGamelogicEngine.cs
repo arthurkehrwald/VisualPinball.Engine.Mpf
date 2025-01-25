@@ -140,7 +140,7 @@ namespace VisualPinball.Engine.Mpf.Unity
             };
             _grpcChannel = GrpcChannel.ForAddress(_grpcAddress, options);
             _mpfCommunicationCts = new CancellationTokenSource();
-            _mpfCommandStreamCall = await EstablishGrpcConnection(ct);
+            await EstablishGrpcConnection(ct);
             var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             _mpfSwitchStreamCall = client.SendSwitchChanges(
                 cancellationToken: _mpfCommunicationCts.Token
@@ -161,91 +161,59 @@ namespace VisualPinball.Engine.Mpf.Unity
         // Previously, the problem was 'solved' by simply waiting 1.5 seconds to give MPF
         // time to start up, but depending on the computer and whether or not prepackaged
         // (pyinstaller) binaries are used, this is not always enough.
-        private async Task<AsyncServerStreamingCall<Commands>> EstablishGrpcConnection(
-            CancellationToken ct
-        )
+        private async Task EstablishGrpcConnection(CancellationToken ct)
         {
             Logger.Info("Attempting to connect to MPF...");
-            MachineState initialState = CompileMachineState(_player);
+            var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(
                 _mpfCommunicationCts.Token
             );
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(_connectTimeout), timeoutCts.Token);
-            var attempt = 0;
+            var pingTask = WaitUntilStatusOk();
 
-            while (true)
+            if (await Task.WhenAny(pingTask, timeoutTask) == pingTask)
             {
-                attempt++;
-                using var currentAttemptCts = CancellationTokenSource.CreateLinkedTokenSource(
-                    _mpfCommunicationCts.Token,
-                    ct
-                );
-                var success = false;
-                var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
-                var streamingCall = client.Start(
-                    initialState,
-                    cancellationToken: currentAttemptCts.Token
-                );
-
+                await pingTask;
+                timeoutCts.Cancel();
                 try
                 {
-                    var responseTask = client
-                        .GetMachineDescriptionAsync(
-                            new EmptyRequest(),
-                            cancellationToken: currentAttemptCts.Token,
-                            deadline: DateTime.UtcNow.AddSeconds(1)
-                        )
-                        .ResponseAsync;
-
-                    if (await Task.WhenAny(responseTask, timeoutTask) == responseTask)
-                    {
-                        try
-                        {
-                            await responseTask;
-                        }
-                        catch (RpcException ex)
-                        {
-                            Logger.Error(
-                                $"Failed to connect to MPF. RPC Status: {ex.StatusCode}. "
-                                    + "Retrying..."
-                            );
-                            continue;
-                        }
-
-                        timeoutCts.Cancel();
-
-                        try
-                        {
-                            await timeoutTask;
-                        }
-                        catch (TaskCanceledException) { }
-
-                        success = true;
-                        Logger.Info("Successfully connected to MPF.");
-                        return streamingCall;
-                    }
-                    else
-                    {
-                        await timeoutTask;
-                        currentAttemptCts.Cancel();
-
-                        try
-                        {
-                            await responseTask;
-                        }
-                        catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
-
-                        throw new TimeoutException(
-                            "Timed out while trying to connect to MPF via gRPC after "
-                                + $"{_connectTimeout} seconds and {attempt} attempts."
-                        );
-                    }
+                    await timeoutTask;
                 }
-                finally
+                catch (OperationCanceledException) { }
+                Logger.Info("Connected");
+                return;
+            }
+
+            await timeoutTask;
+            _mpfCommunicationCts.Cancel();
+            try
+            {
+                await pingTask;
+            }
+            catch (OperationCanceledException) { }
+            throw new TimeoutException(
+                $"Timed out trying to connect to MPF after {_connectTimeout} seconds."
+            );
+        }
+
+        private async Task WaitUntilStatusOk()
+        {
+            var s = CompileMachineState(_player);
+            var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
+            _mpfCommandStreamCall = client.Start(s, cancellationToken: _mpfCommunicationCts.Token);
+            while (true)
+            {
+                try
                 {
-                    if (!success)
-                        streamingCall?.Dispose();
+                    if (_mpfCommandStreamCall.GetStatus().Equals(Status.DefaultSuccess))
+                        return;
+                    else // The call gets cancelled after a while, so I'd have to start a new one, which is exactly what I wanted to avoid, so this approach is a fail
+                        throw new OperationCanceledException();
                 }
+                catch (InvalidOperationException) { }
+                _mpfCommunicationCts.Token.ThrowIfCancellationRequested();
+                await Task.Delay(100);
+                Logger.Warn("womp womp");
             }
         }
 
