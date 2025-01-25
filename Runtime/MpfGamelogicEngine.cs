@@ -197,55 +197,58 @@ namespace VisualPinball.Engine.Mpf.Unity
                         )
                         .ResponseAsync;
 
-                    if (await Task.WhenAny(responseTask, timeoutTask) == responseTask)
+            if (await Task.WhenAny(pingTask, timeoutTask) == pingTask)
+            {
+                await pingTask;
+                timeoutCts.Cancel();
+                try
+                {
+                    await timeoutTask;
+                }
+                catch (OperationCanceledException) { }
+                Logger.Info("Connected");
+                return;
+            }
+
+            await timeoutTask;
+            _mpfCommunicationCts.Cancel();
+            try
+            {
+                await pingTask;
+            }
+            catch (OperationCanceledException) { }
+            throw new TimeoutException(
+                $"Timed out trying to connect to MPF after {_connectTimeout} seconds."
+            );
+        }
+
+        // In this version, I have modifided MPF to not wait for the start signal before sending
+        // the machine description back. I was hoping that it would not be necessary to send the
+        // start RPC first and MPF would eventually return the populated machine description,
+        // but it never does. So this is another fail.
+        private async Task PingUntilResponse()
+        {
+            while (true)
+            {
+                try
+                {
+                    Logger.Warn("Ping");
+                    var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
+                    var md = await client.GetMachineDescriptionAsync(
+                        new EmptyRequest(),
+                        deadline: DateTime.UtcNow.AddSeconds(1),
+                        cancellationToken: _mpfCommunicationCts.Token
+                    );
+                    if (md.Switches.Count > 0)
                     {
-                        try
-                        {
-                            await responseTask;
-                        }
-                        catch (RpcException ex)
-                        {
-                            Logger.Error(
-                                $"Failed to connect to MPF. RPC Status: {ex.StatusCode}. "
-                                    + "Retrying..."
-                            );
-                            continue;
-                        }
-
-                        timeoutCts.Cancel();
-
-                        try
-                        {
-                            await timeoutTask;
-                        }
-                        catch (TaskCanceledException) { }
-
-                        success = true;
-                        Logger.Info("Successfully connected to MPF.");
-                        return streamingCall;
+                        Logger.Info("Machine description received");
+                        return;
                     }
                     else
-                    {
-                        await timeoutTask;
-                        currentAttemptCts.Cancel();
-
-                        try
-                        {
-                            await responseTask;
-                        }
-                        catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled) { }
-
-                        throw new TimeoutException(
-                            "Timed out while trying to connect to MPF via gRPC after "
-                                + $"{_connectTimeout} seconds and {attempt} attempts."
-                        );
-                    }
+                        Logger.Info("Machine description empty");
                 }
-                finally
-                {
-                    if (!success)
-                        streamingCall?.Dispose();
-                }
+                catch (Exception ex) when (ex is IOException || ex is RpcException) { }
+                _mpfCommunicationCts.Token.ThrowIfCancellationRequested();
             }
         }
 
