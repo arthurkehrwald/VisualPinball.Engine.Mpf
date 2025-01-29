@@ -4,7 +4,8 @@
     {
         public readonly bool Enabled;
 
-        public FlipperDeviceMessage(string deviceName, bool enabled) : base(deviceName)
+        public FlipperDeviceMessage(string deviceName, bool enabled)
+            : base(deviceName)
         {
             Enabled = enabled;
         }

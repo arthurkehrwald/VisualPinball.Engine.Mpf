@@ -1,11 +1,13 @@
-using FutureBoxSystems.MpfMediaController.Messages.PlayerTurnStart;
 using System;
 using System.Collections.Generic;
+using FutureBoxSystems.MpfMediaController.Messages.PlayerTurnStart;
 using UnityEngine;
-    
+
 namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
 {
-    public abstract class PlayerVariableMonitor<VarType> : MpfVariableMonitorBase<VarType, PlayerVariableMessage> where VarType : IEquatable<VarType>
+    public abstract class PlayerVariableMonitor<VarType>
+        : MpfVariableMonitorBase<VarType, PlayerVariableMessage>
+        where VarType : IEquatable<VarType>
     {
         [SerializeField]
         CurrentPlayerMonitor currentPlayerMonitor;
@@ -43,7 +45,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
 
         protected override bool MatchesMonitoringCriteria(PlayerVariableMessage msg)
         {
-            return base.MatchesMonitoringCriteria(msg) && msg.PlayerNum == currentPlayerMonitor.VarValue;
+            return base.MatchesMonitoringCriteria(msg)
+                && msg.PlayerNum == currentPlayerMonitor.VarValue;
         }
     }
 }

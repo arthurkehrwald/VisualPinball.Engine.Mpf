@@ -1,5 +1,5 @@
-using Newtonsoft.Json.Linq;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Switch
 {
@@ -25,7 +25,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Switch
             {
                 0 => false,
                 1 => true,
-                _ => throw new ParameterException(StateParamName, bcpMessage)
+                _ => throw new ParameterException(StateParamName, bcpMessage),
             };
 
             return new SwitchMessage(
@@ -41,7 +41,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Switch
                 parameters: new JObject
                 {
                     { NameParamName, Name },
-                    { StateParamName, IsActive ? 1 : 0 }
+                    { StateParamName, IsActive ? 1 : 0 },
                 }
             );
         }

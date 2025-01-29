@@ -1,5 +1,5 @@
-using UnityEngine;
 using FutureBoxSystems.MpfMediaController.Messages.Goodbye;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Behaviours
 {
@@ -7,6 +7,7 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
     {
         [SerializeField]
         BcpInterface bcpInterface;
+
         [SerializeField]
         GoodbyeMessageHandler goodbyeHandler;
 

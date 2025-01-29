@@ -4,7 +4,8 @@
     {
         public readonly bool Enabled;
 
-        public AutofireDeviceMessage(string deviceName, bool enabled) : base(deviceName)
+        public AutofireDeviceMessage(string deviceName, bool enabled)
+            : base(deviceName)
         {
             Enabled = enabled;
         }

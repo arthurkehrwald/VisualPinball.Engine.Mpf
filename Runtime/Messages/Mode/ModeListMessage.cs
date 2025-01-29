@@ -1,7 +1,7 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Mode
 {
@@ -33,8 +33,12 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
                 }
 
                 return new ModeListMessage(runningModes);
-            } 
-            catch (Exception e) when (e is JsonException || e is InvalidCastException || e is IndexOutOfRangeException)
+            }
+            catch (Exception e)
+                when (e is JsonException
+                    || e is InvalidCastException
+                    || e is IndexOutOfRangeException
+                )
             {
                 throw new ParameterException(RunningModesParamName, null, e);
             }

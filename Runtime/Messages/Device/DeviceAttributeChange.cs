@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device
@@ -18,8 +18,13 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             NewValue = newValue;
         }
 
-        public delegate ConversionType ConvertAttributeDelegate<ConversionType>(string attributeValue);
-        public DeviceAttributeChangeEventArgs<ConversionType> GetEventArgs<ConversionType>(ConvertAttributeDelegate<ConversionType> convertAttribute)
+        public delegate ConversionType ConvertAttributeDelegate<ConversionType>(
+            string attributeValue
+        );
+
+        public DeviceAttributeChangeEventArgs<ConversionType> GetEventArgs<ConversionType>(
+            ConvertAttributeDelegate<ConversionType> convertAttribute
+        )
         {
             try
             {
@@ -27,21 +32,31 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             }
             catch (ConversionException e)
             {
-                throw new WrongDeviceAttributeTypeException(AttributeName, typeof(ConversionType), OldValue, NewValue, e);
+                throw new WrongDeviceAttributeTypeException(
+                    AttributeName,
+                    typeof(ConversionType),
+                    OldValue,
+                    NewValue,
+                    e
+                );
             }
         }
 
         private class ConversionException : InvalidCastException
         {
-            public ConversionException(Exception innerException) : base("Conversion failed", innerException) { }
+            public ConversionException(Exception innerException)
+                : base("Conversion failed", innerException) { }
         }
 
-        public DeviceAttributeChangeEventArgs<T> GetEventArgsForPrimitiveTypes<T>() where T : struct
+        public DeviceAttributeChangeEventArgs<T> GetEventArgsForPrimitiveTypes<T>()
+            where T : struct
         {
             try
             {
-                return new((T)Convert.ChangeType(OldValue, typeof(T)),
-                    (T)Convert.ChangeType(NewValue, typeof(T)));
+                return new(
+                    (T)Convert.ChangeType(OldValue, typeof(T)),
+                    (T)Convert.ChangeType(NewValue, typeof(T))
+                );
             }
             catch (InvalidCastException e)
             {
@@ -49,12 +64,15 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             }
         }
 
-        public DeviceAttributeChangeEventArgs<T> GetEventArgsForEnums<T>() where T : Enum
+        public DeviceAttributeChangeEventArgs<T> GetEventArgsForEnums<T>()
+            where T : Enum
         {
             try
             {
-                return new(StringEnum.GetValueFromString<T>(OldValue),
-                    StringEnum.GetValueFromString<T>(NewValue));
+                return new(
+                    StringEnum.GetValueFromString<T>(OldValue),
+                    StringEnum.GetValueFromString<T>(NewValue)
+                );
             }
             catch (ArgumentException e)
             {

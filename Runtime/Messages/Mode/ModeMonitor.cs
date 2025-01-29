@@ -10,6 +10,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
 
         [SerializeField]
         private ModeStartMessageHandler modeStartMessageHandler;
+
         [SerializeField]
         private ModeStopMessageHandler modeStopMessageHandler;
 

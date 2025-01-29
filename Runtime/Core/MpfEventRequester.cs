@@ -15,7 +15,8 @@ namespace FutureBoxSystems.MpfMediaController
         public MpfEventRequester(
             BcpInterface bcpInterface,
             CreateMessage createStartListeningMessage,
-            CreateMessage createStopListeningMessage)
+            CreateMessage createStopListeningMessage
+        )
         {
             this.bcpInterface = bcpInterface;
             this.createStartListeningMessage = createStartListeningMessage;
@@ -30,19 +31,27 @@ namespace FutureBoxSystems.MpfMediaController
                 bcpInterface.EnqueueMessage(startListeningMsg);
             }
             else if (!listeners[_event].Add(listener))
-                Debug.LogError($"[EventPool] Cannot add listener '{listener}' to event '{_event}' because it was already added.");
+                Debug.LogError(
+                    $"[EventPool] Cannot add listener '{listener}' to event '{_event}' because it "
+                        + "was already added."
+                );
         }
 
         public void RemoveListener(object listener, EventType _event)
         {
-            if (listeners.TryGetValue(_event, out var listenersForThisEvent) &&
-                listenersForThisEvent.Remove(listener))
+            if (
+                listeners.TryGetValue(_event, out var listenersForThisEvent)
+                && listenersForThisEvent.Remove(listener)
+            )
             {
                 var stopListeningMsg = createStopListeningMessage(_event);
                 bcpInterface.EnqueueMessage(stopListeningMsg);
             }
             else
-                Debug.LogError($"[EventPool] Cannot remove listener '{listener}' from event '{_event}' because it is not a listener.");
+                Debug.LogError(
+                    $"[EventPool] Cannot remove listener '{listener}' from event '{_event}' "
+                        + "because it is not a listener."
+                );
         }
     }
 }

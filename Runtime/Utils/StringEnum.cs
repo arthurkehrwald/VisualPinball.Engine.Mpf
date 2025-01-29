@@ -31,7 +31,8 @@ namespace FutureBoxSystems.MpfMediaController
             return attribute.StringValue;
         }
 
-        public static T GetValueFromString<T>(string value) where T : Enum
+        public static T GetValueFromString<T>(string value)
+            where T : Enum
         {
             return GetValueFromStringUnsafe<T>(value);
         }
@@ -46,8 +47,11 @@ namespace FutureBoxSystems.MpfMediaController
 
             foreach (var field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
             {
-                if (Attribute.GetCustomAttribute(field, typeof(StringValueAttribute)) is StringValueAttribute attribute)
-                {   
+                if (
+                    Attribute.GetCustomAttribute(field, typeof(StringValueAttribute))
+                    is StringValueAttribute attribute
+                )
+                {
                     if (attribute.StringValue == value)
                     {
                         return (T)field.GetValue(null);

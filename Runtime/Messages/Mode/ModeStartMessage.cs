@@ -21,7 +21,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
         {
             return new ModeStartMessage(
                 name: bcpMessage.GetParamValue<string>(NameParamName),
-                priority: bcpMessage.GetParamValue<int>(PriorityParamName));
+                priority: bcpMessage.GetParamValue<int>(PriorityParamName)
+            );
         }
     }
 }

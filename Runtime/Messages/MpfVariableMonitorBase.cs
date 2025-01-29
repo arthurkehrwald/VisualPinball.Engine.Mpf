@@ -21,11 +21,12 @@ namespace FutureBoxSystems.MpfMediaController.Messages
             {
                 return (VarType)Convert.ChangeType(msg.Value, typeof(VarType));
             }
-            catch (Exception e) when (
-                e is InvalidCastException ||
-                e is FormatException ||
-                e is OverflowException ||
-                e is ArgumentNullException)
+            catch (Exception e)
+                when (e is InvalidCastException
+                    || e is FormatException
+                    || e is OverflowException
+                    || e is ArgumentNullException
+                )
             {
                 throw new ParameterException(MpfVariableMessageBase.ValueParamName, null, e);
             }

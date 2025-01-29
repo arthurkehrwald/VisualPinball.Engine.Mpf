@@ -7,7 +7,14 @@
         public readonly string StatusAsString;
         public readonly int Balls;
 
-        public BallDeviceMessage(string deviceName, int availableBalls, BallDeviceStatus status, string statusAsString, int balls) : base(deviceName)
+        public BallDeviceMessage(
+            string deviceName,
+            int availableBalls,
+            BallDeviceStatus status,
+            string statusAsString,
+            int balls
+        )
+            : base(deviceName)
         {
             AvailableBalls = availableBalls;
             Status = status;
@@ -33,19 +40,26 @@
     {
         [StringValue(null)]
         Unknown,
+
         [StringValue("idle")]
         Idle,
+
         [StringValue("waiting_for_ball")]
         WaitingForBall,
+
         [StringValue("waiting_for_target_ready")]
         WaitingForTargetReady,
+
         [StringValue("ejecting")]
         Ejecting,
+
         [StringValue("eject_broken")]
         EjectBroken,
+
         [StringValue("ball_left")]
         BallLeft,
+
         [StringValue("failed_confirm")]
-        FailedConfirm
+        FailedConfirm,
     }
 }

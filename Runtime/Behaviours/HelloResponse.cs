@@ -1,7 +1,6 @@
-using UnityEngine;
-using FutureBoxSystems.MpfMediaController.Messages.Hello;
 using FutureBoxSystems.MpfMediaController.Messages.Error;
-
+using FutureBoxSystems.MpfMediaController.Messages.Hello;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Behaviours
 {
@@ -9,6 +8,7 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
     {
         [SerializeField]
         private BcpInterface bcpInterface;
+
         [SerializeField]
         private HelloMessageHandler helloHandler;
 
@@ -31,14 +31,16 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
                 response = new HelloMessage(
                     Constants.BcpSpecVersion,
                     Constants.MediaControllerName,
-                    Constants.MediaControllerVersion);
+                    Constants.MediaControllerVersion
+                );
             }
             else
             {
                 string originalHelloMessage = message.ToGenericMessage().ToString();
                 response = new ErrorMessage(
                     message: "unknown protocol version",
-                    commandThatCausedError: originalHelloMessage);
+                    commandThatCausedError: originalHelloMessage
+                );
             }
             bcpInterface.EnqueueMessage(response);
         }

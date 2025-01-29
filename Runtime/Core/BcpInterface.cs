@@ -1,22 +1,26 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
 using FutureBoxSystems.MpfMediaController.Messages.Error;
+using FutureBoxSystems.MpfMediaController.Messages.Monitor;
 using FutureBoxSystems.MpfMediaController.Messages.Trigger;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
     public class BcpInterface : MonoBehaviour
     {
         public ConnectionState ConnectionState => Server.ConnectionState;
+
         [SerializeField]
         private int port = 5050;
+
         [SerializeField]
         [Range(0.1f, 10f)]
         private float frameTimeBudgetMs = 3f;
+
         [SerializeField]
         private bool logReceivedMessages = false;
+
         [SerializeField]
         private bool logSentMessages = false;
 
@@ -26,30 +30,42 @@ namespace FutureBoxSystems.MpfMediaController
         public delegate void HandleMessage(BcpMessage message);
         private readonly Dictionary<string, HandleMessage> messageHandlers = new();
         private MpfEventRequester<MonitoringCategory> monitoringCategories;
-        public MpfEventRequester<MonitoringCategory> MonitoringCategories => monitoringCategories ??= new(
-            bcpInterface: this,
-            createStartListeningMessage: category => new MonitorStartMessage(category),
-            createStopListeningMessage: category => new MonitorStopMessage(category));
+        public MpfEventRequester<MonitoringCategory> MonitoringCategories =>
+            monitoringCategories ??= new(
+                bcpInterface: this,
+                createStartListeningMessage: category => new MonitorStartMessage(category),
+                createStopListeningMessage: category => new MonitorStopMessage(category)
+            );
 
         private MpfEventRequester<string> mpfEvents;
-        public MpfEventRequester<string> MpfEvents => mpfEvents ??= new(
-            bcpInterface: this,
-            createStartListeningMessage: category => new RegisterTriggerMessage(category),
-            createStopListeningMessage: category => new RemoveTriggerMessage(category));
-
+        public MpfEventRequester<string> MpfEvents =>
+            mpfEvents ??= new(
+                bcpInterface: this,
+                createStartListeningMessage: category => new RegisterTriggerMessage(category),
+                createStopListeningMessage: category => new RemoveTriggerMessage(category)
+            );
 
         public void RegisterMessageHandler(string command, HandleMessage handle)
         {
             if (!messageHandlers.TryAdd(command, handle))
-                Debug.LogWarning($"[BcpInterface] Cannot add message handler, because command '{command}' already has a handler.");
+                Debug.LogWarning(
+                    $"[BcpInterface] Cannot add message handler, because command '{command}' "
+                        + "already has a handler."
+                );
         }
 
         public void UnregisterMessageHandler(string command, HandleMessage handle)
         {
-            if (messageHandlers.TryGetValue(command, out var registeredHandle) && registeredHandle == handle)
+            if (
+                messageHandlers.TryGetValue(command, out var registeredHandle)
+                && registeredHandle == handle
+            )
                 messageHandlers.Remove(command);
             else
-                Debug.LogWarning($"[BcpInterface] Cannot remove message handler for command '{command}', because it is not registered.");
+                Debug.LogWarning(
+                    $"[BcpInterface] Cannot remove message handler for command '{command}', "
+                        + "because it is not registered."
+                );
         }
 
         public void EnqueueMessage(ISentMessage message)
@@ -80,7 +96,9 @@ namespace FutureBoxSystems.MpfMediaController
         {
             float startTime = Time.unscaledTime;
             float timeSpentMs = 0f;
-            while (timeSpentMs < frameTimeBudgetMs && Server.TryDequeueReceivedMessage(out var message))
+            while (
+                timeSpentMs < frameTimeBudgetMs && Server.TryDequeueReceivedMessage(out var message)
+            )
             {
                 HandleReceivedMessage(message);
                 timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
@@ -100,12 +118,17 @@ namespace FutureBoxSystems.MpfMediaController
                 }
                 catch (BcpParseException e)
                 {
-                    Debug.LogError($"[BcpInterface] Failed to parse message. Message: {message} Exception: {e}");
+                    Debug.LogError(
+                        $"[BcpInterface] Failed to parse message. Message: {message} Exception: {e}"
+                    );
                 }
             }
             else
             {
-                Debug.LogError($"[BcpInterface] No parser registered for message with command '{message.Command}' Message: {message}");
+                Debug.LogError(
+                    "[BcpInterface] No parser registered for message with command "
+                        + $"'{message.Command}' Message: {message}"
+                );
                 EnqueueMessage(new ErrorMessage("unknown command", message.ToString()));
             }
         }

@@ -5,7 +5,8 @@
         public readonly bool IsActive;
         public readonly int RecycleJitterCount;
 
-        public SwitchDeviceMessage(string deviceName, bool isActive, int recycleJitterCount) : base(deviceName)
+        public SwitchDeviceMessage(string deviceName, bool isActive, int recycleJitterCount)
+            : base(deviceName)
         {
             IsActive = isActive;
             RecycleJitterCount = recycleJitterCount;

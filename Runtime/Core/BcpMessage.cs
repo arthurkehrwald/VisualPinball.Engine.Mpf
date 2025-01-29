@@ -1,9 +1,9 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController
 {
@@ -22,7 +22,8 @@ namespace FutureBoxSystems.MpfMediaController
             this.hasComplexParams = hasComplexParams;
         }
 
-        public BcpMessage(string command) : this(command, new()) { }
+        public BcpMessage(string command)
+            : this(command, new()) { }
 
         public T GetParamValue<T>(string name)
         {
@@ -30,7 +31,8 @@ namespace FutureBoxSystems.MpfMediaController
             {
                 var token = parameters[name];
 
-                // If string is requested, but parsed type is different, just return the unparsed JSON string
+                // If string is requested, but parsed type is different, just return the unparsed
+                // JSON string
                 if (typeof(T) == typeof(string) && token.Type != JTokenType.String)
                     return (T)Convert.ChangeType(token.ToString(Formatting.None), typeof(T));
 
@@ -39,7 +41,11 @@ namespace FutureBoxSystems.MpfMediaController
 
                 return (T)Convert.ChangeType(token, typeof(T));
             }
-            catch (Exception e) when (e is KeyNotFoundException || e is InvalidCastException || e is NullReferenceException)
+            catch (Exception e)
+                when (e is KeyNotFoundException
+                    || e is InvalidCastException
+                    || e is NullReferenceException
+                )
             {
                 throw new ParameterException(name, this, e);
             }
@@ -103,7 +109,7 @@ namespace FutureBoxSystems.MpfMediaController
             string value;
             if (property.Value.HasValues)
                 value = property.Value.ToString(Formatting.None);
-            else    
+            else
                 value = (string)property.Value;
             if (encode)
             {
@@ -158,7 +164,7 @@ namespace FutureBoxSystems.MpfMediaController
                         "int" => new JValue((int)Convert.ChangeType(valueStr, typeof(int))),
                         "float" => new JValue((float)Convert.ChangeType(valueStr, typeof(float))),
                         "NoneType" => null,
-                        _ => new JValue(valueStr)
+                        _ => new JValue(valueStr),
                     };
                 }
             }

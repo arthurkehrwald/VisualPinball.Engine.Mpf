@@ -1,5 +1,5 @@
-using Newtonsoft.Json.Linq;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Hello
 {
@@ -24,10 +24,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Hello
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject{
+                parameters: new JObject
+                {
                     { versionName, BcpSpecVersion },
                     { controllerNameName, ControllerName },
-                    { controllerVersionName, ControllerVersion }
+                    { controllerVersionName, ControllerVersion },
                 }
             );
         }
@@ -37,7 +38,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Hello
             return new HelloMessage(
                 version: bcpMessage.GetParamValue<string>(versionName),
                 controllerName: bcpMessage.GetParamValue<string>(controllerNameName),
-                controllerVersion: bcpMessage.GetParamValue<string>(controllerVersionName));
+                controllerVersion: bcpMessage.GetParamValue<string>(controllerVersionName)
+            );
         }
     }
 }

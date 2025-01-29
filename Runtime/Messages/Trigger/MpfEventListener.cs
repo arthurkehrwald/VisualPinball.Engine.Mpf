@@ -7,8 +7,10 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
     {
         [SerializeField]
         private string eventName;
+
         [SerializeField]
         private BcpInterface bcpInterface;
+
         [SerializeField]
         private TriggerMessageHandler triggerMessageHandler;
 

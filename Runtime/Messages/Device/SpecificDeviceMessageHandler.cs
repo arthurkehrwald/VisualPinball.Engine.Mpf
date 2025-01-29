@@ -1,18 +1,23 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device
 {
-    public abstract class SpecificDeviceMessageHandler<MessageType, StateJsonFormat> : MonoBehaviour where MessageType : SpecificDeviceMessageBase
+    public abstract class SpecificDeviceMessageHandler<MessageType, StateJsonFormat> : MonoBehaviour
+        where MessageType : SpecificDeviceMessageBase
     {
         [SerializeField]
         private string deviceName;
+
         [SerializeField]
         private DeviceMessageHandler generalDeviceMessageHandler;
 
         protected abstract string Type { get; }
-        protected delegate MessageType ParseStateDelegate(StateJsonFormat deserializedState, string deviceName);
+        protected delegate MessageType ParseStateDelegate(
+            StateJsonFormat deserializedState,
+            string deviceName
+        );
         protected abstract ParseStateDelegate ParseState { get; }
         public event EventHandler<MessageType> StateUpdated;
 
@@ -45,7 +50,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             }
             catch (JsonException e)
             {
-                throw new InvalidDeviceStateException(deviceMessage.Type, typeof(StateJsonFormat), e);
+                throw new InvalidDeviceStateException(
+                    deviceMessage.Type,
+                    typeof(StateJsonFormat),
+                    e
+                );
             }
 
             MessageType specificDeviceMessage = ParseState(deserializedState, deviceMessage.Name);

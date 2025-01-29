@@ -1,10 +1,11 @@
 ﻿using System;
-using UnityEngine;
 using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
-    public abstract class BcpMessageHandler<T> : MonoBehaviour where T : EventArgs
+    public abstract class BcpMessageHandler<T> : MonoBehaviour
+        where T : EventArgs
     {
         [SerializeField]
         protected BcpInterface bcpInterface;
@@ -26,9 +27,11 @@ namespace FutureBoxSystems.MpfMediaController
             remove
             {
                 CommandReceived -= value;
-                if (bcpInterface != null &&
-                    CommandReceived == null &&
-                    MonitoringCategory != MonitoringCategory.None)
+                if (
+                    bcpInterface != null
+                    && CommandReceived == null
+                    && MonitoringCategory != MonitoringCategory.None
+                )
                 {
                     bcpInterface.MonitoringCategories.RemoveListener(this, MonitoringCategory);
                 }
@@ -57,6 +60,7 @@ namespace FutureBoxSystems.MpfMediaController
         }
 
         protected virtual void BeforeEvent() { }
+
         protected virtual void AfterEvent() { }
     }
 }

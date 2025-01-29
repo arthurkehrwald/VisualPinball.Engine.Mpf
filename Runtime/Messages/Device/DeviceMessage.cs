@@ -33,7 +33,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
                 try
                 {
                     var arr = bcpMessage.GetParamValue<JArray>("changes");
-                    change = new DeviceAttributeChange((string)arr[0], (string)arr[1], (string)arr[2]);
+                    change = new DeviceAttributeChange(
+                        (string)arr[0],
+                        (string)arr[1],
+                        (string)arr[2]
+                    );
                 }
                 catch (ArgumentOutOfRangeException e)
                 {

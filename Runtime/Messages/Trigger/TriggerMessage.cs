@@ -1,5 +1,5 @@
-using Newtonsoft.Json.Linq;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
 {
@@ -24,10 +24,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject
-                {
-                    { NameParamName, TriggerName }
-                }
+                parameters: new JObject { { NameParamName, TriggerName } }
             );
         }
     }

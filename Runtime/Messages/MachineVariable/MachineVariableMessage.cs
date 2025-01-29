@@ -6,9 +6,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
     {
         public const string Command = "machine_variable";
 
-        public MachineVariableMessage(string name, JToken value) : base(name, value)
-        {
-        }
+        public MachineVariableMessage(string name, JToken value)
+            : base(name, value) { }
 
         public static MachineVariableMessage FromGenericMessage(BcpMessage bcpMessage)
         {

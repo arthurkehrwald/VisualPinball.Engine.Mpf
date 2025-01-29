@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Error
 {
@@ -21,9 +21,10 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject{
+                parameters: new JObject
+                {
                     { messageName, Message },
-                    { commandThatCausedErrorName, CommandThatCausedError }
+                    { commandThatCausedErrorName, CommandThatCausedError },
                 }
             );
         }

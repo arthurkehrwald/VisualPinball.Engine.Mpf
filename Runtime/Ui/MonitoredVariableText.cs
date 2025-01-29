@@ -1,14 +1,17 @@
-using UnityEngine;
-using TMPro;
 using FutureBoxSystems.MpfMediaController.Messages;
+using TMPro;
+using UnityEngine;
 
 namespace FutureBoxSystems.Ui
 {
     [RequireComponent(typeof(TextMeshProUGUI))]
     public class MonitoredVariableText : MonoBehaviour
     {
-        [SerializeReference] private MonitorBase monitor;
-        [SerializeField] private string format = "{0}";
+        [SerializeReference]
+        private MonitorBase monitor;
+
+        [SerializeField]
+        private string format = "{0}";
 
         private TextMeshProUGUI _textField;
         private TextMeshProUGUI TextField

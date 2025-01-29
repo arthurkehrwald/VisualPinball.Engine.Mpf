@@ -8,14 +8,17 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device.Light
         public const string Type = "light";
         public readonly Color LightColor;
 
-        public LightDeviceMessage(string deviceName, Color lightColor) : base(deviceName)
+        public LightDeviceMessage(string deviceName, Color lightColor)
+            : base(deviceName)
         {
             LightColor = lightColor;
         }
 
         public static LightDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
-            float r, g, b;
+            float r,
+                g,
+                b;
             try
             {
                 r = state.color[0] / 255f;

@@ -6,7 +6,13 @@
         public readonly int BallsRequested;
         public readonly int Balls;
 
-        public PlayfieldDeviceMessage(string deviceName, int availableBalls, int ballsRequested, int balls) : base(deviceName)
+        public PlayfieldDeviceMessage(
+            string deviceName,
+            int availableBalls,
+            int ballsRequested,
+            int balls
+        )
+            : base(deviceName)
         {
             AvailableBalls = availableBalls;
             BallsRequested = ballsRequested;
@@ -21,7 +27,7 @@
         public class StateJson
         {
             public int available_balls;
-            public int balls_requested; 
+            public int balls_requested;
             public int balls;
         }
     }

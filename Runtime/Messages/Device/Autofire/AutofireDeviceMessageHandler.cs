@@ -2,7 +2,8 @@
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device.Autofire
 {
-    public class AutofireDeviceMessageHandler : SpecificDeviceMessageHandler<AutofireDeviceMessage, AutofireDeviceMessage.StateJson>
+    public class AutofireDeviceMessageHandler
+        : SpecificDeviceMessageHandler<AutofireDeviceMessage, AutofireDeviceMessage.StateJson>
     {
         protected override string Type => "autofire";
         protected override ParseStateDelegate ParseState => AutofireDeviceMessage.FromStateJson;

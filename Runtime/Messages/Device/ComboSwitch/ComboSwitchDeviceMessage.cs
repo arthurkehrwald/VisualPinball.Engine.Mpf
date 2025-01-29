@@ -4,14 +4,17 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device.ComboSwitch
     {
         public readonly ComboSwitchStatus Status;
 
-        public ComboSwitchDeviceMessage(string deviceName, ComboSwitchStatus status) : base(deviceName)
+        public ComboSwitchDeviceMessage(string deviceName, ComboSwitchStatus status)
+            : base(deviceName)
         {
             Status = status;
         }
 
         public static ComboSwitchDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
-            ComboSwitchStatus status = StringEnum.GetValueFromString<ComboSwitchStatus>(state.state);
+            ComboSwitchStatus status = StringEnum.GetValueFromString<ComboSwitchStatus>(
+                state.state
+            );
             return new(deviceName, status);
         }
 
@@ -25,9 +28,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device.ComboSwitch
     {
         [StringValue("inactive")]
         Inactive,
+
         [StringValue("both")]
         Both,
+
         [StringValue("one")]
-        One
+        One,
     }
 }

@@ -2,7 +2,8 @@
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device.Switch
 {
-    public class SwitchDeviceMessageHandler : SpecificDeviceMessageHandler<SwitchDeviceMessage, SwitchDeviceMessage.StateJson>
+    public class SwitchDeviceMessageHandler
+        : SpecificDeviceMessageHandler<SwitchDeviceMessage, SwitchDeviceMessage.StateJson>
     {
         protected override string Type => "switch";
         protected override ParseStateDelegate ParseState => SwitchDeviceMessage.FromStateJson;
@@ -14,13 +15,18 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device.Switch
             switch (change.AttributeName)
             {
                 case nameof(SwitchDeviceMessage.StateJson.state):
-                    change = new(change.AttributeName,
+                    change = new(
+                        change.AttributeName,
                         ConvertIsActiveString(change.OldValue),
-                        ConvertIsActiveString(change.NewValue));
+                        ConvertIsActiveString(change.NewValue)
+                    );
                     IsActiveChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<bool>());
                     break;
                 case nameof(SwitchDeviceMessage.StateJson.recycle_jitter_count):
-                    RecycleJitterCountChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<int>());
+                    RecycleJitterCountChanged?.Invoke(
+                        this,
+                        change.GetEventArgsForPrimitiveTypes<int>()
+                    );
                     break;
                 default:
                     throw new UnknownDeviceAttributeException(change.AttributeName, Type);

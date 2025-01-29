@@ -2,7 +2,8 @@
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device.Flipper
 {
-    public class FlipperDeviceMessageHandler : SpecificDeviceMessageHandler<FlipperDeviceMessage, FlipperDeviceMessage.StateJson>
+    public class FlipperDeviceMessageHandler
+        : SpecificDeviceMessageHandler<FlipperDeviceMessage, FlipperDeviceMessage.StateJson>
     {
         protected override string Type => "flipper";
         protected override ParseStateDelegate ParseState => FlipperDeviceMessage.FromStateJson;

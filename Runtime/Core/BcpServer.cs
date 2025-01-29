@@ -20,7 +20,14 @@ namespace FutureBoxSystems.MpfMediaController
         public ConnectionState PreviousState { get; private set; }
     }
 
-    public enum ConnectionState { NotConnected, Connecting, Connected, Disconnecting };
+    public enum ConnectionState
+    {
+        NotConnected,
+        Connecting,
+        Connected,
+        Disconnecting,
+    };
+
     public class BcpServer
     {
         public event EventHandler<ConnectionStateChangedEventArgs> StateChanged;
@@ -59,7 +66,13 @@ namespace FutureBoxSystems.MpfMediaController
         private readonly Queue<BcpMessage> outboundMessages = new();
         private readonly ManualResetEventSlim disconnectRequested = new(false);
         private readonly int port;
-        private enum ReceiveEndReason { Finished, Canceled, ClientDisconnected };
+
+        private enum ReceiveEndReason
+        {
+            Finished,
+            Canceled,
+            ClientDisconnected,
+        };
 
         public BcpServer(int port)
         {
@@ -81,8 +94,10 @@ namespace FutureBoxSystems.MpfMediaController
 
         public async Task CloseConnectionAsync()
         {
-            if (ConnectionState == ConnectionState.Connected ||
-                ConnectionState == ConnectionState.Connecting)
+            if (
+                ConnectionState == ConnectionState.Connected
+                || ConnectionState == ConnectionState.Connecting
+            )
             {
                 ConnectionState = ConnectionState.Disconnecting;
                 cts.Cancel();
@@ -137,9 +152,17 @@ namespace FutureBoxSystems.MpfMediaController
                         while (!ct.IsCancellationRequested && !disconnectRequested.IsSet)
                         {
                             var sendTask = SendMessagesAsync(stream, ct);
-                            var endReason = await ReceiveMessagesAsync(stream, byteBuffer, stringBuffer, ct);
+                            var endReason = await ReceiveMessagesAsync(
+                                stream,
+                                byteBuffer,
+                                stringBuffer,
+                                ct
+                            );
                             await sendTask;
-                            if (endReason == ReceiveEndReason.Canceled || endReason == ReceiveEndReason.ClientDisconnected)
+                            if (
+                                endReason == ReceiveEndReason.Canceled
+                                || endReason == ReceiveEndReason.ClientDisconnected
+                            )
                                 break;
                             await Task.Delay(10);
                         }
@@ -158,7 +181,12 @@ namespace FutureBoxSystems.MpfMediaController
             }
         }
 
-        private async Task<ReceiveEndReason> ReceiveMessagesAsync(NetworkStream stream, byte[] byteBuffer, StringBuilder stringBuffer, CancellationToken ct)
+        private async Task<ReceiveEndReason> ReceiveMessagesAsync(
+            NetworkStream stream,
+            byte[] byteBuffer,
+            StringBuilder stringBuffer,
+            CancellationToken ct
+        )
         {
             while (stream.DataAvailable && !ct.IsCancellationRequested)
             {
@@ -179,7 +207,10 @@ namespace FutureBoxSystems.MpfMediaController
                 stringBuffer.Append(stringRead);
                 const char terminator = '\n';
                 int messageLength;
-                while (!ct.IsCancellationRequested && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1)
+                while (
+                    !ct.IsCancellationRequested
+                    && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1
+                )
                 {
                     var message = stringBuffer.ToString(0, messageLength);
                     stringBuffer.Remove(0, messageLength + 1);
@@ -200,7 +231,9 @@ namespace FutureBoxSystems.MpfMediaController
 
         private async Task SendMessagesAsync(NetworkStream stream, CancellationToken ct)
         {
-            while (!ct.IsCancellationRequested && TryDequeueOutboundMessage(out BcpMessage bcpMessage))
+            while (
+                !ct.IsCancellationRequested && TryDequeueOutboundMessage(out BcpMessage bcpMessage)
+            )
             {
                 var stringMessage = bcpMessage.ToString(encode: true);
                 stringMessage += "\n";

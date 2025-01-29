@@ -1,5 +1,5 @@
-using FutureBoxSystems.MpfMediaController.Messages.Reset;
 using System;
+using FutureBoxSystems.MpfMediaController.Messages.Reset;
 using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages
@@ -22,13 +22,13 @@ namespace FutureBoxSystems.MpfMediaController.Messages
         public event EventHandler<object> ObjValueChanged;
     }
 
-    public abstract class MonitorBase<VarType, MsgType>
-        : MonitorBase
+    public abstract class MonitorBase<VarType, MsgType> : MonitorBase
         where VarType : IEquatable<VarType>
         where MsgType : EventArgs
     {
         [SerializeField]
         private BcpMessageHandler<MsgType> messageHandler;
+
         [SerializeField]
         private ResetMessageHandler resetMessageHandler;
 

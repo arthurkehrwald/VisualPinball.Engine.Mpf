@@ -2,7 +2,8 @@
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device.Playfield
 {
-    public class PlayfieldDeviceMessageHandler : SpecificDeviceMessageHandler<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>
+    public class PlayfieldDeviceMessageHandler
+        : SpecificDeviceMessageHandler<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>
     {
         protected override string Type => "playfield";
         protected override ParseStateDelegate ParseState => PlayfieldDeviceMessage.FromStateJson;
@@ -16,10 +17,16 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device.Playfield
             switch (change.AttributeName)
             {
                 case nameof(PlayfieldDeviceMessage.StateJson.available_balls):
-                    AvailableBallsChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<int>());
+                    AvailableBallsChanged?.Invoke(
+                        this,
+                        change.GetEventArgsForPrimitiveTypes<int>()
+                    );
                     break;
                 case nameof(PlayfieldDeviceMessage.StateJson.balls_requested):
-                    BallsRequestedChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<int>());
+                    BallsRequestedChanged?.Invoke(
+                        this,
+                        change.GetEventArgsForPrimitiveTypes<int>()
+                    );
                     break;
                 case nameof(PlayfieldDeviceMessage.StateJson.balls):
                     BallsChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<int>());
