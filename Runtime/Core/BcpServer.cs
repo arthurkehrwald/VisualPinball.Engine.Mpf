@@ -152,19 +152,18 @@ namespace FutureBoxSystems.MpfMediaController
                         while (!ct.IsCancellationRequested && !disconnectRequested.IsSet)
                         {
                             var sendTask = SendMessagesAsync(stream, ct);
-                            var endReason = await ReceiveMessagesAsync(
+                            var receiveTask = ReceiveMessagesAsync(
                                 stream,
                                 byteBuffer,
                                 stringBuffer,
                                 ct
                             );
-                            await sendTask;
-                            if (
-                                endReason == ReceiveEndReason.Canceled
-                                || endReason == ReceiveEndReason.ClientDisconnected
-                            )
+                            await Task.WhenAll(sendTask, receiveTask);
+                            var endReason = await receiveTask;
+                            if (endReason == ReceiveEndReason.Finished)
+                                await Task.Delay(10);
+                            else
                                 break;
-                            await Task.Delay(10);
                         }
                         await SendMessagesAsync(stream, ct);
                         disconnectRequested.Reset();
