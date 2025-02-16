@@ -16,8 +16,8 @@ namespace FutureBoxSystems.MpfMediaController
             PreviousState = previous;
         }
 
-        public ConnectionState CurrentState { get; private set; }
-        public ConnectionState PreviousState { get; private set; }
+        public readonly ConnectionState CurrentState;
+        public readonly ConnectionState PreviousState;
     }
 
     public enum ConnectionState
