@@ -88,7 +88,7 @@ namespace FutureBoxSystems.MpfMediaController
                 disconnectRequested.Reset();
                 cts = new CancellationTokenSource();
                 ConnectionState = ConnectionState.Connecting;
-                communicationTask = Task.Run(() => CommunicateAsync(port, cts.Token));
+                communicationTask = CommunicateAsync(port, cts.Token);
             }
         }
 
