@@ -287,9 +287,18 @@ namespace VisualPinball.Engine.Mpf.Unity
                     var client = new MpfHardwareService.MpfHardwareServiceClient(_grpcChannel);
                     try
                     {
-                        await client.QuitAsync(
+                        await Task.Delay(100);
+                        _ = await client.QuitAsync(
                             new QuitRequest(),
                             deadline: DateTime.UtcNow.AddSeconds(1)
+                        );
+                    }
+                    catch (RpcException ex) when (_mediaController == MpfMediaController.Other)
+                    {
+                        Logger.Info(
+                            "MPF did not respond to the quit RPC. This is probably because MPF "
+                                + "has already shut down because the BCP connection was closed."
+                                + $"Exception: {ex}"
                         );
                     }
                     finally
