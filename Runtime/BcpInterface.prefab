@@ -316,7 +316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   port: 5050
-  frameTimeBudgetMs: 3
+  frameTimeBudgetMs: 1
   logReceivedMessages: 0
   logSentMessages: 0
 --- !u!1 &8567879373765849912
@@ -330,6 +330,7 @@ GameObject:
   - component: {fileID: 146168304089640666}
   - component: {fileID: 2143735940723918985}
   - component: {fileID: 6877878494961934022}
+  - component: {fileID: 4783129044812347161}
   m_Layer: 0
   m_Name: Behaviours
   m_TagString: Untagged
@@ -380,3 +381,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bcpInterface: {fileID: 3405300645593462295}
   goodbyeHandler: {fileID: 2199375185222848247}
+--- !u!114 &4783129044812347161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8567879373765849912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b1e8e36b98108428c60d300b17dc3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bcpInterface: {fileID: 3405300645593462295}
