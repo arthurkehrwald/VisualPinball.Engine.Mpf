@@ -87,7 +87,6 @@ namespace FutureBoxSystems.MpfMediaController
             {
                 disconnectRequested.Reset();
                 cts = new CancellationTokenSource();
-                ConnectionState = ConnectionState.Connecting;
                 communicationTask = CommunicateAsync(port, cts.Token);
             }
         }
@@ -99,12 +98,10 @@ namespace FutureBoxSystems.MpfMediaController
                 || ConnectionState == ConnectionState.Connecting
             )
             {
-                ConnectionState = ConnectionState.Disconnecting;
                 cts.Cancel();
                 cts.Dispose();
                 cts = null;
                 await communicationTask;
-                ConnectionState = ConnectionState.NotConnected;
             }
         }
 
@@ -134,13 +131,13 @@ namespace FutureBoxSystems.MpfMediaController
 
         private async Task CommunicateAsync(int port, CancellationToken ct)
         {
+            ConnectionState = ConnectionState.Connecting;
             var listener = new TcpListener(IPAddress.Any, port);
             try
             {
                 listener.Start();
                 while (!ct.IsCancellationRequested)
                 {
-                    ConnectionState = ConnectionState.Connecting;
                     if (listener.Pending())
                     {
                         using TcpClient client = listener.AcceptTcpClient();
@@ -165,6 +162,7 @@ namespace FutureBoxSystems.MpfMediaController
                             else
                                 break;
                         }
+                        ConnectionState = ConnectionState.Disconnecting;
                         await SendMessagesAsync(stream, ct);
                         disconnectRequested.Reset();
                     }
@@ -177,6 +175,7 @@ namespace FutureBoxSystems.MpfMediaController
             finally
             {
                 listener.Stop();
+                ConnectionState = ConnectionState.NotConnected;
             }
         }
 
