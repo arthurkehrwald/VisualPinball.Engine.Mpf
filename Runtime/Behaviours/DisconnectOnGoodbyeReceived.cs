@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Behaviours
 {
-    public class DisconnectOnGoodbye : MonoBehaviour
+    public class DisconnectOnGoodbyeReceived : MonoBehaviour
     {
         [SerializeField]
         BcpInterface bcpInterface;
