@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FutureBoxSystems.MpfMediaController.Messages.Error;
+using FutureBoxSystems.MpfMediaController.Messages.Goodbye;
 using FutureBoxSystems.MpfMediaController.Messages.Monitor;
 using FutureBoxSystems.MpfMediaController.Messages.Trigger;
 using UnityEngine;
@@ -10,13 +11,18 @@ namespace FutureBoxSystems.MpfMediaController
     public class BcpInterface : MonoBehaviour
     {
         public ConnectionState ConnectionState => Server.ConnectionState;
+        public event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged
+        {
+            add { Server.StateChanged += value; }
+            remove { Server.StateChanged -= value; }
+        }
 
         [SerializeField]
         private int port = 5050;
 
         [SerializeField]
         [Range(0.1f, 10f)]
-        private float frameTimeBudgetMs = 3f;
+        private float frameTimeBudgetMs = 1f;
 
         [SerializeField]
         private bool logReceivedMessages = false;
@@ -89,6 +95,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         private async void OnDisable()
         {
+            EnqueueMessage(new GoodbyeMessage());
             await Server.CloseConnectionAsync();
         }
 
