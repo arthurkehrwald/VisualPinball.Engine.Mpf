@@ -1,29 +1,41 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace FutureBoxSystems.MpfMediaController
 {
     [CustomEditor(typeof(BcpInterface))]
     public class BcpInterfaceInspector : Editor
     {
-        private SerializedProperty portProperty;
+        [SerializeField]
+        private VisualTreeAsset bcpInterfaceInspectorXml;
+
+        private TextField connectionStateField;
         private BcpInterface bcpInterface;
 
-        private void OnEnable()
+        public override VisualElement CreateInspectorGUI()
         {
-            portProperty = serializedObject.FindProperty("port");
+            var ui = bcpInterfaceInspectorXml.Instantiate();
+            connectionStateField = ui.Q<TextField>("connection-state");
             bcpInterface = target as BcpInterface;
+            UpdateConnectionStateField(bcpInterface.ConnectionState);
+            bcpInterface.ConnectionStateChanged += OnConnectionStateChanged;
+            return ui;
         }
 
-        public override void OnInspectorGUI()
+        private void OnDisable()
         {
-            serializedObject.Update();
-            if (bcpInterface != null)
-            {
-                var connectionState = bcpInterface.ConnectionState;
-                EditorGUILayout.LabelField("Connection status", connectionState.ToString());
-            }
-            base.OnInspectorGUI();
+            bcpInterface.ConnectionStateChanged -= OnConnectionStateChanged;
+        }
+
+        private void OnConnectionStateChanged(object sender, ConnectionStateChangedEventArgs args)
+        {
+            UpdateConnectionStateField(args.CurrentState);
+        }
+
+        private void UpdateConnectionStateField(ConnectionState state)
+        {
+            connectionStateField.value = state.ToString();
         }
     }
 }
