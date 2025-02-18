@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0bea179b36a1e3c4c95091c53c60a399
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _bcpInterfaceInspectorXml: {fileID: 9197481963319205126, guid: 5b6e50170ee132d418af0df03ae4b41c,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

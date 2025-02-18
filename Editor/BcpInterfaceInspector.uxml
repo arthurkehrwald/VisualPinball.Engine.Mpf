@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:TextField picking-mode="Ignore" label="Connection state" focusable="true" readonly="true" name="connection-state" class="unity-base-field__aligned" />
+    <uie:PropertyField name="port" binding-path="_port" label="Port" tooltip="The TCP port to use for communication with MPF" />
+    <uie:PropertyField name="frame-time-budget-ms" binding-path="_frameTimeBudgetMs" label="Frame Time Budget (Ms)" tooltip="Maximum time to spend handling messages from MPF per frame. Mostly to avoid freezing in case of a feedback loop." />
+    <uie:PropertyField name="log-received-messages" binding-path="_logReceivedMessages" label="Log Received Messages" />
+    <uie:PropertyField name="log-sent-messages" binding-path="_logSentMessages" label="Log Sent Messages" />
+</ui:UXML>
