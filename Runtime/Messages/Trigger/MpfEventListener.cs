@@ -6,33 +6,33 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
     public class MpfEventListener : MonoBehaviour
     {
         [SerializeField]
-        private string eventName;
+        private string _eventName;
 
         [SerializeField]
-        private BcpInterface bcpInterface;
+        private BcpInterface _bcpInterface;
 
         [SerializeField]
-        private TriggerMessageHandler triggerMessageHandler;
+        private TriggerMessageHandler _triggerMessageHandler;
 
         public event EventHandler Triggered;
 
         private void OnEnable()
         {
-            bcpInterface.MpfEvents.AddListener(this, eventName);
-            triggerMessageHandler.Received += TriggerMessageHandler_Received;
+            _bcpInterface.MpfEvents.AddListener(this, _eventName);
+            _triggerMessageHandler.Received += TriggerMessageHandler_Received;
         }
 
         private void OnDisable()
         {
-            if (bcpInterface)
-                bcpInterface.MpfEvents.RemoveListener(this, eventName);
-            if (triggerMessageHandler)
-                triggerMessageHandler.Received -= TriggerMessageHandler_Received;
+            if (_bcpInterface)
+                _bcpInterface.MpfEvents.RemoveListener(this, _eventName);
+            if (_triggerMessageHandler)
+                _triggerMessageHandler.Received -= TriggerMessageHandler_Received;
         }
 
         private void TriggerMessageHandler_Received(object sender, TriggerMessage msg)
         {
-            if (msg.TriggerName == eventName)
+            if (msg.TriggerName == _eventName)
                 Triggered?.Invoke(this, EventArgs.Empty);
         }
     }

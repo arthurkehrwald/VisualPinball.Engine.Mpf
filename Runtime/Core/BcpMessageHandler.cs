@@ -8,45 +8,45 @@ namespace FutureBoxSystems.MpfMediaController
         where T : EventArgs
     {
         [SerializeField]
-        protected BcpInterface bcpInterface;
+        protected BcpInterface _bcpInterface;
 
         public abstract string Command { get; }
         public virtual MonitoringCategory MonitoringCategory => MonitoringCategory.None;
         protected abstract ParseDelegate Parse { get; }
         public delegate T ParseDelegate(BcpMessage genericMessage);
-        private event EventHandler<T> CommandReceived;
+        private event EventHandler<T> _received;
         public event EventHandler<T> Received
         {
             add
             {
-                bool isFirstHandler = CommandReceived == null;
-                CommandReceived += value;
+                bool isFirstHandler = _received == null;
+                _received += value;
                 if (isFirstHandler && MonitoringCategory != MonitoringCategory.None)
-                    bcpInterface.MonitoringCategories.AddListener(this, MonitoringCategory);
+                    _bcpInterface.MonitoringCategories.AddListener(this, MonitoringCategory);
             }
             remove
             {
-                CommandReceived -= value;
+                _received -= value;
                 if (
-                    bcpInterface != null
-                    && CommandReceived == null
+                    _bcpInterface != null
+                    && _received == null
                     && MonitoringCategory != MonitoringCategory.None
                 )
                 {
-                    bcpInterface.MonitoringCategories.RemoveListener(this, MonitoringCategory);
+                    _bcpInterface.MonitoringCategories.RemoveListener(this, MonitoringCategory);
                 }
             }
         }
 
         private void OnEnable()
         {
-            bcpInterface.RegisterMessageHandler(Command, Handle);
+            _bcpInterface.RegisterMessageHandler(Command, Handle);
         }
 
         private void OnDisable()
         {
-            if (bcpInterface != null)
-                bcpInterface.UnregisterMessageHandler(Command, Handle);
+            if (_bcpInterface != null)
+                _bcpInterface.UnregisterMessageHandler(Command, Handle);
         }
 
         private void Handle(BcpMessage message)
@@ -55,7 +55,7 @@ namespace FutureBoxSystems.MpfMediaController
                 throw new WrongParserException(message, Command);
             T specificMessage = Parse(message);
             BeforeEvent();
-            CommandReceived?.Invoke(this, specificMessage);
+            _received?.Invoke(this, specificMessage);
             AfterEvent();
         }
 

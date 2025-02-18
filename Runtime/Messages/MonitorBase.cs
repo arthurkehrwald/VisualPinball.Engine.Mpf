@@ -6,16 +6,16 @@ namespace FutureBoxSystems.MpfMediaController.Messages
 {
     public abstract class MonitorBase : MonoBehaviour
     {
-        private object objVarValue;
+        private object _objVarValue;
         public object ObjVarValue
         {
-            get => objVarValue;
+            get => _objVarValue;
             protected set
             {
-                if (value == objVarValue)
+                if (value == _objVarValue)
                     return;
-                objVarValue = value;
-                ObjValueChanged?.Invoke(this, objVarValue);
+                _objVarValue = value;
+                ObjValueChanged?.Invoke(this, _objVarValue);
             }
         }
 
@@ -27,24 +27,24 @@ namespace FutureBoxSystems.MpfMediaController.Messages
         where TMessage : EventArgs
     {
         [SerializeField]
-        private BcpMessageHandler<TMessage> messageHandler;
+        private BcpMessageHandler<TMessage> _messageHandler;
 
         [SerializeField]
-        private ResetMessageHandler resetMessageHandler;
+        private ResetMessageHandler _resetMessageHandler;
 
         public event EventHandler<TVar> ValueChanged;
-        private TVar varValue;
+        private TVar _varValue;
         public TVar VarValue
         {
-            get => varValue;
+            get => _varValue;
             protected set
             {
                 WasEverUpdated = true;
-                if ((value == null && VarValue == null) || value.Equals(varValue))
+                if ((value == null && VarValue == null) || value.Equals(_varValue))
                     return;
-                varValue = value;
+                _varValue = value;
                 ObjVarValue = value;
-                ValueChanged?.Invoke(this, varValue);
+                ValueChanged?.Invoke(this, _varValue);
             }
         }
 
@@ -58,16 +58,16 @@ namespace FutureBoxSystems.MpfMediaController.Messages
 
         protected virtual void OnEnable()
         {
-            messageHandler.Received += MessageHandler_Received;
-            resetMessageHandler.Received += ResetMessageHandler_Received;
+            _messageHandler.Received += MessageHandler_Received;
+            _resetMessageHandler.Received += ResetMessageHandler_Received;
         }
 
         protected virtual void OnDisable()
         {
-            if (messageHandler)
-                messageHandler.Received -= MessageHandler_Received;
-            if (resetMessageHandler)
-                resetMessageHandler.Received -= ResetMessageHandler_Received;
+            if (_messageHandler)
+                _messageHandler.Received -= MessageHandler_Received;
+            if (_resetMessageHandler)
+                _resetMessageHandler.Received -= ResetMessageHandler_Received;
         }
 
         private void ResetMessageHandler_Received(object sender, ResetMessage msg)

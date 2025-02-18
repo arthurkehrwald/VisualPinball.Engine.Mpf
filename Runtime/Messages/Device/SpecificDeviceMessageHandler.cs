@@ -8,10 +8,10 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
         where TMessage : SpecificDeviceMessageBase
     {
         [SerializeField]
-        private string deviceName;
+        private string _deviceName;
 
         [SerializeField]
-        private DeviceMessageHandler generalDeviceMessageHandler;
+        private DeviceMessageHandler _generalDeviceMessageHandler;
 
         protected abstract string Type { get; }
         protected delegate TMessage ParseStateDelegate(
@@ -23,13 +23,13 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
 
         protected void OnEnable()
         {
-            generalDeviceMessageHandler.Received += HandleDeviceMessageReceived;
+            _generalDeviceMessageHandler.Received += HandleDeviceMessageReceived;
         }
 
         protected void OnDisable()
         {
-            if (generalDeviceMessageHandler)
-                generalDeviceMessageHandler.Received -= HandleDeviceMessageReceived;
+            if (_generalDeviceMessageHandler)
+                _generalDeviceMessageHandler.Received -= HandleDeviceMessageReceived;
         }
 
         private void HandleDeviceMessageReceived(object sender, DeviceMessage deviceMessage)
@@ -37,7 +37,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             if (deviceMessage.Type != Type)
                 return;
 
-            if (deviceMessage.Name != deviceName)
+            if (deviceMessage.Name != _deviceName)
                 return;
 
             if (deviceMessage.Change != null)

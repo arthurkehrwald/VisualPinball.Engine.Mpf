@@ -4,7 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - bcpInterfaceInspectorXml: {fileID: 9197481963319205126, guid: 5b6e50170ee132d418af0df03ae4b41c,
+  - _bcpInterfaceInspectorXml: {fileID: 9197481963319205126, guid: 5b6e50170ee132d418af0df03ae4b41c,
       type: 3}
   executionOrder: 0
   icon: {instanceID: 0}

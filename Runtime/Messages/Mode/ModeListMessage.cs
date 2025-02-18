@@ -9,12 +9,12 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
     {
         public const string Command = "mode_list";
         public const string RunningModesParamName = "running_modes";
-        public ReadOnlyCollection<Mode> RunningModes => Array.AsReadOnly(runningModes);
-        private readonly Mode[] runningModes;
+        public ReadOnlyCollection<Mode> RunningModes => Array.AsReadOnly(_runningModes);
+        private readonly Mode[] _runningModes;
 
         public ModeListMessage(Mode[] runningModes)
         {
-            this.runningModes = runningModes;
+            _runningModes = runningModes;
         }
 
         public static ModeListMessage FromGenericMessage(BcpMessage bcpMessage)

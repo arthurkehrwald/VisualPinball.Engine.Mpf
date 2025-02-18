@@ -7,7 +7,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
     public class MonitorStopMessage : EventArgs, ISentMessage
     {
         public const string Command = "monitor_stop";
-        private const string categoryName = "category";
+        private const string CategoryName = "category";
         public readonly MonitoringCategory Category;
 
         public MonitorStopMessage(MonitoringCategory category)
@@ -25,7 +25,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
                 );
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject { [categoryName] = categoryString }
+                parameters: new JObject { [CategoryName] = categoryString }
             );
         }
     }

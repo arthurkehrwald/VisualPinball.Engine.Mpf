@@ -8,7 +8,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
     public class MonitorStartMessage : EventArgs, ISentMessage
     {
         public const string Command = "monitor_start";
-        private const string categoryName = "category";
+        private const string CategoryName = "category";
         public readonly MonitoringCategory Category;
 
         public MonitorStartMessage(MonitoringCategory category)
@@ -26,7 +26,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
                 );
             return new(
                 command: Command,
-                parameters: new JObject { [categoryName] = categoryString }
+                parameters: new JObject { [CategoryName] = categoryString }
             );
         }
     }

@@ -6,7 +6,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
     public class RemoveTriggerMessage : EventArgs, ISentMessage
     {
         public const string Command = "remove_trigger";
-        private const string eventParamName = "event";
+        private const string EventParamName = "event";
 
         public readonly string EventName;
 
@@ -19,7 +19,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
         {
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject { { eventParamName, EventName } }
+                parameters: new JObject { { EventParamName, EventName } }
             );
         }
     }

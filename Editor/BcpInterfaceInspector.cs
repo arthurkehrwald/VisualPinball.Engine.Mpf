@@ -8,24 +8,24 @@ namespace FutureBoxSystems.MpfMediaController
     public class BcpInterfaceInspector : Editor
     {
         [SerializeField]
-        private VisualTreeAsset bcpInterfaceInspectorXml;
+        private VisualTreeAsset _bcpInterfaceInspectorXml;
 
-        private TextField connectionStateField;
-        private BcpInterface bcpInterface;
+        private TextField _connectionStateField;
+        private BcpInterface _bcpInterface;
 
         public override VisualElement CreateInspectorGUI()
         {
-            var ui = bcpInterfaceInspectorXml.Instantiate();
-            connectionStateField = ui.Q<TextField>("connection-state");
-            bcpInterface = target as BcpInterface;
-            UpdateConnectionStateField(bcpInterface.ConnectionState);
-            bcpInterface.ConnectionStateChanged += OnConnectionStateChanged;
+            var ui = _bcpInterfaceInspectorXml.Instantiate();
+            _connectionStateField = ui.Q<TextField>("connection-state");
+            _bcpInterface = target as BcpInterface;
+            UpdateConnectionStateField(_bcpInterface.ConnectionState);
+            _bcpInterface.ConnectionStateChanged += OnConnectionStateChanged;
             return ui;
         }
 
         private void OnDisable()
         {
-            bcpInterface.ConnectionStateChanged -= OnConnectionStateChanged;
+            _bcpInterface.ConnectionStateChanged -= OnConnectionStateChanged;
         }
 
         private void OnConnectionStateChanged(object sender, ConnectionStateChangedEventArgs args)
@@ -35,7 +35,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         private void UpdateConnectionStateField(ConnectionState state)
         {
-            connectionStateField.value = state.ToString();
+            _connectionStateField.value = state.ToString();
         }
     }
 }

@@ -6,25 +6,25 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
     public class ModeMonitor : MonoBehaviour
     {
         [SerializeField]
-        private string modeName;
+        private string _modeName;
 
         [SerializeField]
-        private ModeStartMessageHandler modeStartMessageHandler;
+        private ModeStartMessageHandler _modeStartMessageHandler;
 
         [SerializeField]
-        private ModeStopMessageHandler modeStopMessageHandler;
+        private ModeStopMessageHandler _modeStopMessageHandler;
 
-        private bool isModeActive = false;
+        private bool _isModeActive = false;
         public bool IsModeActive
         {
-            get => isModeActive;
+            get => _isModeActive;
             set
             {
-                if (value == isModeActive)
+                if (value == _isModeActive)
                     return;
 
-                isModeActive = value;
-                IsModeActiveChanged?.Invoke(this, isModeActive);
+                _isModeActive = value;
+                IsModeActiveChanged?.Invoke(this, _isModeActive);
             }
         }
 
@@ -32,19 +32,19 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
 
         private void OnEnable()
         {
-            modeStartMessageHandler.Received += OnModeStarted;
-            modeStopMessageHandler.Received += OnModeStopped;
+            _modeStartMessageHandler.Received += OnModeStarted;
+            _modeStopMessageHandler.Received += OnModeStopped;
         }
 
         private void OnDisable()
         {
-            modeStartMessageHandler.Received -= OnModeStarted;
-            modeStopMessageHandler.Received -= OnModeStopped;
+            _modeStartMessageHandler.Received -= OnModeStarted;
+            _modeStopMessageHandler.Received -= OnModeStopped;
         }
 
         private void OnModeStarted(object sender, ModeStartMessage msg)
         {
-            if (msg.Name != modeName)
+            if (msg.Name != _modeName)
                 return;
 
             IsModeActive = true;
@@ -52,7 +52,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Mode
 
         private void OnModeStopped(object sender, ModeStopMessage msg)
         {
-            if (msg.Name != modeName)
+            if (msg.Name != _modeName)
                 return;
 
             IsModeActive = false;

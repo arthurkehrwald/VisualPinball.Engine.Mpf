@@ -6,25 +6,25 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
     public class DisconnectOnGoodbyeReceived : MonoBehaviour
     {
         [SerializeField]
-        BcpInterface bcpInterface;
+        BcpInterface _bcpInterface;
 
         [SerializeField]
-        GoodbyeMessageHandler goodbyeHandler;
+        GoodbyeMessageHandler _goodbyeHandler;
 
         private void OnEnable()
         {
-            goodbyeHandler.Received += GoodbyeMessageReceived;
+            _goodbyeHandler.Received += GoodbyeMessageReceived;
         }
 
         private void OnDisable()
         {
-            if (goodbyeHandler != null)
-                goodbyeHandler.Received -= GoodbyeMessageReceived;
+            if (_goodbyeHandler != null)
+                _goodbyeHandler.Received -= GoodbyeMessageReceived;
         }
 
         private void GoodbyeMessageReceived(object sender, GoodbyeMessage message)
         {
-            bcpInterface.RequestDisconnect();
+            _bcpInterface.RequestDisconnect();
         }
     }
 }

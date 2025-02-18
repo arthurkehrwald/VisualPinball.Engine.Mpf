@@ -31,24 +31,24 @@ namespace FutureBoxSystems.MpfMediaController
     public class BcpServer
     {
         public event EventHandler<ConnectionStateChangedEventArgs> StateChanged;
-        private readonly object connectionStateLock = new();
-        private ConnectionState connectionState = ConnectionState.NotConnected;
+        private readonly object _connectionStateLock = new();
+        private ConnectionState _connectionState = ConnectionState.NotConnected;
         public ConnectionState ConnectionState
         {
             get
             {
-                lock (connectionStateLock)
+                lock (_connectionStateLock)
                 {
-                    return connectionState;
+                    return _connectionState;
                 }
             }
             private set
             {
                 ConnectionState prevState;
-                lock (connectionStateLock)
+                lock (_connectionStateLock)
                 {
-                    prevState = connectionState;
-                    connectionState = value;
+                    prevState = _connectionState;
+                    _connectionState = value;
                 }
 
                 if (prevState != value)
@@ -58,16 +58,16 @@ namespace FutureBoxSystems.MpfMediaController
             }
         }
 
-        private CancellationTokenSource cts = null;
-        private Task communicationTask = null;
-        private readonly object receivedMessagesLock = new();
-        private readonly Queue<BcpMessage> receivedMessages = new();
-        private readonly object outboundMessagesLock = new();
-        private readonly Queue<BcpMessage> outboundMessages = new();
-        private readonly ManualResetEventSlim disconnectRequested = new(false);
-        private readonly int port;
+        private CancellationTokenSource _cts = null;
+        private Task _communicationTask = null;
+        private readonly object _receivedMessagesLock = new();
+        private readonly Queue<BcpMessage> _receivedMessages = new();
+        private readonly object _outboundMessagesLock = new();
+        private readonly Queue<BcpMessage> _outboundMessages = new();
+        private readonly ManualResetEventSlim _disconnectRequested = new(false);
+        private readonly int _port;
 
-        private const char terminator = '\n';
+        private const char Terminator = '\n';
 
         private enum ReceiveEndReason
         {
@@ -78,7 +78,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         public BcpServer(int port)
         {
-            this.port = port;
+            _port = port;
         }
 
         public async Task OpenConnectionAsync()
@@ -87,9 +87,9 @@ namespace FutureBoxSystems.MpfMediaController
                 await Task.Yield();
             if (ConnectionState == ConnectionState.NotConnected)
             {
-                disconnectRequested.Reset();
-                cts = new CancellationTokenSource();
-                communicationTask = CommunicateAsync(port, cts.Token);
+                _disconnectRequested.Reset();
+                _cts = new CancellationTokenSource();
+                _communicationTask = CommunicateAsync(_port, _cts.Token);
             }
         }
 
@@ -100,35 +100,35 @@ namespace FutureBoxSystems.MpfMediaController
                 || ConnectionState == ConnectionState.Connecting
             )
             {
-                cts.Cancel();
-                cts.Dispose();
-                cts = null;
-                await communicationTask;
+                _cts.Cancel();
+                _cts.Dispose();
+                _cts = null;
+                await _communicationTask;
             }
         }
 
         public bool TryDequeueReceivedMessage(out BcpMessage message)
         {
-            lock (receivedMessagesLock)
-                return receivedMessages.TryDequeue(out message);
+            lock (_receivedMessagesLock)
+                return _receivedMessages.TryDequeue(out message);
         }
 
         public void EnqueueMessage(BcpMessage message)
         {
-            lock (outboundMessagesLock)
-                outboundMessages.Enqueue(message);
+            lock (_outboundMessagesLock)
+                _outboundMessages.Enqueue(message);
         }
 
         public void RequestDisconnect()
         {
             if (ConnectionState == ConnectionState.Connected)
-                disconnectRequested.Set();
+                _disconnectRequested.Set();
         }
 
         private bool TryDequeueOutboundMessage(out BcpMessage message)
         {
-            lock (outboundMessagesLock)
-                return outboundMessages.TryDequeue(out message);
+            lock (_outboundMessagesLock)
+                return _outboundMessages.TryDequeue(out message);
         }
 
         private async Task CommunicateAsync(int port, CancellationToken ct)
@@ -148,7 +148,7 @@ namespace FutureBoxSystems.MpfMediaController
                         const int bufferSize = 1024;
                         var byteBuffer = new byte[bufferSize];
                         var stringBuffer = new StringBuilder();
-                        while (!ct.IsCancellationRequested && !disconnectRequested.IsSet)
+                        while (!ct.IsCancellationRequested && !_disconnectRequested.IsSet)
                         {
                             var sendTask = SendMessagesAsync(stream, ct);
                             var receiveTask = ReceiveMessagesAsync(
@@ -166,7 +166,7 @@ namespace FutureBoxSystems.MpfMediaController
                         }
                         ConnectionState = ConnectionState.Disconnecting;
                         await SendMessagesAsync(stream, ct);
-                        disconnectRequested.Reset();
+                        _disconnectRequested.Reset();
                     }
                     else
                     {
@@ -208,7 +208,7 @@ namespace FutureBoxSystems.MpfMediaController
                 int messageLength;
                 while (
                     !ct.IsCancellationRequested
-                    && (messageLength = stringBuffer.ToString().IndexOf(terminator)) > -1
+                    && (messageLength = stringBuffer.ToString().IndexOf(Terminator)) > -1
                 )
                 {
                     var message = stringBuffer.ToString(0, messageLength);
@@ -216,8 +216,8 @@ namespace FutureBoxSystems.MpfMediaController
                     if (message.Length > 0 && !message.StartsWith("#"))
                     {
                         var bcpMessage = BcpMessage.FromString(message);
-                        lock (receivedMessagesLock)
-                            receivedMessages.Enqueue(bcpMessage);
+                        lock (_receivedMessagesLock)
+                            _receivedMessages.Enqueue(bcpMessage);
                     }
                 }
             }
@@ -235,7 +235,7 @@ namespace FutureBoxSystems.MpfMediaController
             )
             {
                 var stringMessage = bcpMessage.ToString(encode: true);
-                stringMessage += terminator;
+                stringMessage += Terminator;
                 var packet = Encoding.UTF8.GetBytes(stringMessage);
                 try
                 {

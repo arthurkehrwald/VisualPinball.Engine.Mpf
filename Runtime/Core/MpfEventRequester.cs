@@ -7,10 +7,10 @@ namespace FutureBoxSystems.MpfMediaController
     {
         public delegate ISentMessage CreateMessage(TEvent @event);
 
-        private readonly BcpInterface bcpInterface;
-        private readonly CreateMessage createStartListeningMessage;
-        private readonly CreateMessage createStopListeningMessage;
-        private readonly Dictionary<TEvent, HashSet<object>> listeners = new();
+        private readonly BcpInterface _bcpInterface;
+        private readonly CreateMessage _createStartListeningMessage;
+        private readonly CreateMessage _createStopListeningMessage;
+        private readonly Dictionary<TEvent, HashSet<object>> _listeners = new();
 
         public MpfEventRequester(
             BcpInterface bcpInterface,
@@ -18,19 +18,19 @@ namespace FutureBoxSystems.MpfMediaController
             CreateMessage createStopListeningMessage
         )
         {
-            this.bcpInterface = bcpInterface;
-            this.createStartListeningMessage = createStartListeningMessage;
-            this.createStopListeningMessage = createStopListeningMessage;
+            _bcpInterface = bcpInterface;
+            _createStartListeningMessage = createStartListeningMessage;
+            _createStopListeningMessage = createStopListeningMessage;
         }
 
         public void AddListener(object listener, TEvent @event)
         {
-            if (listeners.TryAdd(@event, new HashSet<object> { listener }))
+            if (_listeners.TryAdd(@event, new HashSet<object> { listener }))
             {
-                var startListeningMsg = createStartListeningMessage(@event);
-                bcpInterface.EnqueueMessage(startListeningMsg);
+                var startListeningMsg = _createStartListeningMessage(@event);
+                _bcpInterface.EnqueueMessage(startListeningMsg);
             }
-            else if (!listeners[@event].Add(listener))
+            else if (!_listeners[@event].Add(listener))
                 Debug.LogError(
                     $"[EventPool] Cannot add listener '{listener}' to event '{@event}' because it "
                         + "was already added."
@@ -40,15 +40,15 @@ namespace FutureBoxSystems.MpfMediaController
         public void RemoveListener(object listener, TEvent @event)
         {
             if (
-                listeners.TryGetValue(@event, out var listenersForThisEvent)
+                _listeners.TryGetValue(@event, out var listenersForThisEvent)
                 && listenersForThisEvent.Remove(listener)
             )
             {
                 if (listenersForThisEvent.Count == 0)
                 {
-                    listeners.Remove(@event);
-                    var stopListeningMsg = createStopListeningMessage(@event);
-                    bcpInterface.EnqueueMessage(stopListeningMsg);
+                    _listeners.Remove(@event);
+                    var stopListeningMsg = _createStopListeningMessage(@event);
+                    _bcpInterface.EnqueueMessage(stopListeningMsg);
                 }
             }
             else

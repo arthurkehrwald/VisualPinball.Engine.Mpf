@@ -7,20 +7,20 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
     public class HelloResponse : MonoBehaviour
     {
         [SerializeField]
-        private BcpInterface bcpInterface;
+        private BcpInterface _bcpInterface;
 
         [SerializeField]
-        private HelloMessageHandler helloHandler;
+        private HelloMessageHandler _helloHandler;
 
         private void OnEnable()
         {
-            helloHandler.Received += HelloMessageReceived;
+            _helloHandler.Received += HelloMessageReceived;
         }
 
         private void OnDisable()
         {
-            if (helloHandler != null)
-                helloHandler.Received -= HelloMessageReceived;
+            if (_helloHandler != null)
+                _helloHandler.Received -= HelloMessageReceived;
         }
 
         private void HelloMessageReceived(object sender, HelloMessage message)
@@ -42,7 +42,7 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
                     commandThatCausedError: originalHelloMessage
                 );
             }
-            bcpInterface.EnqueueMessage(response);
+            _bcpInterface.EnqueueMessage(response);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
     public class ErrorMessage : EventArgs, ISentMessage
     {
         public const string Command = "error";
-        private const string messageName = "message";
-        private const string commandThatCausedErrorName = "command";
+        private const string MessageName = "message";
+        private const string CommandThatCausedErrorName = "command";
         public string Message { get; private set; }
         public string CommandThatCausedError { get; private set; }
 
@@ -23,8 +23,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
                 command: Command,
                 parameters: new JObject
                 {
-                    { messageName, Message },
-                    { commandThatCausedErrorName, CommandThatCausedError },
+                    { MessageName, Message },
+                    { CommandThatCausedErrorName, CommandThatCausedError },
                 }
             );
         }
@@ -32,8 +32,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Error
         public static ErrorMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new ErrorMessage(
-                message: bcpMessage.GetParamValue<string>(messageName),
-                commandThatCausedError: bcpMessage.GetParamValue<string>(commandThatCausedErrorName)
+                message: bcpMessage.GetParamValue<string>(MessageName),
+                commandThatCausedError: bcpMessage.GetParamValue<string>(CommandThatCausedErrorName)
             );
         }
     }

@@ -8,10 +8,10 @@ namespace FutureBoxSystems.Ui
     public class MonitoredVariableText : MonoBehaviour
     {
         [SerializeReference]
-        private MonitorBase monitor;
+        private MonitorBase _monitor;
 
         [SerializeField]
-        private string format = "{0}";
+        private string _format = "{0}";
 
         private TextMeshProUGUI _textField;
         private TextMeshProUGUI TextField
@@ -26,18 +26,18 @@ namespace FutureBoxSystems.Ui
 
         private void OnEnable()
         {
-            SetText(monitor.ObjVarValue);
-            monitor.ObjValueChanged += Monitor_ValueChanged;
+            SetText(_monitor.ObjVarValue);
+            _monitor.ObjValueChanged += Monitor_ValueChanged;
         }
 
         private void OnDisable()
         {
-            if (monitor != null)
-                monitor.ObjValueChanged -= Monitor_ValueChanged;
+            if (_monitor != null)
+                _monitor.ObjValueChanged -= Monitor_ValueChanged;
         }
 
         private void Monitor_ValueChanged(object sender, object value) => SetText(value);
 
-        private void SetText(object value) => TextField.text = string.Format(format, value);
+        private void SetText(object value) => TextField.text = string.Format(_format, value);
     }
 }

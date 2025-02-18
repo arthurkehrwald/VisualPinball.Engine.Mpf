@@ -18,34 +18,34 @@ namespace FutureBoxSystems.MpfMediaController
         }
 
         [SerializeField]
-        private int port = 5050;
+        private int _port = 5050;
 
         [SerializeField]
         [Range(0.1f, 10f)]
-        private float frameTimeBudgetMs = 1f;
+        private float _frameTimeBudgetMs = 1f;
 
         [SerializeField]
-        private bool logReceivedMessages = false;
+        private bool _logReceivedMessages = false;
 
         [SerializeField]
-        private bool logSentMessages = false;
+        private bool _logSentMessages = false;
 
-        private BcpServer server;
-        private BcpServer Server => server ??= new BcpServer(port);
+        private BcpServer _server;
+        private BcpServer Server => _server ??= new BcpServer(_port);
 
         public delegate void HandleMessage(BcpMessage message);
-        private readonly Dictionary<string, HandleMessage> messageHandlers = new();
-        private MpfEventRequester<MonitoringCategory> monitoringCategories;
+        private readonly Dictionary<string, HandleMessage> _messageHandlers = new();
+        private MpfEventRequester<MonitoringCategory> _monitoringCategories;
         public MpfEventRequester<MonitoringCategory> MonitoringCategories =>
-            monitoringCategories ??= new(
+            _monitoringCategories ??= new(
                 bcpInterface: this,
                 createStartListeningMessage: category => new MonitorStartMessage(category),
                 createStopListeningMessage: category => new MonitorStopMessage(category)
             );
 
-        private MpfEventRequester<string> mpfEvents;
+        private MpfEventRequester<string> _mpfEvents;
         public MpfEventRequester<string> MpfEvents =>
-            mpfEvents ??= new(
+            _mpfEvents ??= new(
                 bcpInterface: this,
                 createStartListeningMessage: category => new RegisterTriggerMessage(category),
                 createStopListeningMessage: category => new RemoveTriggerMessage(category)
@@ -53,7 +53,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         public void RegisterMessageHandler(string command, HandleMessage handle)
         {
-            if (!messageHandlers.TryAdd(command, handle))
+            if (!_messageHandlers.TryAdd(command, handle))
                 Debug.LogWarning(
                     $"[BcpInterface] Cannot add message handler, because command '{command}' "
                         + "already has a handler."
@@ -63,10 +63,10 @@ namespace FutureBoxSystems.MpfMediaController
         public void UnregisterMessageHandler(string command, HandleMessage handle)
         {
             if (
-                messageHandlers.TryGetValue(command, out var registeredHandle)
+                _messageHandlers.TryGetValue(command, out var registeredHandle)
                 && registeredHandle == handle
             )
-                messageHandlers.Remove(command);
+                _messageHandlers.Remove(command);
             else
                 Debug.LogWarning(
                     $"[BcpInterface] Cannot remove message handler for command '{command}', "
@@ -77,7 +77,7 @@ namespace FutureBoxSystems.MpfMediaController
         public void EnqueueMessage(ISentMessage message)
         {
             BcpMessage bcpMessage = message.ToGenericMessage();
-            if (logSentMessages)
+            if (_logSentMessages)
                 Debug.Log($"[BcpInterface] Sending message: {bcpMessage}");
             Server.EnqueueMessage(bcpMessage);
         }
@@ -104,7 +104,8 @@ namespace FutureBoxSystems.MpfMediaController
             float startTime = Time.unscaledTime;
             float timeSpentMs = 0f;
             while (
-                timeSpentMs < frameTimeBudgetMs && Server.TryDequeueReceivedMessage(out var message)
+                timeSpentMs < _frameTimeBudgetMs
+                && Server.TryDequeueReceivedMessage(out var message)
             )
             {
                 HandleReceivedMessage(message);
@@ -114,10 +115,10 @@ namespace FutureBoxSystems.MpfMediaController
 
         private void HandleReceivedMessage(BcpMessage message)
         {
-            if (logReceivedMessages)
+            if (_logReceivedMessages)
                 Debug.Log($"[BcpInterface] Message received: {message}");
 
-            if (messageHandlers.TryGetValue(message.Command, out var handler))
+            if (_messageHandlers.TryGetValue(message.Command, out var handler))
             {
                 try
                 {

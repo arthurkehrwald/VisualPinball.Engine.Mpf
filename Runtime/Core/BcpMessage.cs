@@ -10,16 +10,16 @@ namespace FutureBoxSystems.MpfMediaController
     public class BcpMessage
     {
         public readonly string Command;
-        private readonly JObject parameters;
-        private readonly bool hasComplexParams;
-        private const char commandParamsSeparator = '?';
-        private const char paramsSeparator = '&';
+        private readonly JObject _parameters;
+        private readonly bool _hasComplexParams;
+        private const char CommandParamsSeparator = '?';
+        private const char ParamsSeparator = '&';
 
         public BcpMessage(string command, JObject parameters, bool hasComplexParams = false)
         {
             Command = command;
-            this.parameters = parameters;
-            this.hasComplexParams = hasComplexParams;
+            this._parameters = parameters;
+            this._hasComplexParams = hasComplexParams;
         }
 
         public BcpMessage(string command)
@@ -29,7 +29,7 @@ namespace FutureBoxSystems.MpfMediaController
         {
             try
             {
-                var token = parameters[name];
+                var token = _parameters[name];
 
                 // If string is requested, but parsed type is different, just return the unparsed
                 // JSON string
@@ -37,7 +37,7 @@ namespace FutureBoxSystems.MpfMediaController
                     return (T)Convert.ChangeType(token.ToString(Formatting.None), typeof(T));
 
                 if (typeof(JToken).IsAssignableFrom(typeof(T)))
-                    return (T)(object)parameters[name];
+                    return (T)(object)_parameters[name];
 
                 return (T)Convert.ChangeType(token, typeof(T));
             }
@@ -56,24 +56,24 @@ namespace FutureBoxSystems.MpfMediaController
         public string ToString(bool encode)
         {
             var sb = new StringBuilder(Command);
-            if (parameters.Count > 0)
-                sb.Append(commandParamsSeparator);
+            if (_parameters.Count > 0)
+                sb.Append(CommandParamsSeparator);
 
-            if (hasComplexParams)
+            if (_hasComplexParams)
             {
-                sb.Append($"json={parameters.ToString(Formatting.None)}");
+                sb.Append($"json={_parameters.ToString(Formatting.None)}");
             }
             else
             {
-                var properties = parameters.Properties();
+                var properties = _parameters.Properties();
                 for (int i = 0; i < properties.Count(); i++)
                 {
                     JProperty prop = properties.ElementAt(i);
                     string propStr = PropertyToParameterString(prop, encode);
                     sb.Append(propStr);
-                    bool isLastParam = i == parameters.Count - 1;
+                    bool isLastParam = i == _parameters.Count - 1;
                     if (!isLastParam)
-                        sb.Append(paramsSeparator);
+                        sb.Append(ParamsSeparator);
                 }
             }
             return sb.ToString();
@@ -81,7 +81,7 @@ namespace FutureBoxSystems.MpfMediaController
 
         public static BcpMessage FromString(string str)
         {
-            var parts = str.Split(commandParamsSeparator, paramsSeparator);
+            var parts = str.Split(CommandParamsSeparator, ParamsSeparator);
             var command = parts[0].Trim().ToLower();
             var containsJson = false;
             JObject parameters = new();

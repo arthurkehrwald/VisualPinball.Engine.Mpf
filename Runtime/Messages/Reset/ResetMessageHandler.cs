@@ -8,7 +8,7 @@
         protected override void AfterEvent()
         {
             base.AfterEvent();
-            bcpInterface.EnqueueMessage(new ResetCompleteMessage());
+            _bcpInterface.EnqueueMessage(new ResetCompleteMessage());
         }
     }
 }

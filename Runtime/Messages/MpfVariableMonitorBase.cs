@@ -8,11 +8,11 @@ namespace FutureBoxSystems.MpfMediaController.Messages
         where TMessage : MpfVariableMessageBase
     {
         [SerializeField]
-        protected string varName;
+        protected string _varName;
 
         protected override bool MatchesMonitoringCriteria(TMessage msg)
         {
-            return base.MatchesMonitoringCriteria(msg) && msg.Name == varName;
+            return base.MatchesMonitoringCriteria(msg) && msg.Name == _varName;
         }
 
         protected override TVar GetValueFromMessage(TMessage msg)
