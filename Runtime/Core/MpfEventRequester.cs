@@ -44,8 +44,12 @@ namespace FutureBoxSystems.MpfMediaController
                 && listenersForThisEvent.Remove(listener)
             )
             {
-                var stopListeningMsg = createStopListeningMessage(@event);
-                bcpInterface.EnqueueMessage(stopListeningMsg);
+                if (listenersForThisEvent.Count == 0)
+                {
+                    listeners.Remove(@event);
+                    var stopListeningMsg = createStopListeningMessage(@event);
+                    bcpInterface.EnqueueMessage(stopListeningMsg);
+                }
             }
             else
                 Debug.LogError(
