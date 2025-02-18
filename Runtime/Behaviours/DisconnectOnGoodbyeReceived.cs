@@ -18,7 +18,7 @@ namespace FutureBoxSystems.MpfMediaController.Behaviours
 
         private void OnDisable()
         {
-            if (goodbyeHandler)
+            if (goodbyeHandler != null)
                 goodbyeHandler.Received -= GoodbyeMessageReceived;
         }
 
