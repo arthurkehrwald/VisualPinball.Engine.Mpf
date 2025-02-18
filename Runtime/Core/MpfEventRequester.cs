@@ -5,7 +5,7 @@ namespace FutureBoxSystems.MpfMediaController
 {
     public class MpfEventRequester<TEvent>
     {
-        public delegate ISentMessage CreateMessage(TEvent _event);
+        public delegate ISentMessage CreateMessage(TEvent @event);
 
         private readonly BcpInterface bcpInterface;
         private readonly CreateMessage createStartListeningMessage;
@@ -23,33 +23,33 @@ namespace FutureBoxSystems.MpfMediaController
             this.createStopListeningMessage = createStopListeningMessage;
         }
 
-        public void AddListener(object listener, TEvent _event)
+        public void AddListener(object listener, TEvent @event)
         {
-            if (listeners.TryAdd(_event, new HashSet<object> { listener }))
+            if (listeners.TryAdd(@event, new HashSet<object> { listener }))
             {
-                var startListeningMsg = createStartListeningMessage(_event);
+                var startListeningMsg = createStartListeningMessage(@event);
                 bcpInterface.EnqueueMessage(startListeningMsg);
             }
-            else if (!listeners[_event].Add(listener))
+            else if (!listeners[@event].Add(listener))
                 Debug.LogError(
-                    $"[EventPool] Cannot add listener '{listener}' to event '{_event}' because it "
+                    $"[EventPool] Cannot add listener '{listener}' to event '{@event}' because it "
                         + "was already added."
                 );
         }
 
-        public void RemoveListener(object listener, TEvent _event)
+        public void RemoveListener(object listener, TEvent @event)
         {
             if (
-                listeners.TryGetValue(_event, out var listenersForThisEvent)
+                listeners.TryGetValue(@event, out var listenersForThisEvent)
                 && listenersForThisEvent.Remove(listener)
             )
             {
-                var stopListeningMsg = createStopListeningMessage(_event);
+                var stopListeningMsg = createStopListeningMessage(@event);
                 bcpInterface.EnqueueMessage(stopListeningMsg);
             }
             else
                 Debug.LogError(
-                    $"[EventPool] Cannot remove listener '{listener}' from event '{_event}' "
+                    $"[EventPool] Cannot remove listener '{listener}' from event '{@event}' "
                         + "because it is not a listener."
                 );
         }
