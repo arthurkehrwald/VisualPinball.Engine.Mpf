@@ -6,7 +6,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Settings
     public class SettingsMessage : EventArgs
     {
         public const string Command = "settings";
-        private const string settingsParamName = "settings";
+        private const string SettingsParamName = "settings";
         public readonly JArray Settings;
 
         public SettingsMessage(JArray settings)
@@ -16,7 +16,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Settings
 
         public static SettingsMessage FromGenericMessage(BcpMessage bcpMessage)
         {
-            return new SettingsMessage(bcpMessage.GetParamValue<JArray>(settingsParamName));
+            return new SettingsMessage(bcpMessage.GetParamValue<JArray>(SettingsParamName));
         }
     }
 }
