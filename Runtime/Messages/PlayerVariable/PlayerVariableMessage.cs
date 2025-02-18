@@ -9,7 +9,8 @@ namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
         public const string PlayerNumParamName = "player_num";
         public readonly int PlayerNum;
 
-        public PlayerVariableMessage(string name, int playerNum, JToken value) : base(name, value)
+        public PlayerVariableMessage(string name, int playerNum, JToken value)
+            : base(name, value)
         {
             PlayerNum = playerNum;
         }
