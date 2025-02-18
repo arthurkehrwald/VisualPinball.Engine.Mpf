@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Reset
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Reset
 {
     public class ResetMessageHandler : BcpMessageHandler<ResetMessage>
     {

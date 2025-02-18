@@ -1,8 +1,8 @@
 using System;
-using FutureBoxSystems.MpfMediaController.Messages.Reset;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Reset;
 
-namespace FutureBoxSystems.MpfMediaController.Messages
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
 {
     public abstract class MonitorBase : MonoBehaviour
     {

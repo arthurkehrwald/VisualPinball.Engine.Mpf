@@ -1,6 +1,6 @@
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
 {
     public class MachineVariableMessageHandler : BcpMessageHandler<MachineVariableMessage>
     {

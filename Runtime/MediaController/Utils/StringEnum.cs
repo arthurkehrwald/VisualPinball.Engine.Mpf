@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     /// <summary>
     /// Associates an enum value with a string

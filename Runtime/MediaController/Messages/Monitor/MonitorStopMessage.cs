@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
 {
     public class MonitorStopMessage : EventArgs, ISentMessage
     {

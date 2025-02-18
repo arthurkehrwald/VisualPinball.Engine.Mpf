@@ -1,8 +1,8 @@
-using FutureBoxSystems.MpfMediaController.Messages.Error;
-using FutureBoxSystems.MpfMediaController.Messages.Hello;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello;
 
-namespace FutureBoxSystems.MpfMediaController.Behaviours
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Behaviours
 {
     public class HelloResponse : MonoBehaviour
     {

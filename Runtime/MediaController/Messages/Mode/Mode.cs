@@ -1,4 +1,4 @@
-namespace FutureBoxSystems.MpfMediaController.Messages.Mode
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
     public readonly struct Mode
     {

@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Switch
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Switch
 {
     public class SwitchMessage : EventArgs, ISentMessage
     {

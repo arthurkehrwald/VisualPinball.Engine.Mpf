@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Mode
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
     public class ModeListMessage : EventArgs
     {

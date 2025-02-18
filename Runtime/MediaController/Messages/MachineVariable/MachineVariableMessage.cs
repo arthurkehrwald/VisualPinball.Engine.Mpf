@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
 {
     public class MachineVariableMessage : MpfVariableMessageBase
     {

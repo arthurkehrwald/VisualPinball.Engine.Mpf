@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Device.Switch
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Switch
 {
     public class SwitchDeviceMessage : SpecificDeviceMessageBase
     {

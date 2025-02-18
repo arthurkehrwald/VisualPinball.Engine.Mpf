@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public class MpfEventRequester<TEvent>
     {

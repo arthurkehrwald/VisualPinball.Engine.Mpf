@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Goodbye
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye
 {
     public class GoodbyeMessageHandler : BcpMessageHandler<GoodbyeMessage>
     {

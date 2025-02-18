@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Mode
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
     public class ModeMonitor : MonoBehaviour
     {

@@ -1,11 +1,12 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VisualPinball.Engine.Mpf.Unity.MediaController;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.Editor
 {
     [CustomEditor(typeof(BcpInterface))]
-    public class BcpInterfaceInspector : Editor
+    public class BcpInterfaceInspector : UnityEditor.Editor
     {
         [SerializeField]
         private VisualTreeAsset _bcpInterfaceInspectorXml;

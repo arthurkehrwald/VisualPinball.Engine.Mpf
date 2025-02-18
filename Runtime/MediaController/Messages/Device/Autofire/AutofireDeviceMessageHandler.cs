@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device.Autofire
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofire
 {
     public class AutofireDeviceMessageHandler
         : SpecificDeviceMessageHandler<AutofireDeviceMessage, AutofireDeviceMessage.StateJson>

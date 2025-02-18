@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device.ComboSwitch
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSwitch
 {
     public class ComboSwitchDeviceMessageHandler
         : SpecificDeviceMessageHandler<ComboSwitchDeviceMessage, ComboSwitchDeviceMessage.StateJson>

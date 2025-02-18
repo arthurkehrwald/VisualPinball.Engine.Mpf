@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
     public abstract class SpecificDeviceMessageBase : EventArgs
     {

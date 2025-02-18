@@ -1,6 +1,6 @@
-﻿using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+﻿using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
     public class DeviceMessageHandler : BcpMessageHandler<DeviceMessage>
     {

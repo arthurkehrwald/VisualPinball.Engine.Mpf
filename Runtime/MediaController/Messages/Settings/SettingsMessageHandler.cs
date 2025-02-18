@@ -1,6 +1,6 @@
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Settings
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Settings
 {
     public class SettingsMessageHandler : BcpMessageHandler<SettingsMessage>
     {

@@ -1,6 +1,6 @@
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Mode
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
     public class ModeStopMessageHandler : BcpMessageHandler<ModeStopMessage>
     {

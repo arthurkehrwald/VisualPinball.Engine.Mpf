@@ -1,8 +1,8 @@
-using FutureBoxSystems.MpfMediaController.Messages;
 using TMPro;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 
-namespace FutureBoxSystems.Ui
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 {
     [RequireComponent(typeof(TextMeshProUGUI))]
     public class MonitoredVariableText : MonoBehaviour

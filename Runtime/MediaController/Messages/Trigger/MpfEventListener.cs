@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
 {
     public class MpfEventListener : MonoBehaviour
     {

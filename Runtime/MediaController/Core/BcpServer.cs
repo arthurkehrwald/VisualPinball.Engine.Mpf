@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public class ConnectionStateChangedEventArgs : EventArgs
     {

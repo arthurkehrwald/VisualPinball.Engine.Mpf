@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Device.Flipper
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Flipper
 {
     public class FlipperDeviceMessage : SpecificDeviceMessageBase
     {

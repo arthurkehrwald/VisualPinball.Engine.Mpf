@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Hello
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello
 {
     public class HelloMessageHandler : BcpMessageHandler<HelloMessage>
     {

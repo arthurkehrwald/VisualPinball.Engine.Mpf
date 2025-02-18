@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Settings
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Settings
 {
     public class SettingsMessage : EventArgs
     {

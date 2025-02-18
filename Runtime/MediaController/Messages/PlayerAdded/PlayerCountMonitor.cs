@@ -1,4 +1,4 @@
-namespace FutureBoxSystems.MpfMediaController.Messages.PlayerAdded
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerAdded
 {
     public class PlayerCountMonitor : MonitorBase<int, PlayerAddedMessage>
     {

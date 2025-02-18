@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Switch
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Switch
 {
     public class SwitchMonitor : MonitorBase<bool, SwitchMessage>
     {

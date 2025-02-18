@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device.Playfield
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfield
 {
     public class PlayfieldDeviceMessageHandler
         : SpecificDeviceMessageHandler<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>

@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Device.Autofire
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofire
 {
     public class AutofireDeviceMessage : SpecificDeviceMessageBase
     {

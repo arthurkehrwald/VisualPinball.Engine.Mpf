@@ -5,7 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public class BcpMessage
     {

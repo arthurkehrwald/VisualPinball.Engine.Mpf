@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
 {
     public class TriggerMessage : EventArgs, ISentMessage
     {

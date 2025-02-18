@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public class BcpParseException : Exception
     {

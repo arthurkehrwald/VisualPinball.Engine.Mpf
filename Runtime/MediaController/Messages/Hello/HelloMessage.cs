@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Hello
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello
 {
     public class HelloMessage : EventArgs, ISentMessage
     {

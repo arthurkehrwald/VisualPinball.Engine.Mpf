@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Goodbye
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye
 {
     public class GoodbyeMessage : EventArgs, ISentMessage
     {

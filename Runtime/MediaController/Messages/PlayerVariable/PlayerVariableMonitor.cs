@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using FutureBoxSystems.MpfMediaController.Messages.PlayerTurnStart;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
 {
     public abstract class PlayerVariableMonitor<VarType>
         : MpfVariableMonitorBase<VarType, PlayerVariableMessage>

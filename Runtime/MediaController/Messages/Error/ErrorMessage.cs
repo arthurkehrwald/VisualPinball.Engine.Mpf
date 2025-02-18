@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Error
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
 {
     public class ErrorMessage : EventArgs, ISentMessage
     {

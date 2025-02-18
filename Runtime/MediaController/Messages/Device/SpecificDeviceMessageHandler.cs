@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
     public abstract class SpecificDeviceMessageHandler<TMessage, StateJsonFormat> : MonoBehaviour
         where TMessage : SpecificDeviceMessageBase

@@ -1,4 +1,4 @@
-namespace FutureBoxSystems.MpfMediaController.Messages.Trigger
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
 {
     public class TriggerMessageHandler : BcpMessageHandler<TriggerMessage>
     {

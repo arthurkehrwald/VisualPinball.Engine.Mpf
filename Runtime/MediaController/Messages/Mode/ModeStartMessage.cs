@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Mode
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
     public class ModeStartMessage : EventArgs
     {

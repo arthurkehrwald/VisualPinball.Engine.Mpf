@@ -1,6 +1,6 @@
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.PlayerVariable
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
 {
     public class PlayerVariableMessageHandler : BcpMessageHandler<PlayerVariableMessage>
     {

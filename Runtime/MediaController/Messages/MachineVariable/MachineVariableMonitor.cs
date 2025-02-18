@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
 {
     public abstract class MachineVariableMonitor<TVar>
         : MpfVariableMonitorBase<TVar, MachineVariableMessage>

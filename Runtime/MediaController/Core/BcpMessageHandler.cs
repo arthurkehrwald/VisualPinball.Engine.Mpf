@@ -1,8 +1,8 @@
 ﻿using System;
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public abstract class BcpMessageHandler<T> : MonoBehaviour
         where T : EventArgs

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
 {
     public abstract class MpfVariableMonitorBase<TVar, TMessage> : MonitorBase<TVar, TMessage>
         where TVar : IEquatable<TVar>

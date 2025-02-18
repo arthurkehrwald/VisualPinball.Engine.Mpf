@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Device.BallDevice
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.BallDevice
 {
     public class BallDeviceMessage : SpecificDeviceMessageBase
     {

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device.Light
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Light
 {
     public class LightDeviceMessageHandler
         : SpecificDeviceMessageHandler<LightDeviceMessage, LightDeviceMessage.StateJson>

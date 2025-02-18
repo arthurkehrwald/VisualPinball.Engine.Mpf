@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Error
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
 {
     public class ErrorMessageHandler : BcpMessageHandler<ErrorMessage>
     {

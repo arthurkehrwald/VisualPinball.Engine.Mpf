@@ -1,7 +1,7 @@
-using FutureBoxSystems.MpfMediaController.Messages.Goodbye;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye;
 
-namespace FutureBoxSystems.MpfMediaController.Behaviours
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Behaviours
 {
     public class DisconnectOnGoodbyeReceived : MonoBehaviour
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.PlayerTurnStart
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart
 {
     public class PlayerTurnStartMessage : EventArgs
     {

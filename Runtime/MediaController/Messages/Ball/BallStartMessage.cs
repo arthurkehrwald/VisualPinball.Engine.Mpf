@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Ball
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Ball
 {
     public class BallStartMessage : EventArgs
     {

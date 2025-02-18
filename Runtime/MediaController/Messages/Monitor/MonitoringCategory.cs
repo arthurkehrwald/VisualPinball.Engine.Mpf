@@ -1,4 +1,4 @@
-﻿namespace FutureBoxSystems.MpfMediaController.Messages.Monitor
+﻿namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
 {
     public enum MonitoringCategory
     {

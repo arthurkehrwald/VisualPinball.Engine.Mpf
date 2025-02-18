@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using FutureBoxSystems.MpfMediaController.Messages.Error;
-using FutureBoxSystems.MpfMediaController.Messages.Goodbye;
-using FutureBoxSystems.MpfMediaController.Messages.Monitor;
-using FutureBoxSystems.MpfMediaController.Messages.Trigger;
 using UnityEngine;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger;
 
-namespace FutureBoxSystems.MpfMediaController
+namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
     public class BcpInterface : MonoBehaviour
     {

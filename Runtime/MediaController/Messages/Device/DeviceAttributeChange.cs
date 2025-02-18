@@ -3,7 +3,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace FutureBoxSystems.MpfMediaController.Messages.Device
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
     public class DeviceAttributeChange
     {
