@@ -67,6 +67,8 @@ namespace FutureBoxSystems.MpfMediaController
         private readonly ManualResetEventSlim disconnectRequested = new(false);
         private readonly int port;
 
+        private const char terminator = '\n';
+
         private enum ReceiveEndReason
         {
             Finished,
@@ -203,7 +205,6 @@ namespace FutureBoxSystems.MpfMediaController
 
                 var stringRead = Encoding.UTF8.GetString(byteBuffer, 0, numBytesRead);
                 stringBuffer.Append(stringRead);
-                const char terminator = '\n';
                 int messageLength;
                 while (
                     !ct.IsCancellationRequested
@@ -234,7 +235,7 @@ namespace FutureBoxSystems.MpfMediaController
             )
             {
                 var stringMessage = bcpMessage.ToString(encode: true);
-                stringMessage += "\n";
+                stringMessage += terminator;
                 var packet = Encoding.UTF8.GetBytes(stringMessage);
                 try
                 {
