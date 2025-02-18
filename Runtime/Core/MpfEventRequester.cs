@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController
 {
-    public class MpfEventRequester<EventType>
+    public class MpfEventRequester<TEvent>
     {
-        public delegate ISentMessage CreateMessage(EventType _event);
+        public delegate ISentMessage CreateMessage(TEvent _event);
 
         private readonly BcpInterface bcpInterface;
         private readonly CreateMessage createStartListeningMessage;
         private readonly CreateMessage createStopListeningMessage;
-        private readonly Dictionary<EventType, HashSet<object>> listeners = new();
+        private readonly Dictionary<TEvent, HashSet<object>> listeners = new();
 
         public MpfEventRequester(
             BcpInterface bcpInterface,
@@ -23,7 +23,7 @@ namespace FutureBoxSystems.MpfMediaController
             this.createStopListeningMessage = createStopListeningMessage;
         }
 
-        public void AddListener(object listener, EventType _event)
+        public void AddListener(object listener, TEvent _event)
         {
             if (listeners.TryAdd(_event, new HashSet<object> { listener }))
             {
@@ -37,7 +37,7 @@ namespace FutureBoxSystems.MpfMediaController
                 );
         }
 
-        public void RemoveListener(object listener, EventType _event)
+        public void RemoveListener(object listener, TEvent _event)
         {
             if (
                 listeners.TryGetValue(_event, out var listenersForThisEvent)

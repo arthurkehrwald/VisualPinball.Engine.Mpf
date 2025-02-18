@@ -22,19 +22,19 @@ namespace FutureBoxSystems.MpfMediaController.Messages
         public event EventHandler<object> ObjValueChanged;
     }
 
-    public abstract class MonitorBase<VarType, MsgType> : MonitorBase
-        where VarType : IEquatable<VarType>
-        where MsgType : EventArgs
+    public abstract class MonitorBase<TVar, TMessage> : MonitorBase
+        where TVar : IEquatable<TVar>
+        where TMessage : EventArgs
     {
         [SerializeField]
-        private BcpMessageHandler<MsgType> messageHandler;
+        private BcpMessageHandler<TMessage> messageHandler;
 
         [SerializeField]
         private ResetMessageHandler resetMessageHandler;
 
-        public event EventHandler<VarType> ValueChanged;
-        private VarType varValue;
-        public VarType VarValue
+        public event EventHandler<TVar> ValueChanged;
+        private TVar varValue;
+        public TVar VarValue
         {
             get => varValue;
             protected set
@@ -76,14 +76,14 @@ namespace FutureBoxSystems.MpfMediaController.Messages
             WasEverUpdated = false;
         }
 
-        protected virtual void MessageHandler_Received(object sender, MsgType msg)
+        protected virtual void MessageHandler_Received(object sender, TMessage msg)
         {
             if (MatchesMonitoringCriteria(msg))
                 VarValue = GetValueFromMessage(msg);
         }
 
-        protected virtual bool MatchesMonitoringCriteria(MsgType msg) => true;
+        protected virtual bool MatchesMonitoringCriteria(TMessage msg) => true;
 
-        protected abstract VarType GetValueFromMessage(MsgType msg);
+        protected abstract TVar GetValueFromMessage(TMessage msg);
     }
 }

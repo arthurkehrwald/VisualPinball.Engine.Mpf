@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages.Device
 {
-    public abstract class SpecificDeviceMessageHandler<MessageType, StateJsonFormat> : MonoBehaviour
-        where MessageType : SpecificDeviceMessageBase
+    public abstract class SpecificDeviceMessageHandler<TMessage, StateJsonFormat> : MonoBehaviour
+        where TMessage : SpecificDeviceMessageBase
     {
         [SerializeField]
         private string deviceName;
@@ -14,12 +14,12 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
         private DeviceMessageHandler generalDeviceMessageHandler;
 
         protected abstract string Type { get; }
-        protected delegate MessageType ParseStateDelegate(
+        protected delegate TMessage ParseStateDelegate(
             StateJsonFormat deserializedState,
             string deviceName
         );
         protected abstract ParseStateDelegate ParseState { get; }
-        public event EventHandler<MessageType> StateUpdated;
+        public event EventHandler<TMessage> StateUpdated;
 
         protected void OnEnable()
         {
@@ -57,7 +57,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
                 );
             }
 
-            MessageType specificDeviceMessage = ParseState(deserializedState, deviceMessage.Name);
+            TMessage specificDeviceMessage = ParseState(deserializedState, deviceMessage.Name);
             StateUpdated?.Invoke(this, specificDeviceMessage);
         }
 

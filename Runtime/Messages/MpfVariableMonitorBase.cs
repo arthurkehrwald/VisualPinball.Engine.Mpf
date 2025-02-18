@@ -3,23 +3,23 @@ using UnityEngine;
 
 namespace FutureBoxSystems.MpfMediaController.Messages
 {
-    public abstract class MpfVariableMonitorBase<VarType, MsgType> : MonitorBase<VarType, MsgType>
-        where VarType : IEquatable<VarType>
-        where MsgType : MpfVariableMessageBase
+    public abstract class MpfVariableMonitorBase<TVar, TMessage> : MonitorBase<TVar, TMessage>
+        where TVar : IEquatable<TVar>
+        where TMessage : MpfVariableMessageBase
     {
         [SerializeField]
         protected string varName;
 
-        protected override bool MatchesMonitoringCriteria(MsgType msg)
+        protected override bool MatchesMonitoringCriteria(TMessage msg)
         {
             return base.MatchesMonitoringCriteria(msg) && msg.Name == varName;
         }
 
-        protected override VarType GetValueFromMessage(MsgType msg)
+        protected override TVar GetValueFromMessage(TMessage msg)
         {
             try
             {
-                return (VarType)Convert.ChangeType(msg.Value, typeof(VarType));
+                return (TVar)Convert.ChangeType(msg.Value, typeof(TVar));
             }
             catch (Exception e)
                 when (e is InvalidCastException

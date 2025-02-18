@@ -18,12 +18,10 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             NewValue = newValue;
         }
 
-        public delegate ConversionType ConvertAttributeDelegate<ConversionType>(
-            string attributeValue
-        );
+        public delegate T ConvertAttributeDelegate<T>(string attributeValue);
 
-        public DeviceAttributeChangeEventArgs<ConversionType> GetEventArgs<ConversionType>(
-            ConvertAttributeDelegate<ConversionType> convertAttribute
+        public DeviceAttributeChangeEventArgs<T> GetEventArgs<T>(
+            ConvertAttributeDelegate<T> convertAttribute
         )
         {
             try
@@ -34,7 +32,7 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
             {
                 throw new WrongDeviceAttributeTypeException(
                     AttributeName,
-                    typeof(ConversionType),
+                    typeof(T),
                     OldValue,
                     NewValue,
                     e
@@ -98,12 +96,12 @@ namespace FutureBoxSystems.MpfMediaController.Messages.Device
         }
     }
 
-    public class DeviceAttributeChangeEventArgs<AttributeType> : EventArgs
+    public class DeviceAttributeChangeEventArgs<TAttribute> : EventArgs
     {
-        public readonly AttributeType OldValue;
-        public readonly AttributeType NewValue;
+        public readonly TAttribute OldValue;
+        public readonly TAttribute NewValue;
 
-        public DeviceAttributeChangeEventArgs(AttributeType oldValue, AttributeType newValue)
+        public DeviceAttributeChangeEventArgs(TAttribute oldValue, TAttribute newValue)
         {
             OldValue = oldValue;
             NewValue = newValue;
