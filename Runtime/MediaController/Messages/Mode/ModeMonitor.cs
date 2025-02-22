@@ -19,11 +19,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
         [SerializeField]
         private string _modeName;
 
-        [SerializeField]
-        private ModeStartMessageHandler _modeStartMessageHandler;
-
-        [SerializeField]
-        private ModeStopMessageHandler _modeStopMessageHandler;
+        private BcpMessageHandler<ModeStartMessage> _modeStartMessageHandler;
+        private BcpMessageHandler<ModeStopMessage> _modeStopMessageHandler;
 
         private bool _isModeActive = false;
         public bool IsModeActive
@@ -43,14 +40,26 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 
         private void OnEnable()
         {
-            _modeStartMessageHandler.Received += OnModeStarted;
-            _modeStopMessageHandler.Received += OnModeStopped;
+            var bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
+            if (bcpInterface != null)
+            {
+                _modeStartMessageHandler =
+                    (BcpMessageHandler<ModeStartMessage>)
+                        bcpInterface.MessageHandlers.Handlers[ModeStartMessage.Command];
+                _modeStartMessageHandler.Received += OnModeStarted;
+                _modeStopMessageHandler =
+                    (BcpMessageHandler<ModeStopMessage>)
+                        bcpInterface.MessageHandlers.Handlers[ModeStopMessage.Command];
+                _modeStopMessageHandler.Received += OnModeStopped;
+            }
         }
 
         private void OnDisable()
         {
-            _modeStartMessageHandler.Received -= OnModeStarted;
-            _modeStopMessageHandler.Received -= OnModeStopped;
+            if (_modeStartMessageHandler != null)
+                _modeStartMessageHandler.Received -= OnModeStarted;
+            if (_modeStopMessageHandler != null)
+                _modeStopMessageHandler.Received -= OnModeStopped;
         }
 
         private void OnModeStarted(object sender, ModeStartMessage msg)

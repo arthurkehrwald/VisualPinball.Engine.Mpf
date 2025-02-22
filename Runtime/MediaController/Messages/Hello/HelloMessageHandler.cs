@@ -15,5 +15,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello
     {
         public override string Command => HelloMessage.Command;
         protected override ParseDelegate Parse => HelloMessage.FromGenericMessage;
+
+        public HelloMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
+
+        protected override void BeforeReceivedEvent()
+        {
+            base.BeforeReceivedEvent();
+        }
     }
 }

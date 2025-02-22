@@ -18,5 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStar
         public override string Command => PlayerTurnStartMessage.Command;
         protected override ParseDelegate Parse => PlayerTurnStartMessage.FromGenericMessage;
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.CoreEvents;
+
+        public PlayerTurnStartMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

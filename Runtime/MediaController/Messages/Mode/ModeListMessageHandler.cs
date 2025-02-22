@@ -18,5 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
         public override string Command => ModeListMessage.Command;
         protected override ParseDelegate Parse => ModeListMessage.FromGenericMessage;
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.Modes;
+
+        public ModeListMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

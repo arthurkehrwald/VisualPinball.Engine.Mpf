@@ -15,5 +15,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerAdded
     {
         // Assumes that player numbers are assigned consecutively starting at 1
         protected override int GetValueFromMessage(PlayerAddedMessage msg) => msg.PlayerNum;
+
+        protected override string BcpCommand => PlayerAddedMessage.Command;
     }
 }

@@ -15,5 +15,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
 {
     public abstract class MachineVariableMonitor<TVar>
         : MpfVariableMonitorBase<TVar, MachineVariableMessage>
-        where TVar : IEquatable<TVar> { }
+        where TVar : IEquatable<TVar>
+    {
+        protected override string BcpCommand => MachineVariableMessage.Command;
+    }
 }

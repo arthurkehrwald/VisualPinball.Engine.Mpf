@@ -18,5 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Ball
         public override string Command => BallStartMessage.Command;
         protected override ParseDelegate Parse => BallStartMessage.FromGenericMessage;
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.CoreEvents;
+
+        public BallStartMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

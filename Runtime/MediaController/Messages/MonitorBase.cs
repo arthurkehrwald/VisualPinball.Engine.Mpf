@@ -11,7 +11,6 @@
 
 using System;
 using UnityEngine;
-using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Reset;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
 {
@@ -37,11 +36,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
         where TVar : IEquatable<TVar>
         where TMessage : EventArgs
     {
-        [SerializeField]
+        protected abstract string BcpCommand { get; }
+        private BcpInterface _bcpInterface;
         private BcpMessageHandler<TMessage> _messageHandler;
-
-        [SerializeField]
-        private ResetMessageHandler _resetMessageHandler;
 
         public event EventHandler<TVar> ValueChanged;
         private TVar _varValue;
@@ -69,19 +66,26 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
 
         protected virtual void OnEnable()
         {
-            _messageHandler.Received += MessageHandler_Received;
-            _resetMessageHandler.Received += ResetMessageHandler_Received;
+            _bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
+            if (_bcpInterface != null)
+            {
+                _messageHandler =
+                    (BcpMessageHandler<TMessage>)_bcpInterface.MessageHandlers.Handlers[BcpCommand];
+
+                _messageHandler.Received += MessageHandler_Received;
+                _bcpInterface.ResetRequested += OnResetRequested;
+            }
         }
 
         protected virtual void OnDisable()
         {
-            if (_messageHandler)
+            if (_messageHandler != null)
                 _messageHandler.Received -= MessageHandler_Received;
-            if (_resetMessageHandler)
-                _resetMessageHandler.Received -= ResetMessageHandler_Received;
+            if (_bcpInterface != null)
+                _bcpInterface.ResetRequested -= OnResetRequested;
         }
 
-        private void ResetMessageHandler_Received(object sender, ResetMessage msg)
+        private void OnResetRequested(object sender, EventArgs ags)
         {
             VarValue = default;
             WasEverUpdated = false;

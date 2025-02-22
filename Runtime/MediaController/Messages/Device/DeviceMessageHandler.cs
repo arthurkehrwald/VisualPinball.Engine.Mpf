@@ -18,5 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
         public override string Command => DeviceMessage.Command;
         protected override ParseDelegate Parse => DeviceMessage.FromGenericMessage;
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.Devices;
+
+        public DeviceMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

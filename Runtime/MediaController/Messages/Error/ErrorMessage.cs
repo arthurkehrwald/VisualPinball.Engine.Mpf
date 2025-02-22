@@ -17,8 +17,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
     public class ErrorMessage : EventArgs, ISentMessage
     {
         public const string Command = "error";
-        private const string MessageName = "message";
-        private const string CommandThatCausedErrorName = "command";
+        private const string MessageParamName = "message";
+        private const string CommandThatCausedErrorParamName = "command";
         public string Message { get; private set; }
         public string CommandThatCausedError { get; private set; }
 
@@ -34,8 +34,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
                 command: Command,
                 parameters: new JObject
                 {
-                    { MessageName, Message },
-                    { CommandThatCausedErrorName, CommandThatCausedError },
+                    { MessageParamName, Message },
+                    { CommandThatCausedErrorParamName, CommandThatCausedError },
                 }
             );
         }
@@ -43,8 +43,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
         public static ErrorMessage FromGenericMessage(BcpMessage bcpMessage)
         {
             return new ErrorMessage(
-                message: bcpMessage.GetParamValue<string>(MessageName),
-                commandThatCausedError: bcpMessage.GetParamValue<string>(CommandThatCausedErrorName)
+                message: bcpMessage.GetParamValue<string>(MessageParamName),
+                commandThatCausedError: bcpMessage.GetParamValue<string>(CommandThatCausedErrorParamName)
             );
         }
     }

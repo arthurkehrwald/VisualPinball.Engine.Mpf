@@ -18,7 +18,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
     public class MonitorStopMessage : EventArgs, ISentMessage
     {
         public const string Command = "monitor_stop";
-        private const string CategoryName = "category";
+        private const string CategoryParamName = "category";
         public readonly MonitoringCategory Category;
 
         public MonitorStopMessage(MonitoringCategory category)
@@ -36,7 +36,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
                 );
             return new BcpMessage(
                 command: Command,
-                parameters: new JObject { [CategoryName] = categoryString }
+                parameters: new JObject { [CategoryParamName] = categoryString }
             );
         }
     }

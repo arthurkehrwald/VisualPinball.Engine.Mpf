@@ -21,8 +21,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
         [SerializeField]
         private string _deviceName;
 
-        [SerializeField]
-        private DeviceMessageHandler _generalDeviceMessageHandler;
+        private BcpMessageHandler<DeviceMessage> _generalDeviceMessageHandler;
 
         protected abstract string Type { get; }
         protected delegate TMessage ParseStateDelegate(
@@ -34,12 +33,19 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 
         protected void OnEnable()
         {
-            _generalDeviceMessageHandler.Received += HandleDeviceMessageReceived;
+            var bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
+            if (bcpInterface != null)
+            {
+                _generalDeviceMessageHandler =
+                    (BcpMessageHandler<DeviceMessage>)
+                        bcpInterface.MessageHandlers.Handlers[DeviceMessage.Command];
+                _generalDeviceMessageHandler.Received += HandleDeviceMessageReceived;
+            }
         }
 
         protected void OnDisable()
         {
-            if (_generalDeviceMessageHandler)
+            if (_generalDeviceMessageHandler != null)
                 _generalDeviceMessageHandler.Received -= HandleDeviceMessageReceived;
         }
 

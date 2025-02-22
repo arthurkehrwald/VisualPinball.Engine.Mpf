@@ -15,5 +15,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error
     {
         public override string Command => ErrorMessage.Command;
         protected override ParseDelegate Parse => ErrorMessage.FromGenericMessage;
+
+        public ErrorMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

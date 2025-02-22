@@ -20,5 +20,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Switch
         protected override ParseDelegate Parse => SwitchMessage.FromGenericMessage;
 
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.Switches;
+
+        public SwitchMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

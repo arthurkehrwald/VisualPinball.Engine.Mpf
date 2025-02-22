@@ -10,17 +10,18 @@
 // SOFTWARE.
 
 using System;
-using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
-    public abstract class BcpMessageHandler<T> : MonoBehaviour
+    public interface IBcpMessageHandler
+    {
+        public void Handle(BcpMessage message);
+    }
+
+    public abstract class BcpMessageHandler<T> : IBcpMessageHandler
         where T : EventArgs
     {
-        [SerializeField]
-        protected BcpInterface _bcpInterface;
-
         public abstract string Command { get; }
         public virtual MonitoringCategory MonitoringCategory => MonitoringCategory.None;
         protected abstract ParseDelegate Parse { get; }
@@ -30,48 +31,39 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
         {
             add
             {
-                bool isFirstHandler = _received == null;
+                bool isFirstListener = _received == null;
                 _received += value;
-                if (isFirstHandler && MonitoringCategory != MonitoringCategory.None)
+                if (isFirstListener && MonitoringCategory != MonitoringCategory.None)
                     _bcpInterface.MonitoringCategories.AddListener(this, MonitoringCategory);
             }
             remove
             {
                 _received -= value;
-                if (
-                    _bcpInterface != null
-                    && _received == null
-                    && MonitoringCategory != MonitoringCategory.None
-                )
-                {
+                bool noMoreListeners = _received == null;
+                if (noMoreListeners && MonitoringCategory != MonitoringCategory.None)
                     _bcpInterface.MonitoringCategories.RemoveListener(this, MonitoringCategory);
-                }
             }
         }
 
-        private void OnEnable()
+        private BcpInterface _bcpInterface;
+
+        public BcpMessageHandler(BcpInterface bcpInterface)
         {
-            _bcpInterface.RegisterMessageHandler(Command, Handle);
+            _bcpInterface = bcpInterface;
         }
 
-        private void OnDisable()
-        {
-            if (_bcpInterface != null)
-                _bcpInterface.UnregisterMessageHandler(Command, Handle);
-        }
-
-        private void Handle(BcpMessage message)
+        public void Handle(BcpMessage message)
         {
             if (message.Command != Command)
                 throw new WrongParserException(message, Command);
             T specificMessage = Parse(message);
-            BeforeEvent();
+            BeforeReceivedEvent();
             _received?.Invoke(this, specificMessage);
-            AfterEvent();
+            AfterReceivedEvent();
         }
 
-        protected virtual void BeforeEvent() { }
+        protected virtual void BeforeReceivedEvent() { }
 
-        protected virtual void AfterEvent() { }
+        protected virtual void AfterReceivedEvent() { }
     }
 }

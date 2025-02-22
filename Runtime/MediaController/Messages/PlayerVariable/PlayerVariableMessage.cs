@@ -10,7 +10,6 @@
 // SOFTWARE.
 
 using Newtonsoft.Json.Linq;
-using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
 {

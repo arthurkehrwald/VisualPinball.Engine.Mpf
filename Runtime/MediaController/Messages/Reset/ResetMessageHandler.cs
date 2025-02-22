@@ -16,10 +16,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Reset
         public override string Command => ResetMessage.Command;
         protected override ParseDelegate Parse => ResetMessage.FromGenericMessage;
 
-        protected override void AfterEvent()
-        {
-            base.AfterEvent();
-            _bcpInterface.EnqueueMessage(new ResetCompleteMessage());
-        }
+        public ResetMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

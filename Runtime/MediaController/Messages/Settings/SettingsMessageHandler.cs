@@ -18,5 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Settings
         public override string Command => SettingsMessage.Command;
         protected override ParseDelegate Parse => SettingsMessage.FromGenericMessage;
         public override MonitoringCategory MonitoringCategory => MonitoringCategory.MachineVars;
+
+        public SettingsMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

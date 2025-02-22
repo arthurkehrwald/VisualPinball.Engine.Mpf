@@ -16,5 +16,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
         public override string Command => TriggerMessage.Command;
 
         protected override ParseDelegate Parse => TriggerMessage.FromGenericMessage;
+
+        public TriggerMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

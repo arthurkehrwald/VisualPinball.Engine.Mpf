@@ -15,5 +15,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye
     {
         public override string Command => GoodbyeMessage.Command;
         protected override ParseDelegate Parse => GoodbyeMessage.FromGenericMessage;
+
+        public GoodbyeMessageHandler(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
     }
 }

@@ -23,6 +23,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
         [SerializeField]
         private CurrentPlayerMonitor _currentPlayerMonitor;
 
+        protected override string BcpCommand => PlayerVariableMessage.Command;
         protected Dictionary<int, VarType> _varPerPlayer = new();
 
         protected override void OnEnable()

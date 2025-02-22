@@ -10,7 +10,6 @@
 // SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -19,7 +18,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
     public class MonitorStartMessage : EventArgs, ISentMessage
     {
         public const string Command = "monitor_start";
-        private const string CategoryName = "category";
+        private const string CategoryParamName = "category";
         public readonly MonitoringCategory Category;
 
         public MonitorStartMessage(MonitoringCategory category)
@@ -37,7 +36,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor
                 );
             return new(
                 command: Command,
-                parameters: new JObject { [CategoryName] = categoryString }
+                parameters: new JObject { [CategoryParamName] = categoryString }
             );
         }
     }

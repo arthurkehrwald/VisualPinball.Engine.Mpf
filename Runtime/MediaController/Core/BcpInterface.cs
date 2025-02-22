@@ -10,42 +10,57 @@
 // SOFTWARE.
 
 using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NLog;
 using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Reset;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger;
+using VisualPinball.Unity;
+using Logger = NLog.Logger;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
-    public class BcpInterface : MonoBehaviour
+    [Serializable]
+    public class BcpInterfaceOptions
     {
-        public ConnectionState ConnectionState => Server.ConnectionState;
-        public event EventHandler<ConnectionStateChangedEventArgs> ConnectionStateChanged
+        [SerializeField]
+        private int _port = 5050;
+        public int Port => _port;
+
+        [SerializeField]
+        private bool _logReceivedMessages = false;
+        public bool LogReceivedMessages => _logReceivedMessages;
+
+        [SerializeField]
+        private bool _logSentMessages = false;
+        public bool LogSentMessages => _logSentMessages;
+    }
+
+    public class BcpInterface : IDisposable
+    {
+        public BcpConnectionState ConnectionState => Server.ConnectionState;
+        public event EventHandler<StateChangedEventArgs<BcpConnectionState>> ConnectionStateChanged
         {
             add { Server.StateChanged += value; }
             remove { Server.StateChanged -= value; }
         }
 
-        [SerializeField]
-        private int _port = 5050;
+        public event EventHandler ResetRequested;
+        public event EventHandler ResetCompleted;
 
-        [SerializeField]
-        [Range(0.1f, 10f)]
-        private float _frameTimeBudgetMs = 1f;
-
-        [SerializeField]
-        private bool _logReceivedMessages = false;
-
-        [SerializeField]
-        private bool _logSentMessages = false;
-
+        private readonly BcpInterfaceOptions _options;
+        private CancellationTokenSource _connectionCts;
+        private Task _receiveMessagesLoop;
         private BcpServer _server;
-        private BcpServer Server => _server ??= new BcpServer(_port);
+        private BcpServer Server => _server ??= new BcpServer(_options.Port);
+        private LazyInit<SemaphoreSlim> _startStopSemaphore = new(() => new SemaphoreSlim(1, 1));
 
         public delegate void HandleMessage(BcpMessage message);
-        private readonly Dictionary<string, HandleMessage> _messageHandlers = new();
         private MpfEventRequester<MonitoringCategory> _monitoringCategories;
         public MpfEventRequester<MonitoringCategory> MonitoringCategories =>
             _monitoringCategories ??= new(
@@ -62,94 +77,145 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
                 createStopListeningMessage: category => new RemoveTriggerMessage(category)
             );
 
-        public void RegisterMessageHandler(string command, HandleMessage handle)
-        {
-            if (!_messageHandlers.TryAdd(command, handle))
-                Debug.LogWarning(
-                    $"[BcpInterface] Cannot add message handler, because command '{command}' "
-                        + "already has a handler."
-                );
-        }
+        public readonly BcpMessageHandlers MessageHandlers;
 
-        public void UnregisterMessageHandler(string command, HandleMessage handle)
+        private static Logger Logger = LogManager.GetCurrentClassLogger();
+
+        public BcpInterface(BcpInterfaceOptions options)
         {
-            if (
-                _messageHandlers.TryGetValue(command, out var registeredHandle)
-                && registeredHandle == handle
-            )
-                _messageHandlers.Remove(command);
-            else
-                Debug.LogWarning(
-                    $"[BcpInterface] Cannot remove message handler for command '{command}', "
-                        + "because it is not registered."
-                );
+            _options = options;
+            MessageHandlers = new BcpMessageHandlers(this);
+            MessageHandlers.Hello.Received += OnHelloMessageReceived;
+            MessageHandlers.Reset.Received += OnResetMessageReceived;
+            MessageHandlers.Goodbye.Received += (sender, message) => Server.RequestDisconnect();
         }
 
         public void EnqueueMessage(ISentMessage message)
         {
             BcpMessage bcpMessage = message.ToGenericMessage();
-            if (_logSentMessages)
-                Debug.Log($"[BcpInterface] Sending message: {bcpMessage}");
+            if (_options.LogSentMessages)
+                Logger.Info($"Sending BCP message: {bcpMessage}");
             Server.EnqueueMessage(bcpMessage);
         }
 
-        public void RequestDisconnect()
+        public async Task StartServer()
         {
-            if (Server.ConnectionState == ConnectionState.Connected)
-                Server.RequestDisconnect();
-        }
-
-        private async void OnEnable()
-        {
-            await Server.OpenConnectionAsync();
-        }
-
-        private async void OnDisable()
-        {
-            EnqueueMessage(new GoodbyeMessage());
-            await Server.CloseConnectionAsync();
-        }
-
-        private void Update()
-        {
-            float startTime = Time.unscaledTime;
-            float timeSpentMs = 0f;
-            while (
-                timeSpentMs < _frameTimeBudgetMs
-                && Server.TryDequeueReceivedMessage(out var message)
-            )
+            await _startStopSemaphore.Ref.WaitAsync();
+            try
             {
-                HandleReceivedMessage(message);
-                timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
+                if (Server.ConnectionState == BcpConnectionState.Connected)
+                    return;
+                await Server.OpenConnectionAsync();
+                _connectionCts = new CancellationTokenSource();
+                _receiveMessagesLoop = HandleReceivedMessagesLoop(_connectionCts.Token);
+            }
+            finally
+            {
+                _startStopSemaphore.Ref.Release();
+            }
+        }
+
+        public async Task StopServer()
+        {
+            await _startStopSemaphore.Ref.WaitAsync();
+            try
+            {
+                if (Server.ConnectionState == BcpConnectionState.NotConnected)
+                    return;
+                EnqueueMessage(new GoodbyeMessage());
+                _connectionCts?.Cancel();
+                _connectionCts?.Dispose();
+                try
+                {
+                    await Task.WhenAll(Server.CloseConnectionAsync(), _receiveMessagesLoop);
+                }
+                catch (OperationCanceledException) { }
+            }
+            finally
+            {
+                _startStopSemaphore.Ref.Release();
+            }
+        }
+
+        private void OnHelloMessageReceived(object sender, HelloMessage message)
+        {
+            ResetRequested?.Invoke(this, EventArgs.Empty);
+
+            ISentMessage response;
+            if (message.BcpSpecVersion == Constants.BcpSpecVersion)
+            {
+                response = new HelloMessage(
+                    Constants.BcpSpecVersion,
+                    Constants.MediaControllerName,
+                    Constants.MediaControllerVersion
+                );
+            }
+            else
+            {
+                string originalHelloMessage = message.ToGenericMessage().ToString();
+                response = new ErrorMessage(
+                    message: "unknown protocol version",
+                    commandThatCausedError: originalHelloMessage
+                );
+            }
+
+            EnqueueMessage(response);
+            ResetCompleted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnResetMessageReceived(object sender, ResetMessage resetMessage)
+        {
+            ResetRequested?.Invoke(this, EventArgs.Empty);
+            EnqueueMessage(new ResetCompleteMessage());
+            ResetCompleted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task HandleReceivedMessagesLoop(CancellationToken ct)
+        {
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+                float startTime = Time.unscaledTime;
+                float timeSpentMs = 0f;
+                while (timeSpentMs < 1f && Server.TryDequeueReceivedMessage(out var message))
+                {
+                    HandleReceivedMessage(message);
+                    timeSpentMs = (Time.unscaledTime - startTime) * 1000f;
+                }
+                await Task.Yield();
             }
         }
 
         private void HandleReceivedMessage(BcpMessage message)
         {
-            if (_logReceivedMessages)
-                Debug.Log($"[BcpInterface] Message received: {message}");
+            if (_options.LogReceivedMessages)
+                Logger.Info($"BCP Message received: {message}");
 
-            if (_messageHandlers.TryGetValue(message.Command, out var handler))
+            if (MessageHandlers.Handlers.TryGetValue(message.Command, out var handler))
             {
                 try
                 {
-                    handler(message);
+                    handler.Handle(message);
                 }
                 catch (BcpParseException e)
                 {
-                    Debug.LogError(
-                        $"[BcpInterface] Failed to parse message. Message: {message} Exception: {e}"
-                    );
+                    Logger.Error($"Failed to parse BCP message. Message: {message} Exception: {e}");
                 }
             }
             else
             {
-                Debug.LogError(
-                    "[BcpInterface] No parser registered for message with command "
-                        + $"'{message.Command}' Message: {message}"
+                Logger.Error(
+                    $"No parser registered for BCP message with command '{message.Command}' "
+                        + $"Message: {message}"
                 );
                 EnqueueMessage(new ErrorMessage("unknown command", message.ToString()));
             }
+        }
+
+        public void Dispose()
+        {
+            _server?.Dispose();
+            _startStopSemaphore.Ref.Dispose();
         }
     }
 }

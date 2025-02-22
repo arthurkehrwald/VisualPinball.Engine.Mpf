@@ -18,6 +18,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Switch
         [SerializeField]
         protected string _switchName;
 
+        protected override string BcpCommand => SwitchMessage.Command;
+
         protected override bool MatchesMonitoringCriteria(SwitchMessage msg)
         {
             return base.MatchesMonitoringCriteria(msg) && msg.Name == _switchName;

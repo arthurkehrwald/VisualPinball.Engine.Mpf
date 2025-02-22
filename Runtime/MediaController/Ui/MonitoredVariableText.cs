@@ -15,25 +15,16 @@ using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 {
-    [RequireComponent(typeof(TextMeshProUGUI))]
     public class MonitoredVariableText : MonoBehaviour
     {
         [SerializeReference]
         private MonitorBase _monitor;
 
         [SerializeField]
-        private string _format = "{0}";
-
         private TextMeshProUGUI _textField;
-        private TextMeshProUGUI TextField
-        {
-            get
-            {
-                if (_textField == null)
-                    _textField = GetComponent<TextMeshProUGUI>();
-                return _textField;
-            }
-        }
+
+        [SerializeField]
+        private string _format = "{0}";
 
         private void OnEnable()
         {
@@ -49,6 +40,6 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 
         private void Monitor_ValueChanged(object sender, object value) => SetText(value);
 
-        private void SetText(object value) => TextField.text = string.Format(_format, value);
+        private void SetText(object value) => _textField.text = string.Format(_format, value);
     }
 }
