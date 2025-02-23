@@ -18,10 +18,5 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello
 
         public HelloMessageHandler(BcpInterface bcpInterface)
             : base(bcpInterface) { }
-
-        protected override void BeforeReceivedEvent()
-        {
-            base.BeforeReceivedEvent();
-        }
     }
 }

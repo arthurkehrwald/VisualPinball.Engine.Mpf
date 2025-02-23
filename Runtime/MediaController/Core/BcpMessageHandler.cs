@@ -57,13 +57,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
             if (message.Command != Command)
                 throw new WrongParserException(message, Command);
             T specificMessage = Parse(message);
-            BeforeReceivedEvent();
             _received?.Invoke(this, specificMessage);
-            AfterReceivedEvent();
         }
-
-        protected virtual void BeforeReceivedEvent() { }
-
-        protected virtual void AfterReceivedEvent() { }
     }
 }
