@@ -28,7 +28,7 @@ jobs:
           dotnet build -c Release -r ${{ matrix.rid }} -p:InstallYetAnotherHttpHandler=false
       - run: |
           mkdir -p tmp/Plugins
-          cp -r Dependencies/NuGetDependencies/${{ matrix.rid }} tmp/Plugins    
+          cp -r Plugins/${{ matrix.rid }} tmp/Plugins
       - uses: actions/upload-artifact@v4
         with:
           name: Plugins-${{ matrix.rid }}
@@ -39,10 +39,13 @@ jobs:
     steps:
         - uses: actions/checkout@v4
         - run: dotnet build /t:InstallYetAnotherHttpHandler
+        - run: |
+            mkdir -p tmp/YetAnotherHttpHandler
+            cp -r YetAnotherHttpHandler tmp/YetAnotherHttpHandler
         - uses: actions/upload-artifact@v4
           with:
             name: YetAnotherHttpHandler
-            path: Dependencies
+            path: tmp
 
   dispatch:
     runs-on: ubuntu-latest
