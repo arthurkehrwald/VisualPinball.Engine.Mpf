@@ -361,7 +361,6 @@ Plugins/*
 !Plugins/*.meta
 
 YetAnotherHttpHandler/
-YetAnotherHttpHandler.meta
 
-Runtime/GrpcInterface/Generated/
-Runtime/GrpcInterface/Generated.meta
+Runtime/GrpcInterface/Generated/*
+!Runtime/GrpcInterface/Generated/*.meta
