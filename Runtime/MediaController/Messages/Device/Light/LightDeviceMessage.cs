@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Light
 {
-    public class LightDeviceMessage : SpecificDeviceMessageBase
+    public class LightDeviceMessage : SpecificDeviceMessageBase, IEquatable<LightDeviceMessage>
     {
         public const string Type = "light";
         public readonly Color LightColor;
@@ -42,6 +42,11 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Light
             }
 
             return new LightDeviceMessage(deviceName, new Color(r, g, b));
+        }
+
+        public bool Equals(LightDeviceMessage other)
+        {
+            return base.Equals(other) && LightColor == other.LightColor;
         }
 
         public class StateJson

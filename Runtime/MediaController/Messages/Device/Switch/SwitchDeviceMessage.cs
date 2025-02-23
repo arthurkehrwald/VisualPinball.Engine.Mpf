@@ -9,9 +9,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Switch
 {
-    public class SwitchDeviceMessage : SpecificDeviceMessageBase
+    public class SwitchDeviceMessage : SpecificDeviceMessageBase, IEquatable<SwitchDeviceMessage>
     {
         public readonly bool IsActive;
         public readonly int RecycleJitterCount;
@@ -26,6 +28,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Switch
         public static SwitchDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
             return new(deviceName, state.state != 0, state.recycle_jitter_count);
+        }
+
+        public bool Equals(SwitchDeviceMessage other)
+        {
+            return base.Equals(other)
+                && IsActive == other.IsActive
+                && RecycleJitterCount == other.RecycleJitterCount;
         }
 
         public class StateJson

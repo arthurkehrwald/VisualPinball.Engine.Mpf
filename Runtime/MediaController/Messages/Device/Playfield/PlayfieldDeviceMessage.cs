@@ -9,9 +9,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfield
 {
-    public class PlayfieldDeviceMessage : SpecificDeviceMessageBase
+    public class PlayfieldDeviceMessage
+        : SpecificDeviceMessageBase,
+            IEquatable<PlayfieldDeviceMessage>
     {
         public readonly int AvailableBalls;
         public readonly int BallsRequested;
@@ -33,6 +37,14 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfie
         public static PlayfieldDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
             return new(deviceName, state.available_balls, state.balls_requested, state.balls);
+        }
+
+        public bool Equals(PlayfieldDeviceMessage other)
+        {
+            return base.Equals(other)
+                && AvailableBalls == other.AvailableBalls
+                && BallsRequested == other.BallsRequested
+                && Balls == other.Balls;
         }
 
         public class StateJson

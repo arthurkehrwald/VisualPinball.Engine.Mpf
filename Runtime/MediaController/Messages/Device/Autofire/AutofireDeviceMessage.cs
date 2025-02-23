@@ -9,9 +9,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofire
 {
-    public class AutofireDeviceMessage : SpecificDeviceMessageBase
+    public class AutofireDeviceMessage
+        : SpecificDeviceMessageBase,
+            IEquatable<AutofireDeviceMessage>
     {
         public readonly bool Enabled;
 
@@ -24,6 +28,11 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofir
         public static AutofireDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
             return new(deviceName, state.enabled);
+        }
+
+        public bool Equals(AutofireDeviceMessage other)
+        {
+            return base.Equals(other) && Enabled == other.Enabled;
         }
 
         public class StateJson

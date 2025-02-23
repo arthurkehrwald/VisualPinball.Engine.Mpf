@@ -15,67 +15,51 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
-    public abstract class SpecificDeviceMessageHandler<TMessage, StateJsonFormat> : MonoBehaviour
-        where TMessage : SpecificDeviceMessageBase
+    public abstract class SpecificDeviceMessageHandler<TMessage, TDeviceState>
+        : MonitorBase<TMessage, DeviceMessage>
+        where TMessage : SpecificDeviceMessageBase, IEquatable<TMessage>
     {
         [SerializeField]
         private string _deviceName;
 
-        private BcpMessageHandler<DeviceMessage> _generalDeviceMessageHandler;
-
+        protected override string BcpCommand => DeviceMessage.Command;
         protected abstract string Type { get; }
         protected delegate TMessage ParseStateDelegate(
-            StateJsonFormat deserializedState,
+            TDeviceState deserializedState,
             string deviceName
         );
         protected abstract ParseStateDelegate ParseState { get; }
         public event EventHandler<TMessage> StateUpdated;
 
-        protected void OnEnable()
+        protected override bool MatchesMonitoringCriteria(DeviceMessage msg)
         {
-            var bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
-            if (bcpInterface != null)
-            {
-                _generalDeviceMessageHandler =
-                    (BcpMessageHandler<DeviceMessage>)
-                        bcpInterface.MessageHandlers.Handlers[DeviceMessage.Command];
-                _generalDeviceMessageHandler.Received += HandleDeviceMessageReceived;
-            }
+            return base.MatchesMonitoringCriteria(msg)
+                && msg.Type == Type
+                && msg.Name == _deviceName;
         }
 
-        protected void OnDisable()
+        protected override void MessageHandler_Received(object sender, DeviceMessage msg)
         {
-            if (_generalDeviceMessageHandler != null)
-                _generalDeviceMessageHandler.Received -= HandleDeviceMessageReceived;
+            if (msg.Change != null)
+                HandleAttributeChange(msg.Change);
+
+            base.MessageHandler_Received(sender, msg);
         }
 
-        private void HandleDeviceMessageReceived(object sender, DeviceMessage deviceMessage)
+        protected override TMessage GetValueFromMessage(DeviceMessage msg)
         {
-            if (deviceMessage.Type != Type)
-                return;
-
-            if (deviceMessage.Name != _deviceName)
-                return;
-
-            if (deviceMessage.Change != null)
-                HandleAttributeChange(deviceMessage.Change);
-
-            StateJsonFormat deserializedState;
+            TDeviceState deserializedState;
             try
             {
-                deserializedState = deviceMessage.State.ToObject<StateJsonFormat>();
+                deserializedState = msg.State.ToObject<TDeviceState>();
             }
             catch (JsonException e)
             {
-                throw new InvalidDeviceStateException(
-                    deviceMessage.Type,
-                    typeof(StateJsonFormat),
-                    e
-                );
+                throw new InvalidDeviceStateException(msg.Type, typeof(TDeviceState), e);
             }
 
-            TMessage specificDeviceMessage = ParseState(deserializedState, deviceMessage.Name);
-            StateUpdated?.Invoke(this, specificDeviceMessage);
+            TMessage specificDeviceMessage = ParseState(deserializedState, msg.Name);
+            return specificDeviceMessage;
         }
 
         protected abstract void HandleAttributeChange(DeviceAttributeChange change);

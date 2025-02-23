@@ -9,9 +9,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Flipper
 {
-    public class FlipperDeviceMessage : SpecificDeviceMessageBase
+    public class FlipperDeviceMessage : SpecificDeviceMessageBase, IEquatable<FlipperDeviceMessage>
     {
         public readonly bool Enabled;
 
@@ -24,6 +26,11 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Flipper
         public static FlipperDeviceMessage FromStateJson(StateJson state, string deviceName)
         {
             return new(deviceName, state.enabled);
+        }
+
+        public bool Equals(FlipperDeviceMessage other)
+        {
+            return base.Equals(other) && Enabled == other.Enabled;
         }
 
         public class StateJson

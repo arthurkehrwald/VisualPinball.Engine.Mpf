@@ -13,13 +13,24 @@ using System;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
-    public abstract class SpecificDeviceMessageBase : EventArgs
+    public abstract class SpecificDeviceMessageBase
+        : EventArgs,
+            IEquatable<SpecificDeviceMessageBase>
     {
         public readonly string Name;
 
         public SpecificDeviceMessageBase(string name)
         {
             Name = name;
+        }
+
+        public bool Equals(SpecificDeviceMessageBase other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return Name == other.Name;
         }
     }
 }

@@ -9,9 +9,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSwitch
 {
-    public class ComboSwitchDeviceMessage : SpecificDeviceMessageBase
+    public class ComboSwitchDeviceMessage
+        : SpecificDeviceMessageBase,
+            IEquatable<ComboSwitchDeviceMessage>
     {
         public readonly ComboSwitchStatus Status;
 
@@ -27,6 +31,11 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSw
                 state.state
             );
             return new(deviceName, status);
+        }
+
+        public bool Equals(ComboSwitchDeviceMessage other)
+        {
+            return base.Equals(other) && Status == other.Status;
         }
 
         public class StateJson
