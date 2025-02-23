@@ -18,14 +18,6 @@
     <Compile Remove="**/*.cs" />
   </ItemGroup>
 
-  <!-- Specify runtime identifier-->
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
-    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Windows')) And '$(PlatformTarget)' != 'x86'">win-x64</RuntimeIdentifier>
-    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Windows')) And '$(PlatformTarget)' == 'x86'">win-x86</RuntimeIdentifier>
-    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</RuntimeIdentifier>
-    <RuntimeIdentifier Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
   <PropertyGroup>
     <InstallYetAnotherHttpHandler Condition="'$(InstallYetAnotherHttpHandler)' == ''">true</InstallYetAnotherHttpHandler>
   </PropertyGroup>
@@ -57,7 +49,7 @@
     <ItemGroup>
       <OutputFiles Include="$(OutDir)/*.*"/>
     </ItemGroup>
-    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="./Plugins/$(RuntimeIdentifier)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="./Plugins" SkipUnchangedFiles="true"/>
   </Target>
 
   <!-- Delete build artifacts-->
