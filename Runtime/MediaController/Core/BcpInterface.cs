@@ -41,6 +41,10 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
         public bool LogSentMessages => _logSentMessages;
     }
 
+    /// <summary>
+    /// Central hub for all communication via BCP. Manages BCP server and message handlers, provides
+    /// reset events and sends hello, reset and goodbye messages at appropriate times.
+    /// </summary>
     public class BcpInterface : IDisposable
     {
         public BcpConnectionState ConnectionState => Server.ConnectionState;

@@ -18,6 +18,10 @@ using Newtonsoft.Json.Linq;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
+    /// <summary>
+    /// The generic form of all BCP messages. Consists of a command and optionally parameters. Can
+    /// be parsed into more specific types using implementations of <c>BcpMessageHandler</c>.
+    /// </summary>
     public class BcpMessage
     {
         public readonly string Command;
