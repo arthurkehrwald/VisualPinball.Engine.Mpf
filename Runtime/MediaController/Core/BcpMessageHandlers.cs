@@ -27,6 +27,9 @@ using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
+    /// <summary>
+    /// Central hub for accessing all message handlers.
+    /// </summary>
     public class BcpMessageHandlers
     {
         public BcpMessageHandlers(BcpInterface bcpInterface)

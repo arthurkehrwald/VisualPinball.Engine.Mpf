@@ -19,6 +19,14 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
         public void Handle(BcpMessage message);
     }
 
+    /// <summary>
+    /// Abstract base for all message handlers. Implementations parse and provide a received event
+    /// for a specific type of message. Some messages are only sent by MPF if the media controller
+    /// previously requested them using their monitoring category. This is handled dynamically by
+    /// sending these requests when the first listener is added to the received event and canceling
+    /// them when the last listener is removed.
+    /// </summary>
+    /// <typeparam name="T">The type of message to handle</typeparam>
     public abstract class BcpMessageHandler<T> : IBcpMessageHandler
         where T : EventArgs
     {

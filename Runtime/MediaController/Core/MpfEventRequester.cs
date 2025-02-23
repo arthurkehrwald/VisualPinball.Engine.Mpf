@@ -14,14 +14,20 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController
 {
-    public class MpfEventRequester<TEvent>
+    /// <summary>
+    /// Used to request certain categories of messages to be sent from MPF. The categories are eiter
+    /// <c>MonitoringCategory</c> for various BCP messages or <c>string</c> to request arbitrary
+    /// MPF events to be sent as 'trigger' messages whenever they occur.
+    /// </summary>
+    /// <typeparam name="T">The type of each message category</typeparam>
+    public class MpfEventRequester<T>
     {
-        public delegate ISentMessage CreateMessage(TEvent @event);
+        public delegate ISentMessage CreateMessage(T @event);
 
         private readonly BcpInterface _bcpInterface;
         private readonly CreateMessage _createStartListeningMessage;
         private readonly CreateMessage _createStopListeningMessage;
-        private readonly Dictionary<TEvent, HashSet<object>> _listeners = new();
+        private readonly Dictionary<T, HashSet<object>> _listeners = new();
         private bool _canSendMonitoringRequests = false;
         private bool CanSendMonitoringRequests
         {
@@ -55,7 +61,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
             _createStopListeningMessage = createStopListeningMessage;
         }
 
-        public void AddListener(object listener, TEvent @event)
+        public void AddListener(object listener, T @event)
         {
             if (_listeners.TryAdd(@event, new HashSet<object> { listener }))
             {
@@ -69,7 +75,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
                 );
         }
 
-        public void RemoveListener(object listener, TEvent @event)
+        public void RemoveListener(object listener, T @event)
         {
             if (
                 _listeners.TryGetValue(@event, out var listenersForThisEvent)
@@ -89,13 +95,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
                 );
         }
 
-        private void SendStartMonitoringRequest(TEvent @event)
+        private void SendStartMonitoringRequest(T @event)
         {
             var startListeningMsg = _createStartListeningMessage(@event);
             _bcpInterface.EnqueueMessage(startListeningMsg);
         }
 
-        private void SendStopMonitoringRequest(TEvent @event)
+        private void SendStopMonitoringRequest(T @event)
         {
             var stopListeningMsg = _createStopListeningMessage(@event);
             _bcpInterface.EnqueueMessage(stopListeningMsg);

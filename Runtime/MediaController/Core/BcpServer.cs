@@ -28,6 +28,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
         Disconnecting,
     };
 
+    /// <summary>
+    /// Sends and receives <c>BcpMessage</c> objects via TCP
+    /// </summary>
     public class BcpServer : IDisposable
     {
         public event EventHandler<StateChangedEventArgs<BcpConnectionState>> StateChanged;
