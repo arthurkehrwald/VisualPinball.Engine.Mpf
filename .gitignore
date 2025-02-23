@@ -357,8 +357,8 @@ VisualPinball.Engine.Mpf/machine/data/
 # macOS meta files
 *.DS_Store
 
-Plugins/
-Plugins.meta
+Plugins/*
+!Plugins/*.meta
 
 YetAnotherHttpHandler/
 YetAnotherHttpHandler.meta
