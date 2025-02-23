@@ -23,8 +23,8 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController
             Exception innerException = null
         )
             : base(
-                $"Failed to parse bcp message: '{(culprit?.ToString() ?? "Unknown")}' "
-                    + $"Reason: {(failReason ?? "None given")}",
+                $"Failed to parse bcp message: '{culprit?.ToString() ?? "Unknown"}' "
+                    + $"Reason: {failReason ?? "None given"}",
                 innerException
             )
         {

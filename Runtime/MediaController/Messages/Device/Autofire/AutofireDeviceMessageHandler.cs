@@ -25,7 +25,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofir
             if (change.AttributeName == nameof(AutofireDeviceMessage.StateJson.enabled))
                 EnabledChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<bool>());
             else
-                throw new UnknownDeviceAttributeException(Type, change.AttributeName);
+                throw new UnknownDeviceAttributeException(change.AttributeName, Type);
         }
     }
 }

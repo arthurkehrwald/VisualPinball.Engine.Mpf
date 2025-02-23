@@ -28,7 +28,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSw
                     change.GetEventArgsForPrimitiveTypes<ComboSwitchStatus>()
                 );
             else
-                throw new UnknownDeviceAttributeException(Type, change.AttributeName);
+                throw new UnknownDeviceAttributeException(change.AttributeName, Type);
         }
     }
 }

@@ -43,7 +43,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.BallDev
                     BallsChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<int>());
                     break;
                 default:
-                    throw new UnknownDeviceAttributeException(Type, change.AttributeName);
+                    throw new UnknownDeviceAttributeException(change.AttributeName, Type);
             }
         }
     }
