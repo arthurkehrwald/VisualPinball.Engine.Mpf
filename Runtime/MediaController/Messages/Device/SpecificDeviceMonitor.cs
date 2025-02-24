@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 {
-    public abstract class SpecificDeviceMessageHandler<TMessage, TDeviceState>
+    public abstract class DeviceMonitor<TMessage, TDeviceState>
         : MonitorBase<TMessage, DeviceMessage>
         where TMessage : SpecificDeviceMessageBase, IEquatable<TMessage>
     {
@@ -29,7 +29,6 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
             string deviceName
         );
         protected abstract ParseStateDelegate ParseState { get; }
-        public event EventHandler<TMessage> StateUpdated;
 
         protected override bool MatchesMonitoringCriteria(DeviceMessage msg)
         {

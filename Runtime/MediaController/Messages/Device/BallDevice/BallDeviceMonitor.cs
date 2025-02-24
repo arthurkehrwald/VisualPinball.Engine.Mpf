@@ -13,8 +13,8 @@ using System;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.BallDevice
 {
-    public class BallDeviceMessageHandler
-        : SpecificDeviceMessageHandler<BallDeviceMessage, BallDeviceMessage.StateJson>
+    public class BallDeviceMonitor
+        : DeviceMonitor<BallDeviceMessage, BallDeviceMessage.StateJson>
     {
         protected override string Type => "ball_device";
         protected override ParseStateDelegate ParseState => BallDeviceMessage.FromStateJson;

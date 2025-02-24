@@ -10,20 +10,21 @@
 // SOFTWARE.
 
 using System;
+using UnityEngine;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofire
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Light
 {
-    public class AutofireDeviceMessageHandler
-        : SpecificDeviceMessageHandler<AutofireDeviceMessage, AutofireDeviceMessage.StateJson>
+    public class LightDeviceMonitor
+        : DeviceMonitor<LightDeviceMessage, LightDeviceMessage.StateJson>
     {
-        protected override string Type => "autofire";
-        protected override ParseStateDelegate ParseState => AutofireDeviceMessage.FromStateJson;
-        public event EventHandler<DeviceAttributeChangeEventArgs<bool>> EnabledChanged;
+        protected override string Type => LightDeviceMessage.Type;
+        protected override ParseStateDelegate ParseState => LightDeviceMessage.FromStateJson;
+        public event EventHandler<DeviceAttributeChangeEventArgs<Color>> ColorChanged;
 
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
-            if (change.AttributeName == nameof(AutofireDeviceMessage.StateJson.enabled))
-                EnabledChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<bool>());
+            if (change.AttributeName == nameof(LightDeviceMessage.StateJson.color))
+                ColorChanged?.Invoke(this, change.GetEventArgsForColor());
             else
                 throw new UnknownDeviceAttributeException(change.AttributeName, Type);
         }

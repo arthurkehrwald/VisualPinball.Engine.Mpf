@@ -13,8 +13,8 @@ using System;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Switch
 {
-    public class SwitchDeviceMessageHandler
-        : SpecificDeviceMessageHandler<SwitchDeviceMessage, SwitchDeviceMessage.StateJson>
+    public class SwitchDeviceMonitor
+        : DeviceMonitor<SwitchDeviceMessage, SwitchDeviceMessage.StateJson>
     {
         protected override string Type => "switch";
         protected override ParseStateDelegate ParseState => SwitchDeviceMessage.FromStateJson;

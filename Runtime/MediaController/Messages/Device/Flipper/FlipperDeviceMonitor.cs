@@ -11,22 +11,19 @@
 
 using System;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSwitch
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Flipper
 {
-    public class ComboSwitchDeviceMessageHandler
-        : SpecificDeviceMessageHandler<ComboSwitchDeviceMessage, ComboSwitchDeviceMessage.StateJson>
+    public class FlipperDeviceMonitor
+        : DeviceMonitor<FlipperDeviceMessage, FlipperDeviceMessage.StateJson>
     {
-        protected override string Type => "combo_switch";
-        protected override ParseStateDelegate ParseState => ComboSwitchDeviceMessage.FromStateJson;
-        public event EventHandler<DeviceAttributeChangeEventArgs<ComboSwitchStatus>> StatusChanged;
+        protected override string Type => "flipper";
+        protected override ParseStateDelegate ParseState => FlipperDeviceMessage.FromStateJson;
+        public event EventHandler<DeviceAttributeChangeEventArgs<bool>> EnabledChanged;
 
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
-            if (change.AttributeName == nameof(ComboSwitchDeviceMessage.StateJson.state))
-                StatusChanged?.Invoke(
-                    this,
-                    change.GetEventArgsForPrimitiveTypes<ComboSwitchStatus>()
-                );
+            if (change.AttributeName == nameof(FlipperDeviceMessage.StateJson.enabled))
+                EnabledChanged?.Invoke(this, change.GetEventArgsForPrimitiveTypes<bool>());
             else
                 throw new UnknownDeviceAttributeException(change.AttributeName, Type);
         }

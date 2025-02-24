@@ -14,7 +14,7 @@ using System;
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfield
 {
     public class PlayfieldDeviceMessageHandler
-        : SpecificDeviceMessageHandler<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>
+        : DeviceMonitor<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>
     {
         protected override string Type => "playfield";
         protected override ParseStateDelegate ParseState => PlayfieldDeviceMessage.FromStateJson;
