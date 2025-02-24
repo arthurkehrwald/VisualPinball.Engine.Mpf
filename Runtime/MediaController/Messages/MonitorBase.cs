@@ -48,7 +48,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
             protected set
             {
                 WasEverUpdated = true;
-                if ((value == null && VarValue == null) || value.Equals(_varValue))
+                if ((value == null && VarValue == null) || value != null && value.Equals(_varValue))
                     return;
                 _varValue = value;
                 ObjVarValue = value;
