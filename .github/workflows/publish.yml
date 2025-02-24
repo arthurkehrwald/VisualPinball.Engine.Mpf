@@ -19,8 +19,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.client_payload.artifacts_run_id }}
       - name: Publish
-        run: |
-          ls -laR .
-          npm publish
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
