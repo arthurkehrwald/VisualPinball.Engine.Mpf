@@ -40,10 +40,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
 
         protected override void MessageHandler_Received(object sender, DeviceMessage msg)
         {
-            if (msg.Change != null)
-                HandleAttributeChange(msg.Change);
-
             base.MessageHandler_Received(sender, msg);
+            if (MatchesMonitoringCriteria(msg) && msg.Change != null)
+                HandleAttributeChange(msg.Change);
         }
 
         protected override TMessage GetValueFromMessage(DeviceMessage msg)
