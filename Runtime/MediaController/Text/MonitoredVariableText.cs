@@ -35,8 +35,7 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Text
 
         private void OnEnable()
         {
-            var bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
-            if (bcpInterface != null)
+            if (MpfGamelogicEngine.TryGetBcpInterface(this, out var bcpInterface))
             {
                 _monitor = CreateMonitor(bcpInterface);
                 SetText(_monitor.VarValue);

@@ -269,7 +269,10 @@ namespace VisualPinball.Engine.Mpf.Unity
             MpfWrangler.Dispose();
         }
 
-        public static BcpInterface GetBcpInterface(Component requestingComponent)
+        public static bool TryGetBcpInterface(
+            Component requestingComponent,
+            out BcpInterface bcpInterface
+        )
         {
             var gle = requestingComponent.GetComponentInParent<MpfGamelogicEngine>();
 
@@ -281,7 +284,8 @@ namespace VisualPinball.Engine.Mpf.Unity
             if (!Application.isPlaying)
             {
                 Logger.Error(string.Format(errorMessage, "the game is not running."));
-                return null;
+                bcpInterface = null;
+                return false;
             }
 
             if (gle == null)
@@ -295,7 +299,8 @@ namespace VisualPinball.Engine.Mpf.Unity
                             + "table or remove the component that requested the BCP interface."
                     )
                 );
-                return null;
+                bcpInterface = null;
+                return false;
             }
 
             if (gle._wranglerOptions.MediaController != MpfMediaController.Included)
@@ -308,7 +313,8 @@ namespace VisualPinball.Engine.Mpf.Unity
                             + "logic engine inspector."
                     )
                 );
-                return null;
+                bcpInterface = null;
+                return false;
             }
 
             if (gle.MpfWrangler == null)
@@ -316,10 +322,12 @@ namespace VisualPinball.Engine.Mpf.Unity
                 Logger.Error(
                     string.Format(errorMessage, "the game logic engine is not initialized.")
                 );
-                return null;
+                bcpInterface = null;
+                return false;
             }
 
-            return gle.MpfWrangler.BcpInterface;
+            bcpInterface = gle.MpfWrangler.BcpInterface;
+            return true;
         }
 
         public void DisplayChanged(DisplayFrameData displayFrameData) { }
