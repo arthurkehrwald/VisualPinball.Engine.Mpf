@@ -21,6 +21,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Switch
         public event EventHandler<DeviceAttributeChangeEventArgs<bool>> IsActiveChanged;
         public event EventHandler<DeviceAttributeChangeEventArgs<int>> RecycleJitterCountChanged;
 
+        public SwitchDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
+
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
             switch (change.AttributeName)

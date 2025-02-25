@@ -15,7 +15,7 @@ using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Error;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Goodbye;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Hello;
-using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVariable;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerAdded;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart;

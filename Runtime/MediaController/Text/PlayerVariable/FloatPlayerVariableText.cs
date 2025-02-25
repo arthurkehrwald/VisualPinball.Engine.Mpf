@@ -9,7 +9,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 {
-    public class FloatPlayerVariableMonitor : PlayerVariableMonitor<float> { }
+    public class FloatPlayerVariableText : PlayerVariableText<float> { }
 }

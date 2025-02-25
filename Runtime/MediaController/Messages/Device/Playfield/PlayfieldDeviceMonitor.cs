@@ -13,7 +13,7 @@ using System;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfield
 {
-    public class PlayfieldDeviceMessageHandler
+    public class PlayfieldDeviceMonitor
         : DeviceMonitor<PlayfieldDeviceMessage, PlayfieldDeviceMessage.StateJson>
     {
         protected override string Type => "playfield";
@@ -22,6 +22,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Playfie
         public event EventHandler<DeviceAttributeChangeEventArgs<int>> AvailableBallsChanged;
         public event EventHandler<DeviceAttributeChangeEventArgs<int>> BallsRequestedChanged;
         public event EventHandler<DeviceAttributeChangeEventArgs<int>> BallsChanged;
+
+        public PlayfieldDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
 
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {

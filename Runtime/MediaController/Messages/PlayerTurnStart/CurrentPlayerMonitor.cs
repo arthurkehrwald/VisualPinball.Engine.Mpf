@@ -13,6 +13,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStar
 {
     public class CurrentPlayerMonitor : MonitorBase<int, PlayerTurnStartMessage>
     {
+        public CurrentPlayerMonitor(BcpInterface bcpInterface)
+            : base(bcpInterface) { }
+
         protected override string BcpCommand => PlayerTurnStartMessage.Command;
 
         protected override int GetValueFromMessage(PlayerTurnStartMessage msg) => msg.PlayerNum;

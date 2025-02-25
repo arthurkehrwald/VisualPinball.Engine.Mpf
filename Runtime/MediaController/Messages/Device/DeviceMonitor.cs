@@ -19,8 +19,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device
         : MonitorBase<TMessage, DeviceMessage>
         where TMessage : SpecificDeviceMessageBase, IEquatable<TMessage>
     {
-        [SerializeField]
         private string _deviceName;
+
+        protected DeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface)
+        {
+            _deviceName = deviceName;
+        }
 
         protected override string BcpCommand => DeviceMessage.Command;
         protected abstract string Type { get; }

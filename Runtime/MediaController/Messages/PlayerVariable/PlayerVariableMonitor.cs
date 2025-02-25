@@ -11,32 +11,30 @@
 
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable
 {
-    public abstract class PlayerVariableMonitor<VarType>
+    public class PlayerVariableMonitor<VarType>
         : MpfVariableMonitorBase<VarType, PlayerVariableMessage>
         where VarType : IEquatable<VarType>
     {
-        [SerializeField]
         private CurrentPlayerMonitor _currentPlayerMonitor;
 
         protected override string BcpCommand => PlayerVariableMessage.Command;
         protected Dictionary<int, VarType> _varPerPlayer = new();
 
-        protected override void OnEnable()
+        public PlayerVariableMonitor(BcpInterface bcpInterface, string varName)
+            : base(bcpInterface, varName)
         {
-            base.OnEnable();
+            _currentPlayerMonitor = new CurrentPlayerMonitor(bcpInterface);
             _currentPlayerMonitor.ValueChanged += CurrentPlayerMonitor_ValueChanged;
         }
 
-        protected override void OnDisable()
+        public override void Dispose()
         {
-            base.OnDisable();
-            if (_currentPlayerMonitor)
-                _currentPlayerMonitor.ValueChanged -= CurrentPlayerMonitor_ValueChanged;
+            base.Dispose();
+            _currentPlayerMonitor.ValueChanged -= CurrentPlayerMonitor_ValueChanged;
         }
 
         private void CurrentPlayerMonitor_ValueChanged(object sender, int currentPlayerNum)

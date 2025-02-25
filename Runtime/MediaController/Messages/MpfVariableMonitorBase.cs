@@ -18,8 +18,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
         where TVar : IEquatable<TVar>
         where TMessage : MpfVariableMessageBase
     {
-        [SerializeField]
         protected string _varName;
+
+        protected MpfVariableMonitorBase(BcpInterface bcpInterface, string varName)
+            : base(bcpInterface)
+        {
+            _varName = varName;
+        }
 
         protected override bool MatchesMonitoringCriteria(TMessage msg)
         {

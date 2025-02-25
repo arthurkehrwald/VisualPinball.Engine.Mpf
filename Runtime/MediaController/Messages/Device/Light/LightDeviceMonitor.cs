@@ -21,6 +21,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Light
         protected override ParseStateDelegate ParseState => LightDeviceMessage.FromStateJson;
         public event EventHandler<DeviceAttributeChangeEventArgs<Color>> ColorChanged;
 
+        public LightDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
+
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
             if (change.AttributeName == nameof(LightDeviceMessage.StateJson.color))

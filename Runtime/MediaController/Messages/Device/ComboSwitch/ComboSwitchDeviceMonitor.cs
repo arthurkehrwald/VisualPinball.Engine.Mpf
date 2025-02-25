@@ -20,6 +20,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.ComboSw
         protected override ParseStateDelegate ParseState => ComboSwitchDeviceMessage.FromStateJson;
         public event EventHandler<DeviceAttributeChangeEventArgs<ComboSwitchStatus>> StatusChanged;
 
+        public ComboSwitchDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
+
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
             if (change.AttributeName == nameof(ComboSwitchDeviceMessage.StateJson.state))

@@ -14,11 +14,9 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 {
-    public class ModeMonitor : MonoBehaviour
+    public class ModeMonitor : IDisposable
     {
-        [SerializeField]
         private string _modeName;
-
         private BcpMessageHandler<ModeStartMessage> _modeStartMessageHandler;
         private BcpMessageHandler<ModeStopMessage> _modeStopMessageHandler;
 
@@ -38,23 +36,20 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Mode
 
         public event EventHandler<bool> IsModeActiveChanged;
 
-        private void OnEnable()
+        public ModeMonitor(BcpInterface bcpInterface, string modeName)
         {
-            var bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
-            if (bcpInterface != null)
-            {
-                _modeStartMessageHandler =
-                    (BcpMessageHandler<ModeStartMessage>)
-                        bcpInterface.MessageHandlers.Handlers[ModeStartMessage.Command];
-                _modeStartMessageHandler.Received += OnModeStarted;
-                _modeStopMessageHandler =
-                    (BcpMessageHandler<ModeStopMessage>)
-                        bcpInterface.MessageHandlers.Handlers[ModeStopMessage.Command];
-                _modeStopMessageHandler.Received += OnModeStopped;
-            }
+            _modeName = modeName;
+            _modeStartMessageHandler =
+                (BcpMessageHandler<ModeStartMessage>)
+                    bcpInterface.MessageHandlers.Handlers[ModeStartMessage.Command];
+            _modeStartMessageHandler.Received += OnModeStarted;
+            _modeStopMessageHandler =
+                (BcpMessageHandler<ModeStopMessage>)
+                    bcpInterface.MessageHandlers.Handlers[ModeStopMessage.Command];
+            _modeStopMessageHandler.Received += OnModeStopped;
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
             if (_modeStartMessageHandler != null)
                 _modeStartMessageHandler.Received -= OnModeStarted;

@@ -9,17 +9,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Ui;
 
 namespace VisualPinball.Engine.Mpf.Unity.Editor
 {
-    [CustomEditor(typeof(MonitorBase), editorForChildClasses: true), CanEditMultipleObjects]
+    [
+        CustomEditor(typeof(MonitoredVariableTextBase), editorForChildClasses: true),
+        CanEditMultipleObjects
+    ]
     public class MpfMonitorInspector : UnityEditor.Editor
     {
         private HelpBox _missingGleHelpBox;

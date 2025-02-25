@@ -11,7 +11,7 @@
 
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Monitor;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVariable
 {
     public class MachineVariableMessageHandler : BcpMessageHandler<MachineVariableMessage>
     {

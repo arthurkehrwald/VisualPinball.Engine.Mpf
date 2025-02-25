@@ -9,37 +9,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using TMPro;
+using System;
 using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerVariable;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 {
-    public class MonitoredVariableText : MonoBehaviour
+    public abstract class PlayerVariableText<T> : MonitoredVariableText<T, PlayerVariableMessage>
+        where T : IEquatable<T>, IConvertible
     {
-        [SerializeReference]
-        private MonitorBase _monitor;
-
         [SerializeField]
-        private TextMeshProUGUI _textField;
+        private string _variableName;
 
-        [SerializeField]
-        private string _format = "{0}";
-
-        private void OnEnable()
+        protected override MonitorBase<T, PlayerVariableMessage> CreateMonitor(
+            BcpInterface bcpInterface
+        )
         {
-            SetText(_monitor.ObjVarValue);
-            _monitor.ObjValueChanged += Monitor_ValueChanged;
+            return new PlayerVariableMonitor<T>(bcpInterface, _variableName);
         }
-
-        private void OnDisable()
-        {
-            if (_monitor != null)
-                _monitor.ObjValueChanged -= Monitor_ValueChanged;
-        }
-
-        private void Monitor_ValueChanged(object sender, object value) => SetText(value);
-
-        private void SetText(object value) => _textField.text = string.Format(_format, value);
     }
 }

@@ -11,12 +11,14 @@
 
 using System;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVariable
 {
-    public abstract class MachineVariableMonitor<TVar>
-        : MpfVariableMonitorBase<TVar, MachineVariableMessage>
+    public class MachineVariableMonitor<TVar> : MpfVariableMonitorBase<TVar, MachineVariableMessage>
         where TVar : IEquatable<TVar>
     {
+        public MachineVariableMonitor(BcpInterface bcpInterface, string varName)
+            : base(bcpInterface, varName) { }
+
         protected override string BcpCommand => MachineVariableMessage.Command;
     }
 }

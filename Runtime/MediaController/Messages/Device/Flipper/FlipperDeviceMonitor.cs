@@ -20,6 +20,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Flipper
         protected override ParseStateDelegate ParseState => FlipperDeviceMessage.FromStateJson;
         public event EventHandler<DeviceAttributeChangeEventArgs<bool>> EnabledChanged;
 
+        public FlipperDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
+
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
             if (change.AttributeName == nameof(FlipperDeviceMessage.StateJson.enabled))

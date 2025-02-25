@@ -11,7 +11,7 @@
 
 using Newtonsoft.Json.Linq;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVariable
 {
     public class MachineVariableMessage : MpfVariableMessageBase
     {

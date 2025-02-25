@@ -9,7 +9,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVar.Primitive
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart;
+
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
 {
-    public class IntMachineVariableMonitor : MachineVariableMonitor<int> { }
+    public class CurrentPlayerText : MonitoredVariableText<int, PlayerTurnStartMessage>
+    {
+        protected override MonitorBase<int, PlayerTurnStartMessage> CreateMonitor(
+            BcpInterface bcpInterface
+        )
+        {
+            return new CurrentPlayerMonitor(bcpInterface);
+        }
+    }
 }

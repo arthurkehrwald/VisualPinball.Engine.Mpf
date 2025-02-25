@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
 {
-    public class MpfEventListener : MonoBehaviour
+    public class MpfEventListener : IDisposable
     {
         [SerializeField]
         private string _eventName;
@@ -24,23 +24,20 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Trigger
 
         public event EventHandler Triggered;
 
-        private void OnEnable()
+        public MpfEventListener(BcpInterface bcpInterface, string eventName)
         {
-            _bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
-            if (_bcpInterface != null)
-            {
-                _bcpInterface.MpfEvents.AddListener(this, _eventName);
-                _messageHandler =
-                    (BcpMessageHandler<TriggerMessage>)
-                        _bcpInterface.MessageHandlers.Handlers[TriggerMessage.Command];
-                _messageHandler.Received += TriggerMessageHandler_Received;
-            }
+            _bcpInterface = bcpInterface;
+            _eventName = eventName;
+            _bcpInterface.MpfEvents.AddListener(this, _eventName);
+            _messageHandler =
+                (BcpMessageHandler<TriggerMessage>)
+                    _bcpInterface.MessageHandlers.Handlers[TriggerMessage.Command];
+            _messageHandler.Received += TriggerMessageHandler_Received;
         }
 
-        private void OnDisable()
+        public void Dispose()
         {
-            if (_bcpInterface != null)
-                _bcpInterface.MpfEvents.RemoveListener(this, _eventName);
+            _bcpInterface?.MpfEvents.RemoveListener(this, _eventName);
             if (_messageHandler != null)
                 _messageHandler.Received -= TriggerMessageHandler_Received;
         }

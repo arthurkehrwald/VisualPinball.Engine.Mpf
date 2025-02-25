@@ -15,8 +15,13 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Switch
 {
     public class SwitchMonitor : MonitorBase<bool, SwitchMessage>
     {
-        [SerializeField]
         protected string _switchName;
+
+        public SwitchMonitor(BcpInterface bcpInterface, string switchName)
+            : base(bcpInterface)
+        {
+            _switchName = switchName;
+        }
 
         protected override string BcpCommand => SwitchMessage.Command;
 

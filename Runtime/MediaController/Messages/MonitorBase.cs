@@ -10,29 +10,10 @@
 // SOFTWARE.
 
 using System;
-using UnityEngine;
 
 namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
 {
-    public abstract class MonitorBase : MonoBehaviour
-    {
-        private object _objVarValue;
-        public object ObjVarValue
-        {
-            get => _objVarValue;
-            protected set
-            {
-                if (value == _objVarValue)
-                    return;
-                _objVarValue = value;
-                ObjValueChanged?.Invoke(this, _objVarValue);
-            }
-        }
-
-        public event EventHandler<object> ObjValueChanged;
-    }
-
-    public abstract class MonitorBase<TVar, TMessage> : MonitorBase
+    public abstract class MonitorBase<TVar, TMessage> : IDisposable
         where TVar : IEquatable<TVar>
         where TMessage : EventArgs
     {
@@ -51,33 +32,23 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages
                 if ((value == null && VarValue == null) || value != null && value.Equals(_varValue))
                     return;
                 _varValue = value;
-                ObjVarValue = value;
                 ValueChanged?.Invoke(this, _varValue);
             }
         }
 
         public bool WasEverUpdated { get; private set; } = false;
 
-        private void Awake()
+        protected MonitorBase(BcpInterface bcpInterface)
         {
-            if (!WasEverUpdated)
-                ObjVarValue = VarValue;
+            _bcpInterface = bcpInterface;
+            _messageHandler =
+                (BcpMessageHandler<TMessage>)_bcpInterface.MessageHandlers.Handlers[BcpCommand];
+
+            _messageHandler.Received += MessageHandler_Received;
+            _bcpInterface.ResetRequested += OnResetRequested;
         }
 
-        protected virtual void OnEnable()
-        {
-            _bcpInterface = MpfGamelogicEngine.GetBcpInterface(this);
-            if (_bcpInterface != null)
-            {
-                _messageHandler =
-                    (BcpMessageHandler<TMessage>)_bcpInterface.MessageHandlers.Handlers[BcpCommand];
-
-                _messageHandler.Received += MessageHandler_Received;
-                _bcpInterface.ResetRequested += OnResetRequested;
-            }
-        }
-
-        protected virtual void OnDisable()
+        public virtual void Dispose()
         {
             if (_messageHandler != null)
                 _messageHandler.Received -= MessageHandler_Received;

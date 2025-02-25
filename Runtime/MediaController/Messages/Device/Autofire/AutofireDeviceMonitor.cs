@@ -20,6 +20,9 @@ namespace VisualPinball.Engine.Mpf.Unity.MediaController.Messages.Device.Autofir
         protected override ParseStateDelegate ParseState => AutofireDeviceMessage.FromStateJson;
         public event EventHandler<DeviceAttributeChangeEventArgs<bool>> EnabledChanged;
 
+        public AutofireDeviceMonitor(BcpInterface bcpInterface, string deviceName)
+            : base(bcpInterface, deviceName) { }
+
         protected override void HandleAttributeChange(DeviceAttributeChange change)
         {
             if (change.AttributeName == nameof(AutofireDeviceMessage.StateJson.enabled))
