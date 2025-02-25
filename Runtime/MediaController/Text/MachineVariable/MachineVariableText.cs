@@ -14,7 +14,7 @@ using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.MachineVariable;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Text
 {
     public abstract class MachineVariableText<T> : MonitoredVariableText<T, MachineVariableMessage>
         where T : IEquatable<T>, IConvertible

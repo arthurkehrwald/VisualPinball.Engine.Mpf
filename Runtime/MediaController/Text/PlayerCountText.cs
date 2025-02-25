@@ -12,7 +12,7 @@
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerAdded;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Text
 {
     public class PlayerCountText : MonitoredVariableText<int, PlayerAddedMessage>
     {

@@ -12,7 +12,7 @@
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages.PlayerTurnStart;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Text
 {
     public class CurrentPlayerText : MonitoredVariableText<int, PlayerTurnStartMessage>
     {

@@ -14,7 +14,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VisualPinball.Engine.Mpf.Unity.MediaController.Ui;
+using VisualPinball.Engine.Mpf.Unity.MediaController.Text;
 
 namespace VisualPinball.Engine.Mpf.Unity.Editor
 {

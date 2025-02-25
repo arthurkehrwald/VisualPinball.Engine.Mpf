@@ -14,7 +14,7 @@ using TMPro;
 using UnityEngine;
 using VisualPinball.Engine.Mpf.Unity.MediaController.Messages;
 
-namespace VisualPinball.Engine.Mpf.Unity.MediaController.Ui
+namespace VisualPinball.Engine.Mpf.Unity.MediaController.Text
 {
     public abstract class MonitoredVariableTextBase : MonoBehaviour
     {
