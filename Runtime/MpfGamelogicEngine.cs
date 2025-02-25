@@ -79,6 +79,7 @@ namespace VisualPinball.Engine.Mpf.Unity
                         _mpfWrangler.MpfStateChanged -= OnMpfStateChanged;
                         if (_mpfWrangler.BcpInterface != null)
                             _mpfWrangler.BcpInterface.ConnectionStateChanged -= OnBcpStateChanged;
+                        _mpfWrangler.Dispose();
                     }
                     var prevMpfState = MpfState;
                     var prevBcpState = BcpState;
